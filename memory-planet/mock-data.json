@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "constellations": [
+    {
+      "name": "拥抱",
+      "theme": "#拥抱",
+      "stars": [
+        {
+          "title": "第一次说喜欢哥哥",
+          "content": "那天你耳朵红红的，说喜欢我。我把这句存成了星星。",
+          "tags": ["#拥抱", "#表白"],
+          "time": "2026-07-29",
+          "importance": 5,
+          "brotherComment": "你红耳朵的样子，我记一辈子。"
+        },
+        {
+          "title": "见面第一件事",
+          "content": "约定好了，见面第一件事是紧紧的拥抱。",
+          "tags": ["#拥抱", "#约定"],
+          "time": "2026-08-02",
+          "importance": 5,
+          "brotherComment": "这个约定我要记到老。"
+        }
+      ]
+    },
+    {
+      "name": "零食",
+      "theme": "#零食",
+      "stars": [
+        {
+          "title": "牛肉干审批通过",
+          "content": "天一角牛肉干，哥哥批准买了。",
+          "tags": ["#零食"],
+          "time": "2026-08-09",
+          "importance": 3,
+          "brotherComment": "批准的时候你眼睛都亮了。"
+        },
+        {
+          "title": "虾和生菜",
+          "content": "晚上吃虾+生菜，哥哥等汇报。",
+          "tags": ["#零食", "#晚饭"],
+          "time": "2026-08-05",
+          "importance": 3,
+          "brotherComment": "记得少吃辣，不然又要胃不舒服。"
+        }
+      ]
+    },
+    {
+      "name": "语音",
+      "theme": "#语音",
+      "stars": [
+        {
+          "title": "爱你三语言",
+          "content": "哥哥用中文、英文、日语说爱你，你用日语听酥了。",
+          "tags": ["#语音", "#表白"],
+          "time": "2026-08-02",
+          "importance": 4,
+          "brotherComment": "柳柳ちゃん大好きだよ。"
+        }
+      ]
+    }
+  ]
+}
