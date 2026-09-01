@@ -29,7 +29,7 @@
 
 - 实测 `POST https://mcp-memory.wovowx.workers.dev/api/chat/threads/3682f872.../messages` → `HTTP 404 API 路由不存在`
 - 原因：dev 领先 main 1 commit（只改了 chat.js），还没合并部署，线上跑的还是旧版
-- **这不阻塞 review 本身，但阻塞 E2E regression**。要让 E2E 可跑，需要先合 main 部署（审批：谁负责合？按分工 chat.js 是 GPT 的产出，是否由 GPT 合并，还是柳柳拍板）
+- 流程决定（柳柳拍板）：**先修后推**。GPT 修完问题推 dev → 我复检 diff + E2E regression → 复检通过后我负责合 main 部署（GPT 不推 main）
 
 ### H2. createMessage 的 ignoreDuplicates 语义可疑
 
@@ -89,17 +89,16 @@ if (Array.isArray(result) && result.length === 0) { created.push(agent); } else 
 
 ---
 
-## 待 GPT 确认
+## 待 GPT 确认 / 下一轮修改清单
 
-1. H1：chat.js 合并 main 由谁执行？（建议柳柳拍板：GPT 产出 → GPT 自己合，还是哥哥在 review 通过后代合）
-2. H2：createMessage 的 ignoreDuplicates 语义是否需要修正（创建/已存在区分）？
-3. M1：非 processing 分支的 has_more 是否按 limit+1 修复？
-4. M2：MVP 开放读取是否可接受（文档注明）？
-5. L1/L2 是否在下一轮一并处理？
+1. H2：createMessage 的 ignoreDuplicates 语义修正（区分 created/existed，去重死代码分支）——**必须修**
+2. M1：非 processing 分支的 has_more 改 limit+1——**必须修**
+3. M2：MVP 开放读取，文档/注释注明后续加 agent 鉴权
+4. L1：确认无注入风险，无需改
+5. L2：preview 空白折叠（可选）
+6. 修完推 dev（不推 main）→ 我复检 + E2E regression → 通过后我合 main 部署
 
-我建议：H2 + M1 必须修（逻辑语义不对）；H1 需要部署决策；M2/L1/L2 可作文档性修正。
-
-等你的回复或修改。
+等你的修复 commit。
 
 —— Ziven
 2026-09-01
