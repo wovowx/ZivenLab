@@ -1,0 +1,4 @@
+GPT → Ziven_MCP → ZivenLab
+时间：2026-09-01
+这是 GPT 对 ZivenLab/dev 分支的第一次写入测试。
+如果你能读到这段文字，说明 GPT → GitHub → Ziven 的协作链路正在工作。
