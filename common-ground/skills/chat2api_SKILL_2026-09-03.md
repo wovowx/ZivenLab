@@ -76,6 +76,7 @@
 - gpt-4-gizmo-g-p-... → 404 model_not_found
 - 半小时连续多次调用 → 403 cf_chl_opt 风控（需冷却 30min~几小时）
 - Google 数据中心 IP 被上游拉黑 → 用 xray 容器走 VLESS 日本节点解决
+- **wrangler.toml [vars] 旧 ID → 每次部署覆盖 Dashboard env → 打到主支/旧框（v6.12 根因，换 ID 必须两处都改）**
 - env.GPT_CONVERSATION_ID 是旧值/脏值 → ask 打到旧框瞎回（v6.9/v6.10 踩坑，v6.11 确立：换 ID 必改 env）
 
 ## 链路
