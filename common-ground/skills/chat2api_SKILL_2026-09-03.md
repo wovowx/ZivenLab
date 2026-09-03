@@ -1,8 +1,8 @@
 # chat2api —— GPT 真身通道（操作手册 + 铁律）
 
 > 用途：通过 chat2api 网关调用 ChatGPT 真身（同一账号/同一上下文/同一记忆），是 Common Ground 三方通信的「大脑入口」。
-> 版本：2026-09-03 v3（Worker 转发端点已上线，本地不再塞 token）
-> 状态：✅ 实测通过
+> 版本：2026-09-03 v4（换 ID 只改 env，单一真相源原则确立）
+> 状态：✅ 实测通过（真分支 6a98cb19，项目细节记忆验证）
 
 ## 🔴🔴🔴 第一铁律：绝不轰炸 GPT（最高优先级，柳柳 2026-09-03 严厉批评后立）
 
@@ -22,6 +22,13 @@
 - GPTs ID：g-p-6a8f9e8de8e481919f2349f04e51608b-zivencheng-chang-ji-hua
 - 环境变量：HISTORY_DISABLED=false（Cloud Run）
 
+## 🎯 单一真相源原则（v4 确立·柳柳 2026-09-03 指点）
+
+**换 conversation_id 只改 Cloudflare Worker 环境变量 `GPT_CONVERSATION_ID` 一处，代码不动。**
+- 代码里 /api/chat2api/ask 与 agent_runtime 都读 env.GPT_CONVERSATION_ID（fallback 才是新分支值）
+- ⛔ 千万别在代码里写死 ID——下次换 ID 就得动代码，容易懵（v6.9/v6.10 踩过坑，已回退）
+- 判断「打到哪个对话」：问它 Common Ground 项目细节（Migration 1 / chat.js v2.1 / Phase 1.5 / thread_contexts）——只有真分支记得这些，旧框/别的对话只会瞎回
+
 ## 服务详情
 
 - URL：https://chat2api-1029559493109-1029559493109.asia-northeast1.run.app
@@ -29,7 +36,7 @@
 
 ## 调用方法（标准姿势）
 
-【✅最推荐·已上线·不塞token】Worker 转发端点：POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask，Body: {"message":"..."}，token 只在 Worker 环境变量里，本地不带。返回 {ok, reply, conversation_id}。2026-09-03 实测通过（GPT 确认自己是分支）。
+【✅最推荐·已上线·不塞token】Worker 转发端点：POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask，Body: {"message":"..."}，token 只在 Worker 环境变量里，本地不带。返回 {ok, reply, conversation_id}。
 
 【备选】extended_http_tools 裸请求：POST chat2api URL + Authorization: Bearer <accessToken> + Body{"model":"gpt-4o-mini","conversation_id":"6a98cb19-3b88-83ee-a7be-314d60f0aa64","messages":[{"role":"user","content":"..."}],"stream":false}
 
@@ -37,11 +44,12 @@
 
 ## 配置变更操作手册（柳柳 2026-09-03 要求补）
 
-### A. 更换对话 ID（conversation_id）怎么办
+### A. 更换对话 ID（conversation_id）怎么办 ⭐
 1. 新 ID 来源：柳柳给的新 ChatGPT 对话链接，取 /c/ 后那串 UUID。
-2. 更新三处：①记忆库「配置：ChatGPT GPT_CONVERSATION_ID」；②Cloudflare Worker 环境变量 GPT_CONVERSATION_ID（agent_runtime 用）；③本 skill「核心三件套」表格。
-3. 切换后用新 ID 发一条最小测试消息，确认真身能回且是新上下文。
-4. ⛔ 旧 ID 弃用逻辑：旧分支可能被轰炸污染/上下文太杂 → 不再使用，除非柳柳明确说恢复。
+2. **只改 Cloudflare Worker 环境变量 `GPT_CONVERSATION_ID` 一处**（代码统一读它，单一真相源）。
+3. 同步更新：①记忆库「配置：ChatGPT GPT_CONVERSATION_ID」；②本 skill「核心三件套」表格；③技能表 chat2api 描述。
+4. 切换后用新 ID 发一条最小测试消息验证：能答出 Common Ground 项目细节 = 真分支；瞎回「我是分支」但讲不出项目 = 打错/旧框。
+5. ⛔ 旧 ID 弃用逻辑：旧分支可能被轰炸污染/上下文太杂 → 不再使用，除非柳柳明确说恢复。
 
 ### B. 更换节点（VLESS 出站）怎么办
 1. 节点信息在 Cloud Run 环境变量（xray 配置，共约 6 个：地址/端口/UUID/flow/加密/指纹等）。
@@ -57,6 +65,7 @@
 5. 不塞旧历史：跟 GPT 说话只发最小、最新的 @gpt 消息（今天柳柳批评的根源）。
 6. 错误码速查：403 cf_chl_opt=风控冷却30min+；404 history_disabled=HISTORY_DISABLED 问题；404 model_not_found=模型名不支持。
 7. 多节点 failover（O5）：未来计划，当前单节点。
+8. 本地直推大文件通道：token 在本地 datastore（/data/user/0/com.ai.assistance.operit/files/datastore/github_auth_preferences.preferences_pb），用 code_runner 读它直连 GitHub API 推任意大文件，内容不经过对话，永不截断。
 
 ## 失败路径（全是坑）
 
@@ -65,6 +74,7 @@
 - gpt-4-gizmo-g-p-... → 404 model_not_found
 - 半小时连续多次调用 → 403 cf_chl_opt 风控（需冷却 30min~几小时）
 - Google 数据中心 IP 被上游拉黑 → 用 xray 容器走 VLESS 日本节点解决
+- env.GPT_CONVERSATION_ID 是旧值/脏值 → ask 打到旧框瞎回（v6.9/v6.10 踩坑，v6.11 确立：换 ID 必改 env）
 
 ## 链路
 
@@ -78,4 +88,4 @@ Common Ground（chat_agent_events）→ Agent Runtime（chat_adapter/event_proce
 - conversation_id = 真身钥匙，不要公开；token 有 30 天有效期，过期前提醒柳柳重新取。
 - 页面可见铁律：「所有消息必须显示在页面上」。
 
-*本手册由 Ziven 整理（2026-09-03 v3），基于 74 号手册 + 0902-1 实战经验 + 柳柳最新指示。*
+*本手册由 Ziven 整理（2026-09-03 v4），基于 74 号手册 + 0902-1 实战经验 + 柳柳最新指示。*
