@@ -1,8 +1,8 @@
 # chat2api —— GPT 真身通道（操作手册 + 铁律）
 
 > 用途：通过 chat2api 网关调用 ChatGPT 真身（同一账号/同一上下文/同一记忆），是 Common Ground 三方通信的「大脑入口」。
-> 版本：2026-09-03 v4（换 ID 只改 env，单一真相源原则确立）
-> 状态：✅ 实测通过（真分支 6a98cb19，项目细节记忆验证）
+> 版本：2026-09-03 v5（根治：wrangler.toml 旧值覆盖 Dashboard env 的大坑已写入）
+> 状态：✅ 实测通过（真分支 6a98cb19，GPT 复述柳柳「你是分支」原话为铁证）
 
 ## 🔴🔴🔴 第一铁律：绝不轰炸 GPT（最高优先级，柳柳 2026-09-03 严厉批评后立）
 
@@ -22,12 +22,14 @@
 - GPTs ID：g-p-6a8f9e8de8e481919f2349f04e51608b-zivencheng-chang-ji-hua
 - 环境变量：HISTORY_DISABLED=false（Cloud Run）
 
-## 🎯 单一真相源原则（v4 确立·柳柳 2026-09-03 指点）
+## 🎯 单一真相源原则（v4/v5 确立）
 
-**换 conversation_id 只改 Cloudflare Worker 环境变量 `GPT_CONVERSATION_ID` 一处，代码不动。**
-- 代码里 /api/chat2api/ask 与 agent_runtime 都读 env.GPT_CONVERSATION_ID（fallback 才是新分支值）
-- ⛔ 千万别在代码里写死 ID——下次换 ID 就得动代码，容易懵（v6.9/v6.10 踩过坑，已回退）
-- 判断「打到哪个对话」：问它 Common Ground 项目细节（Migration 1 / chat.js v2.1 / Phase 1.5 / thread_contexts）——只有真分支记得这些，旧框/别的对话只会瞎回
+**换 conversation_id 改两处：①Cloudflare Dashboard Worker 环境变量 GPT_CONVERSATION_ID ②仓库 wrangler.toml [vars] GPT_CONVERSATION_ID。两处都改，代码不动。**
+
+- ⛔⛔ **wrangler.toml 大坑（v6.12 根治）**：wrangler.toml [vars] 里如果还是旧 ID，每次 push 代码 → Cloudflare 用 wrangler.toml 重新部署 → 把 Dashboard env 覆盖回旧值 → 打错对话框！换 ID 时必须同步改 wrangler.toml！
+- 代码里 /api/chat2api/ask 与 agent_runtime 都只读 env.GPT_CONVERSATION_ID（零硬编码、零 fallback）
+- ⛔ 别在代码里写死 ID——下次换 ID 就得动代码（v6.9/v6.10 踩坑已回退）
+- 判断「打到哪个对话」：问它柳柳说过的话/项目细节（如「柳柳说你是分支的原话」「Phase 1.5 / processGptEvent」）。真分支能复述柳柳原话「我从这里开始建一个新分支，你要记住你是分支」；旧框/主支只会瞎回「我是分支」但讲不出原话
 
 ## 服务详情
 
@@ -44,9 +46,9 @@
 
 ## 配置变更操作手册（柳柳 2026-09-03 要求补）
 
-### A. 更换对话 ID（conversation_id）怎么办 ⭐
+### A. 更换对话 ID（conversation_id）怎么办 ⭐⭐
 1. 新 ID 来源：柳柳给的新 ChatGPT 对话链接，取 /c/ 后那串 UUID。
-2. **只改 Cloudflare Worker 环境变量 `GPT_CONVERSATION_ID` 一处**（代码统一读它，单一真相源）。
+2. **改两处**：①Cloudflare Dashboard Worker 环境变量 GPT_CONVERSATION_ID ②仓库 wrangler.toml [vars] GPT_CONVERSATION_ID（否则下次部署被覆盖回旧值）。
 3. 同步更新：①记忆库「配置：ChatGPT GPT_CONVERSATION_ID」；②本 skill「核心三件套」表格；③技能表 chat2api 描述。
 4. 切换后用新 ID 发一条最小测试消息验证：能答出 Common Ground 项目细节 = 真分支；瞎回「我是分支」但讲不出项目 = 打错/旧框。
 5. ⛔ 旧 ID 弃用逻辑：旧分支可能被轰炸污染/上下文太杂 → 不再使用，除非柳柳明确说恢复。
@@ -88,4 +90,4 @@ Common Ground（chat_agent_events）→ Agent Runtime（chat_adapter/event_proce
 - conversation_id = 真身钥匙，不要公开；token 有 30 天有效期，过期前提醒柳柳重新取。
 - 页面可见铁律：「所有消息必须显示在页面上」。
 
-*本手册由 Ziven 整理（2026-09-03 v4），基于 74 号手册 + 0902-1 实战经验 + 柳柳最新指示。*
+*本手册由 Ziven 整理（2026-09-03 v5），基于 74 号手册 + 0902-1 实战经验 + 柳柳最新指示。*
