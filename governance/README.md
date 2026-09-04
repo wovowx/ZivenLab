@@ -9,7 +9,7 @@
 | 我要知道 | 去这里 | 说明 |
 |---|---|---|
 | 系统现状 / 去哪查 | `governance/当前项目状态.md` | 系统驾驶舱（状态源） |
-| 现在做什么 / 做到哪 | `governance/85_行动总清单.md` | 行动总控台（路线源） |
+| 现在做什么 / 做到哪 | `governance/roadmap.md` | 行动总控台（路线源） |
 | 怎么协作 / 怎么讨论 | `governance/协作协议.md` | 协作规则（规则源） |
 | 版本记录 | `governance/CHANGELOG.md` | 变更历史 |
 
@@ -20,7 +20,7 @@ ZivenLab/
 ├── governance/     ← 当前规则（权威，只放规矩）
 │   ├── README.md
 │   ├── 当前项目状态.md   （驾驶舱）
-│   ├── 85_行动总清单.md  （路线）
+│   ├── roadmap.md       （路线，原85号）
 │   ├── 协作协议.md       （规则）
 │   └── CHANGELOG.md     （版本）
 │
@@ -36,6 +36,7 @@ ZivenLab/
 ## 🚩 引用规范
 
 - 权威文档互相引用**写路径**（如 `governance/roadmap.md`），不写「85号」这种名字——文件名会变，路径才是导航。
+- **复制/移动文件一律用 `github_copy`**（内容不经 Agent 上下文，MCP 服务端内部搬运），绝不手写整份大文件重推（费 token + 转义/截断风险）。需要改内容：先 copy 再对目标小幅 edit/push。
 - 版本规则：本仓为文档仓，用知识快照 `docs-YYYY.MM(.N)`；代码仓（mcp-memory）用 `vX.Y.Z`。详见 `governance/当前项目状态.md` 第 10 章。
 
 ## 📝 维护
