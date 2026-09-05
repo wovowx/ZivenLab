@@ -1,5 +1,5 @@
 {
-  "nodes": [
+  "specified_nodes": [
     {
       "addr": "43.153.152.106",
       "port": 443,
@@ -13,6 +13,7 @@
     "interval_sec": 30,
     "timeout_sec": 6,
     "fail_threshold": 3,
-    "probe_url": "https://www.gstatic.com/generate_204"
+    "probe_url": "https://www.gstatic.com/generate_204",
+    "subscription_refresh_sec": 3600
   }
 }
