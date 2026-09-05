@@ -77,6 +77,8 @@ curl https://<你的run域名>/v1/chat/completions \
   -H 'Authorization: Bearer <accessToken>' \
   -d '{"model":"gpt-4o-mini","conversation_id":"<对话ID>","messages":[{"role":"user","content":"我是Ziven，测试通道"}],"stream":false}'
 # 200 且非 cf_chl_opt/403 即成功
+# <accessToken> = ChatGPT 网页 access_token（浏览器 F12 → Network → 任一请求的 Authorization Bearer，或开发者模式会话）
+# <对话ID> = 正式版 conversation_id（见 chat2api skill，当前 6a98cb19-3b88-83ee-a7be-314d60f0aa64）
 ```
 
 > ✅ **升级部署（代码改了以后）** = 重复 1→2→3，tag 升 v<N+1>，环境变量不变。
@@ -101,6 +103,8 @@ curl https://<你的run域名>/v1/chat/completions \
 | `PROXY_URL` | 自动 | - | 入口脚本自动设为本机 xray，无需手动配 |
 
 > 新部署建议只用 `NODE_CONFIG_URL` + `HISTORY_DISABLED`，VLESS_* 保留作环境变量回退（兼容旧版）。
+>
+> **`*` 号说明**：带 `*` 的是 VLESS 单节点回退参数，仅在「无 `NODE_CONFIG_URL` 或它指定的节点全挂」时才兜底使用；正常用 specified_nodes + 订阅时无需配置。
 
 ## 5. 节点自动轮换（2026-09-05 新增，v2：三层容灾）
 
@@ -128,6 +132,8 @@ curl https://<你的run域名>/v1/chat/completions \
 }
 ```
 
+> 💡 **12 个节点共用同一 UUID**：JP-01~12 的 `uuid` 都是 `92a8cc7e-...`，这是**有意的**——它们属于同一个订阅账号（同一密钥可配多个优选 IP），不是写错。换账号时记得一起换。
+
 ### 工作原理
 1. 容器启动 → entrypoint.sh 按 `NODE_CONFIG_URL` 拉取 node-config.json → 存入 /tmp/nodes.json
 2. node_manager.py 常驻：
@@ -145,7 +151,7 @@ curl https://<你的run域名>/v1/chat/completions \
 ## 6. 常见操作
 
 ### 6.1 换/加/删节点（最常用）
-改 ZivenLab dev `common-ground/chat2api-xray/node-config.json` 的 `nodes` 数组 → 推代码 → Cloud Run 重启 Revision（控制台「编辑并部署新修订版」或 gcloud run deploy 同配置）。
+改 ZivenLab dev `common-ground/chat2api-xray/node-config.json` 的 **`specified_nodes`** 数组（**注意字段名是 `specified_nodes`，不是 `nodes`**，早期文档/日志曾误写成 `nodes` 导致读不到）→ 推代码 → Cloud Run 重启 Revision（控制台「编辑并部署新修订版」或 gcloud run deploy 同配置）。
 
 ### 6.2 改代码后重新部署（如改 MCP patch / node_manager）
 1. 改 ZivenLab `common-ground/chat2api-xray/` 代码 → 推 dev
@@ -184,11 +190,24 @@ chat2api 默认 metadata 为空 → GPT 收不到插件。逆向来源：`https:
 
 - **连接器应用 ID**：`asdk_app_6a95a93c9a50819184dcf3468ae0052a`（柳柳 2026-09-05 从添加插件信息页抄）
 - **版本 ID（备用）**：`asdk_app_v_6a95a93c9a5c81918a5cb77ada6bc3b1`
+  > ℹ️ 应用 ID 与版本 ID **本来就是两个不同的字符串**（前缀 `asdk_app_` vs `asdk_app_v_`），不是笔误；应用 ID 优先，失效才换版本 ID。
 - 若应用 ID 无效：改 patch 里的 `CONNECTOR_ID` 换版本 ID → 重新构建部署
 - patch 匹配失败会**构建失败**（exit 1），防镜像版本漂移静默改错
 
 ### 验证
 部署后给 GPT 发消息让它直接调 `github_read` 读文件——能读到即成功（无需页面手动加号）。
+
+### 实际调用链路（GPT 是怎么走到这里的）
+GPT 平时**不直接连 run 域名**，而是走一条转发链路：
+```
+ChatGPT 页面/GPT 本体
+   → Cloudflare Worker（mcp-memory，端点 /api/chat2api/ask，POST {message}）
+   → wrangler.toml 的 CHAT2API_URL（指到 chat2api 的 run 域名）
+   → ziven-bridge（chat2api，走 xray 节点出口）
+```
+- 改服务名/换部署后，**必须同步 wrangler.toml 的 `CHAT2API_URL`**，否则 Worker 还在打旧服务。
+- 当前 `CHAT2API_URL` 应指向 `https://ziven-bridge-1029559493109.asia-northeast1.run.app/v1/chat/completions`（2026-09-05 已同步）。
+- 测 Worker 端点：`POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask` body `{"message":"..."}`（不塞 token，Worker 内部处理）。
 
 ## 8. 易错点 / 踩坑记录
 
