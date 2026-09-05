@@ -43,12 +43,16 @@ git checkout dev
 cd common-ground/chat2api-xray
 
 ## 2) 构建镜像（每次改代码升 tag：v1→v2→v3...，防 Cloud Run 缓存旧镜像）
-gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/ziven-bridge:v2 .
+# 仓库用 Artifact Registry（gcr.io 新项目默认无权限，会报 denied: gcr.io repo does not exist）
+# 首次需建仓库：gcloud artifacts repositories create ziven-bridge --repository-format=docker --location=asia-northeast1 --project=$GOOGLE_CLOUD_PROJECT
+gcloud builds submit \
+  --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v2 \
+  .
 
 ## 3) 部署 Cloud Run（节点不写死：NODE_CONFIG_URL + SUBSCRIPTION_URL）
 #    <SUBSCRIPTION_URL> 换成你的 edgetunnel 订阅链接（含 token）
 gcloud run deploy ziven-bridge \
-  --image gcr.io/$GOOGLE_CLOUD_PROJECT/ziven-bridge:v2 \
+  --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v2 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
@@ -138,7 +142,7 @@ curl https://<你的run域名>/v1/chat/completions \
 
 ### 6.2 改代码后重新部署（如改 MCP patch / node_manager）
 1. 改 ZivenLab `common-ground/chat2api-xray/` 代码 → 推 dev
-2. `gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/ziven-bridge:v<N+1> .`
+2. `gcloud builds submit --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v<N+1> .`
 3. `gcloud run deploy ziven-bridge --image ...v<N+1> ...`（其余参数同上，见 §3）
 
 ### 6.3 换 conversation_id
