@@ -21,8 +21,8 @@ RUN set -eux; \
     apt-get update && \
     apt-get install -y --no-install-recommends curl unzip ca-certificates && \
     curl -fL -o /tmp/xray.zip "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/Xray-linux-${XRAY_ARCH}.zip" && \
-    unzip -o /tmp/xray.zip -d /usr/local/bin xray && \
-    chmod +x /usr/local/bin xray && \
+    unzip -o /tmp/xray.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/xray && \
     rm -f /tmp/xray.zip && \
     apt-get purge -y --auto-remove curl unzip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
