@@ -42,7 +42,9 @@ def load_config():
         cfg = json.load(f)
     # 新格式用 specified_nodes；兼容旧格式 nodes
     specified = cfg.get("specified_nodes") or cfg.get("nodes") or []
-    return specified, cfg.get("check", {})
+    mode = cfg.get("mode", "auto")          # manual=手动锁定模式 / auto=自动轮换
+    locked_node = cfg.get("locked_node", "")  # manual 模式下锁定的节点名
+    return specified, cfg.get("check", {}), mode, locked_node
 
 
 def parse_vless(uri):
@@ -242,7 +244,7 @@ refresh_interval = 3600  # 默认订阅刷新秒数，main 里会被 check 覆�
 
 def main():
     global refresh_interval
-    specified, check_cfg = load_config()
+    specified, check_cfg, mode, locked_node = load_config()
     subscription_url = os.environ.get("SUBSCRIPTION_URL", "").strip()
     interval = int(check_cfg.get("interval_sec", 30))
     timeout = int(check_cfg.get("timeout_sec", 6))
@@ -255,7 +257,9 @@ def main():
         print("[node-mgr] WARN: no specified_nodes, falling back to subscription only", flush=True)
     if not pool.specified and not subscription_url:
         sys.exit("ERROR: no specified_nodes and no SUBSCRIPTION_URL")
-    print(f"[node-mgr] specified_nodes={len(pool.specified)}, subscription_url={'set' if subscription_url else 'none'}", flush=True)
+    if mode == "manual" and not locked_node:
+        sys.exit("ERROR: mode=manual but no locked_node specified")
+    print(f"[node-mgr] specified_nodes={len(pool.specified)}, subscription_url={'set' if subscription_url else 'none'}, mode={mode}{f', locked={locked_node}' if mode=='manual' else ''}", flush=True)
 
     # 启动：先试 specified；只有没有 specified 时才当场拉订阅（平时不主动刷）
     if not pool.specified:
@@ -271,31 +275,48 @@ def main():
     probe_cursor = 0  # 启动探测用：防止无限循环刷同节点
 
     # ---- 启动探测：找到第一个可用节点 ----
-    while True:
-        nodes = pool.nodes()
-        if not nodes:
-            print("[node-mgr] node pool empty, retry subscription in 30s", flush=True)
-            time.sleep(30)
-            pool.refresh_subscription(force=True)
-            continue
-        node = nodes[idx % len(nodes)]
+    # manual 模式：锁定到 locked_node（按名字在 specified 里找），只试它；失败则报错退出（等待人工/改配置重启）
+    if mode == "manual":
+        locked = next((n for n in pool.specified if n.get("name") == locked_node), None)
+        if locked is None:
+            sys.exit(f"ERROR: mode=manual, locked_node={locked_node} not found in specified_nodes")
+        node = locked
         write_xray_config(node)
         xray_proc = start_xray()
         time.sleep(2)
         if probe(probe_url, timeout):
-            print(f"[node-mgr] ACTIVE {node.get('name','?')} node[{idx}] {node['addr']} ({'specified' if idx < len(pool.specified) else 'subscription'})", flush=True)
-            break
-        print(f"[node-mgr] {node.get('name','?')} node[{idx}] {node['addr']} dead on startup, try next", flush=True)
-        stop_xray(xray_proc)
-        xray_proc = None
-        idx += 1
-        probe_cursor += 1
-        # specified 完整轮完一轮还没通 → 当场拉一次订阅（此时才需要用到订阅）
-        if probe_cursor >= max(1, len(nodes)):
-            pool.refresh_subscription(force=True)
-            probe_cursor = 0
+            print(f"[node-mgr] ACTIVE {node.get('name','?')} (LOCKED manual) {node['addr']}", flush=True)
+        else:
+            print(f"[node-mgr] FAILURE {node.get('name','?')} (LOCKED manual) {node['addr']} probe failed on startup", flush=True)
+            print("[node-mgr] manual mode: won't auto-switch, keep retrying (change locked_node or fix node to proceed)", flush=True)
+        # manual 模式：即使启动探测失败也不切换，继续往下走（主循环会持续探活告警）
+    else:
+        # auto 模式：原逻辑 —— 启动探测轮换直到找到可用节点
+        while True:
+            nodes = pool.nodes()
+            if not nodes:
+                print("[node-mgr] node pool empty, retry subscription in 30s", flush=True)
+                time.sleep(30)
+                pool.refresh_subscription(force=True)
+                continue
+            node = nodes[idx % len(nodes)]
+            write_xray_config(node)
+            xray_proc = start_xray()
+            time.sleep(2)
+            if probe(probe_url, timeout):
+                print(f"[node-mgr] ACTIVE {node.get('name','?')} node[{idx}] {node['addr']} ({'specified' if idx < len(pool.specified) else 'subscription'})", flush=True)
+                break
+            print(f"[node-mgr] {node.get('name','?')} node[{idx}] {node['addr']} dead on startup, try next", flush=True)
+            stop_xray(xray_proc)
+            xray_proc = None
+            idx += 1
+            probe_cursor += 1
+            # specified 完整轮完一轮还没通 → 当场拉一次订阅（此时才需要用到订阅）
+            if probe_cursor >= max(1, len(nodes)):
+                pool.refresh_subscription(force=True)
+                probe_cursor = 0
 
-    # ---- 主循环：健康检查 + 自动切换（订阅只在「需要用到」时当场拉） ----
+    # ---- 主循环：健康检查 + 切换（manual 只告警不切换，auto 自动切换） ----
     in_subscription = idx >= len(pool.specified)
     while True:
         time.sleep(interval)
@@ -310,7 +331,13 @@ def main():
         if fail_count < threshold:
             continue
 
-        # 切换下一个节点
+        if mode == "manual":
+            # 手动锁定模式：不自动切换，只告警；继续用同一节点重试（等人工/改配置重启）
+            print(f"[node-mgr] MANUAL MODE: node {nodes[idx % len(nodes)].get('name','?')} failed {threshold} times — NOT auto-switching, keep retrying locked node", flush=True)
+            fail_count = 0
+            continue
+
+        # 自动模式：切换下一个节点
         print("[node-mgr] switching to next node ...", flush=True)
         stop_xray(xray_proc)
         xray_proc = None
