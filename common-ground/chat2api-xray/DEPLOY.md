@@ -63,7 +63,7 @@ curl https://<你的run域名>/v1/chat/completions \
 | 变量 | 必填 | 默认 | 说明 |
 |---|---|---|---|
 | `NODE_CONFIG_URL` | 推荐 | - | 节点配置文件（node-config.json）的 URL，含 specified_nodes（手动指定快节点）。不设则回退用 VLESS_* 单节点。 |
-| `SUBSCRIPTION_URL` | 兜底 | - | 订阅链接（edgetunnel vless；token 敏感，放环境变量不写仓库）。specified 全失效时自动拉订阅节点，且每小时自动刷新。 |
+| `SUBSCRIPTION_URL` | 兜底 | - | 订阅链接（edgetunnel vless；token 敏感，放环境变量不写仓库）。specified 全失效时才拉订阅，且**只在需要用到的那一刻当场拉最新**（不用不刷）。 |
 | `VLESS_ADDR` * | 回退 | - | 节点服务器地址（仅当无 NODE_CONFIG_URL 时用） |
 | `VLESS_PORT` * | - | 443 | 节点端口 |
 | `VLESS_UUID` * | 回退 | - | 节点 UUID |
@@ -82,8 +82,8 @@ curl https://<你的run域名>/v1/chat/completions \
 ```
 1) specified_nodes（优先）：node-config.json 里手动指定的快节点（哥哥维护，你发现快的 IP 发给哥哥）
 2) subscription（兜底）：SUBSCRIPTION_URL 订阅链接（edgetunnel vless 订阅）
-   - specified 全不通 → 自动拉订阅用订阅节点
-   - 订阅内容隔几小时刷新 → 管理器每 subscription_refresh_sec 自动重拉
+   - specified 全不通 → 当场拉最新订阅、用订阅节点（不用不刷，柳柳要求）
+   - 订阅域内轮换不再反复刷；重启容器即重新从 specified 开始
 3) 全部失效 → node_manager 持续轮询重试（每 30s）
 ```
 
@@ -97,8 +97,7 @@ curl https://<你的run域名>/v1/chat/completions \
     "interval_sec": 30,
     "timeout_sec": 6,
     "fail_threshold": 3,
-    "probe_url": "https://www.gstatic.com/generate_204",
-    "subscription_refresh_sec": 3600
+    "probe_url": "https://www.gstatic.com/generate_204"
   }
 }
 ```
@@ -109,7 +108,7 @@ curl https://<你的run域名>/v1/chat/completions \
    - **启动探测**：先试 specified_nodes，全不通拉订阅再试，直到找到可用节点
    - **主循环**：每 `interval_sec` 秒用当前节点探活（google 204 轻量端点）
    - **自动切换**：连续失败 `fail_threshold` 次 → 自动切下一个节点 → 重启 xray
-   - **订阅刷新**：每 `subscription_refresh_sec` 秒（默认1小时）重拉订阅，内容自动跟上
+   - **订阅按需拉取**：不用不刷——只在「要切进订阅域」的那一刻当场拉一次最新（柳柳 2026-09-05 确认）
 3. 加节点/删节点/换节点 = **改 node-config.json 推代码**（specified）或改订阅内容（subscription）→ Cloud Run 重启 Revision 生效
 
 ### 注意
