@@ -1,13 +1,17 @@
 {
   "specified_nodes": [
-    {
-      "addr": "43.153.152.106",
-      "port": 443,
-      "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e5",
-      "sni": "magicovo.pages.dev",
-      "host": "magicovo.pages.dev",
-      "path": "/"
-    }
+    { "addr": "202.144.194.203", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "202.144.194.211", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "34.104.218.57", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "43.153.152.106", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "43.165.189.163", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "43.167.11.157", "port": 2083, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "45.94.40.102", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "45.94.40.106", "port": 8443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "64.83.40.108", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "64.83.40.57", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "69.8.128.82", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
+    { "addr": "82.110.234.58", "port": 443, "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e3", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" }
   ],
   "check": {
     "interval_sec": 30,
