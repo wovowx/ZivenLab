@@ -5,17 +5,15 @@ set -e
 # chat2api + xray（VLESS 代理）入口脚本
 # 让 chat2api 出站走 VLESS 节点，避免数据中心 IP 被 ChatGPT 风控
 #
-# 所有节点参数通过环境变量传入，换节点 = 改环境变量重启，无需重新构建
+# 节点管理（2026-09-05 版）：
+#   A. NODE_CONFIG_URL 已设置 → 启动时从该 URL 拉取节点列表 JSON
+#      格式：{"nodes":[{"addr","port","uuid","sni","host","path"}],"check":{...}}
+#      多个节点 = 自动健康检查 + 失效自动切换（由 node_manager.py 常驻管理）
+#   B. 未设置 NODE_CONFIG_URL → 回退用环境变量生成单节点列表（兼容旧版）
+#
+# 节点参数随时改：改配置源里的 JSON（或改环境变量）→ 重启 Revision 生效。
+# 详见同目录 DEPLOY.md §节点自动轮换。
 # ============================================================
-
-# ---- 可替换节点配置（环境变量） ----
-# VLESS_ADDR  节点服务器地址（必填）
-# VLESS_PORT  节点端口（默认 443）
-# VLESS_UUID  用户 UUID（必填）
-# VLESS_SNI   TLS servername（默认 magicovo.pages.dev）
-# VLESS_HOST   WS headers Host（默认 magicovo.pages.dev）
-# VLESS_PATH   WS path（默认 /）
-# LOCAL_HTTP_PORT  xray 本地 HTTP 代理端口（默认 10809）
 
 VLESS_ADDR="${VLESS_ADDR:-}"
 VLESS_PORT="${VLESS_PORT:-443}"
@@ -24,78 +22,49 @@ VLESS_SNI="${VLESS_SNI:-magicovo.pages.dev}"
 VLESS_HOST="${VLESS_HOST:-magicovo.pages.dev}"
 VLESS_PATH="${VLESS_PATH:-/}"
 LOCAL_HTTP_PORT="${LOCAL_HTTP_PORT:-10809}"
+NODE_CONFIG_URL="${NODE_CONFIG_URL:-}"
 
-if [ -z "$VLESS_ADDR" ] || [ -z "$VLESS_UUID" ]; then
-  echo "ERROR: VLESS_ADDR and VLESS_UUID are required (set as env vars)" >&2
-  exit 1
+# ---- 生成节点列表 /tmp/nodes.json ----
+if [ -n "$NODE_CONFIG_URL" ]; then
+  echo "Fetching node config from $NODE_CONFIG_URL ..."
+  curl -fsSL --max-time 15 "$NODE_CONFIG_URL" -o /tmp/nodes.json || {
+    echo "ERROR: failed to fetch NODE_CONFIG_URL. Fallback to env vars." >&2
+    rm -f /tmp/nodes.json
+  }
+  if [ -s /tmp/nodes.json ]; then
+    echo "Node config fetched OK:"
+    python3 -c "import json;d=json.load(open('/tmp/nodes.json'));print('  nodes:',len(d.get('nodes',[]) or []))" || true
+  else
+    echo "ERROR: empty node config from URL, exit." >&2
+    exit 1
+  fi
+else
+  if [ -z "$VLESS_ADDR" ] || [ -z "$VLESS_UUID" ]; then
+    echo "ERROR: VLESS_ADDR and VLESS_UUID are required (or set NODE_CONFIG_URL)" >&2
+    exit 1
+  fi
+  echo "NODE_CONFIG_URL not set; building single-node config from env vars"
+  python3 - "$VLESS_ADDR" "$VLESS_PORT" "$VLESS_UUID" "$VLESS_SNI" "$VLESS_HOST" "$VLESS_PATH" <<'PY'
+import json, sys
+addr, port, uuid, sni, host, path = sys.argv[1:7]
+cfg = {"nodes": [{"addr": addr, "port": int(port), "uuid": uuid, "sni": sni, "host": host, "path": path}]}
+with open("/tmp/nodes.json", "w", encoding="utf-8") as f:
+    json.dump(cfg, f, indent=2)
+print("  env single-node config written")
+PY
 fi
 
-# ---- 生成 xray 配置 ----
-cat > /tmp/xray_config.json <<EOF
-{
-  "log": {"loglevel": "warning"},
-  "inbounds": [
-    {
-      "tag": "http",
-      "port": ${LOCAL_HTTP_PORT},
-      "listen": "127.0.0.1",
-      "protocol": "http",
-      "settings": {}
-    }
-  ],
-  "outbounds": [
-    {
-      "tag": "node",
-      "protocol": "vless",
-      "settings": {
-        "vnext": [
-          {
-            "address": "${VLESS_ADDR}",
-            "port": ${VLESS_PORT},
-            "users": [
-              {"id": "${VLESS_UUID}", "encryption": "none"}
-            ]
-          }
-        ]
-      },
-      "streamSettings": {
-        "network": "ws",
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "${VLESS_SNI}",
-          "allowInsecure": false,
-          "fingerprint": "chrome"
-        },
-        "wsSettings": {
-          "path": "${VLESS_PATH}",
-          "headers": {"Host": "${VLESS_HOST}"}
-        }
-      }
-    },
-    {"tag": "direct", "protocol": "freedom"}
-  ],
-  "routing": {
-    "rules": [
-      {"type": "field", "outboundTag": "direct", "network": "tcp,udp", "port": 1}
-    ]
-  }
-}
-EOF
+echo "LOCAL_HTTP_PORT=${LOCAL_HTTP_PORT}"
+echo "PROXY_URL=http://127.0.0.1:${LOCAL_HTTP_PORT}"
 
-# ---- 启动 xray（后台）----
-echo "Starting xray via ${VLESS_ADDR}:${VLESS_PORT} (${VLESS_SNI}) ..."
-/usr/local/bin/xray run -c /tmp/xray_config.json &
-XRAY_PID=$!
+# ---- 启动节点管理器（健康检查 + 自动切换，内部启动 xray）----
+echo "Starting node_manager.py ..."
+python3 /node_manager.py &
 
-sleep 2
-
-# ---- chat2api 出站走本地代理 ----
-export PROXY_URL="http://127.0.0.1:${LOCAL_HTTP_PORT}"
-export EXPORT_PROXY_URL="${PROXY_URL}"
-
-echo "PROXY_URL=${PROXY_URL}"
-echo "Starting chat2api ..."
+# 等代理就绪
+sleep 3
 
 # ---- 启动 chat2api（原入口，端口 5005）----
+echo "Starting chat2api ..."
 cd /app
 exec python app.py
