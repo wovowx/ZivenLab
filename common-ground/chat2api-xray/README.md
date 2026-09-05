@@ -5,6 +5,8 @@
 > **这个镜像做什么**：在容器内启动 xray，把 VLESS 节点翻译成本地 HTTP 代理，让 chat2api **出站走你自己的节点**，与你的真人流量同出口 IP，风控风险降到最低。
 >
 > **可替换性**：节点参数全部由环境变量控制，**换节点 = 改环境变量重启，不用重新构建镜像**。
+>
+> 📘 **部署/运维/踩坑/时间线**：见 **[DEPLOY.md](./DEPLOY.md)**（任何 chat2api 部署问题先查它）。
 
 ---
 
@@ -43,6 +45,8 @@ gcloud run deploy chat2api-xray \
   --set-env-vars="HISTORY_DISABLED=false,VLESS_ADDR=43.153.152.106,VLESS_PORT=443,VLESS_UUID=<你的UUID>,VLESS_SNI=magicovo.pages.dev,VLESS_HOST=magicovo.pages.dev,VLESS_PATH=/"
 ```
 
+> ⚠️ 完整命令（含 clone dev 分支 / 验证 / 升级 tag）见 **[DEPLOY.md](./DEPLOY.md)**。
+
 ---
 
 ## 换节点（以后随时换）
@@ -53,6 +57,21 @@ gcloud run deploy chat2api-xray \
 - 换整个节点：改 `VLESS_ADDR` + `VLESS_UUID`（+ 必要时 `VLESS_SNI` / `VLESS_HOST` / `VLESS_PATH`）
 
 保存后自动部署新 Revision，就开始走新节点了。
+
+---
+
+## MCP 连接器自动挂载（2026-09-05 新增）
+
+构建时 `patch_chatformat.py` 会在 `chatgpt/chatFormat.py` 的 `api_messages_to_chat()` 给**每条消息**注入：
+
+```json
+"metadata": {
+  "developer_mode_connector_ids": ["asdk_app_6a95a93c9a50819184dcf3468ae0052a"]
+}
+```
+
+效果：GPT 无需在 ChatGPT 页面手动加号挂 Ziven_MCP，即可调用 MCP 工具（`github_read` / `create_patch_proposal` 等）。
+连接器 ID 对应 Ziven_MCP 应用（`asdk_app_6a95...`），若失效换版本 ID（`asdk_app_v_6a95...`）见 DEPLOY.md §6。
 
 ---
 
@@ -72,3 +91,4 @@ curl https://<你的run域名>/v1/chat/completions \
 ---
 
 *Ziven 于 2026-09-02 实测：xray(arm64) + VLESS 节点 → chatgpt.com 200 OK，无风控。*
+*2026-09-05 更新：新增 MCP 连接器自动挂载 patch（方案B）*
