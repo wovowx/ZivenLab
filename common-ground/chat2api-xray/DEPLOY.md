@@ -23,37 +23,52 @@
 - **存储**：无状态容器，代码在镜像里，节点/环境由外部配置源控制
 - **代码仓库**：`wovowx/ZivenLab` → `common-ground/chat2api-xray/`（开发走 dev 分支；main 由 PR 合入）
 
-## 3. 完整部署命令（Cloud Shell 或本地 gcloud）
+## 3. 完整部署命令（从零开始 · 2026-09-05 定稿）
+
+> 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
+> 实际值在 Cloud Shell 本地变量 `SUBSCRIPTION_URL` 或 Cloud Run 控制台维护（见 6.5）。
 
 ```bash
-# 0) 准备（首次）
-gcloud config set project <PROJECT_ID>
-# 或：gcloud auth login
+# ========== 从零开始完整部署 ==========
 
-# 1) 拉代码（记得切 dev，开发代码都在 dev）
+## 0) 前置检查（第一次用 gcloud 才需要）
+gcloud auth login                        # 本机登录（Cloud Shell 已自动登录）
+gcloud config set project <PROJECT_ID>   # 设置项目（替换成你的项目 ID）
+gcloud config get-value project          # 确认项目对
+
+## 1) 拉代码（全部开发代码在 dev 分支，务必 checkout dev）
 git clone https://github.com/wovowx/ZivenLab.git
 cd ZivenLab
 git checkout dev
 cd common-ground/chat2api-xray
 
-# 2) 构建镜像推 Artifact Registry / GCR（每次改代码升 tag：v1→v2→v3...）
+## 2) 构建镜像（每次改代码升 tag：v1→v2→v3...，防 Cloud Run 缓存旧镜像）
 gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v2 .
 
-# 3) 部署 Cloud Run（节点不写死！只配 NODE_CONFIG_URL + SUBSCRIPTION_URL）
+## 3) 部署 Cloud Run（节点不写死：NODE_CONFIG_URL + SUBSCRIPTION_URL）
+#    <SUBSCRIPTION_URL> 换成你的 edgetunnel 订阅链接（含 token）
 gcloud run deploy chat2api-xray \
   --image gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v2 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
   --memory 512Mi \
-  --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<你的edgetunnel订阅链接>"
+  --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
 
-# 4) 验证（200 且非 cf_chl_opt 即成功）
+## 4) 等部署完成，看节点通道是否打通（重点看 ACTIVE JP-xx）
+gcloud run services logs read chat2api-xray --region asia-northeast1 --limit 100
+# 期望看到：ACTIVE JP-01 node[0] 202.144.194.203 (specified)
+# 然后看有没有 node_manager 报错 / xray 启动失败
+
+## 5) 功能验证：GPT 通过 chat2api 通道回话
 curl https://<你的run域名>/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer <accessToken>' \
   -d '{"model":"gpt-4o-mini","conversation_id":"<对话ID>","messages":[{"role":"user","content":"我是Ziven，测试通道"}],"stream":false}'
+# 200 且非 cf_chl_opt/403 即成功
 ```
+
+> ✅ **升级部署（代码改了以后）** = 重复 1→2→3，tag 升 v<N+1>，环境变量不变。
 
 > ⚠️ **节点配置源（NODE_CONFIG_URL）** 默认指向 ZivenLab dev 分支的 `node-config.json`。
 > 改节点 = 改那个 JSON 推代码 → Cloud Run 重启 Revision 即生效；不用再进 Cloud Run 控制台改环境变量。
@@ -130,6 +145,15 @@ curl https://<你的run域名>/v1/chat/completions \
 见 chat2api skill（改仓库 wrangler.toml `GPT_CONVERSATION_ID` + 推代码部署）。
 **注意**：conversation_id 与「挂插件」无关——挂插件是消息级字段 `developer_mode_connector_ids`（见下节）。
 
+### 6.4 订阅链接维护（SUBSCRIPTION_URL）
+- **更新方式**：重新部署 Cloud Run 时改 `SUBSCRIPTION_URL` 环境变量（Cloud 控制台 → 服务 → 编辑修订版 → 变量，或 gcloud run deploy 同配置）
+- **设计**：URL 基本不变，变的是**内容**（edgetunnel 自定义优选隔几小时刷新）；node_manager **只在需要用到订阅那一刻当场拉最新**，所以内容变了也会自动跟上
+- **安全**：带 token 的链接只在 Cloud Run 环境变量维护，**不写进仓库/文档**（本文档用占位符 `<SUBSCRIPTION_URL>`）
+
+### 6.5 订阅链接 token 保管
+- 真实订阅链接（含 token）只存在于：Cloud Shell 本地变量 / Cloud Run 环境变量 / 你自己的收藏
+- 不要在聊天里把链接发到公开渠道；哥哥也不会把它写进任何公开文件
+
 ## 7. MCP 连接器自动挂载（2026-09-05 新增）
 
 ### 背景
@@ -171,6 +195,8 @@ chat2api 默认 metadata 为空 → GPT 收不到插件。逆向来源：`https:
 12. **节点列表全挂**：node_manager 卡启动探测，日志一直打 dead on startup；修好 node-config.json 再重启 Revision。
 
 ## 9. 时间线
+
+- **2026-09-05**：⚠️ 补齐「从零开始完整部署」流程（§3 定稿）：前置检查 → 拉代码 → 构建 → 部署 → 节点日志验证（ACTIVE JP-xx）→ curl 功能验证；补 §6.4/6.5 订阅链接维护与 token 保管；订阅改为按需拉取（不用不刷）。
 
 - **2026-09-02**：首次部署（v1），解决 Cloud Run 公网 IP 风控，走 VLESS 节点。
 - **2026-09-05**：新增 MCP 连接器自动挂载 patch（v2）；新增节点列表自动轮换（node_manager.py，NODE_CONFIG_URL 配置源）；本文档创建。
