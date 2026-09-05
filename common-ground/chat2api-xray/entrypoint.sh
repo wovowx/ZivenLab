@@ -27,10 +27,20 @@ NODE_CONFIG_URL="${NODE_CONFIG_URL:-}"
 # ---- 生成节点列表 /tmp/nodes.json ----
 if [ -n "$NODE_CONFIG_URL" ]; then
   echo "Fetching node config from $NODE_CONFIG_URL ..."
-  curl -fsSL --max-time 15 "$NODE_CONFIG_URL" -o /tmp/nodes.json || {
+  # 用 python3 拉取（python:3.11-slim 自带 urllib，镜像里没有 curl）
+  cat > /tmp/fetch_config.py <<'PY'
+import sys, urllib.request
+url = sys.argv[1]
+req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+with urllib.request.urlopen(req, timeout=20) as r:
+    data = r.read()
+with open("/tmp/nodes.json", "wb") as f:
+    f.write(data)
+PY
+  if ! python3 /tmp/fetch_config.py "$NODE_CONFIG_URL"; then
     echo "ERROR: failed to fetch NODE_CONFIG_URL. Fallback to env vars." >&2
-    rm -f /tmp/nodes.json
-  }
+    exit 1
+  fi
   if [ -s /tmp/nodes.json ]; then
     echo "Node config fetched OK:"
     python3 -c "import json;d=json.load(open('/tmp/nodes.json'));print('  nodes:',len(d.get('nodes',[]) or []))" || true
