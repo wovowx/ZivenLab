@@ -17,7 +17,6 @@
     "interval_sec": 30,
     "timeout_sec": 6,
     "fail_threshold": 3,
-    "probe_url": "https://www.gstatic.com/generate_204",
-    "subscription_refresh_sec": 3600
+    "probe_url": "https://www.gstatic.com/generate_204"
   }
 }
