@@ -4,80 +4,86 @@
 >
 > **这个镜像做什么**：在容器内启动 xray，把 VLESS 节点翻译成本地 HTTP 代理，让 chat2api **出站走你自己的节点**，与你的真人流量同出口 IP，风控风险降到最低。
 >
-> **可替换性**：节点参数全部由环境变量控制，**换节点 = 改环境变量重启，不用重新构建镜像**。
+> **可替换性**：节点/订阅由外部配置源控制，**换节点 = 改 node-config.json 或订阅，不用重新构建镜像**。
 >
-> 📘 **部署/运维/踩坑/时间线**：见 **[DEPLOY.md](./DEPLOY.md)**（任何 chat2api 部署问题先查它）。
+> 📘 **部署/运维/踩坑/时间线**：见 **[DEPLOY.md](./DEPLOY.md)**（任何 chat2api 部署问题先查它，本文档是精简版）。
 
 ---
 
-## 环境变量（全部可替换）
+## 架构（2026-09-05 更新）
 
-| 变量 | 必填 | 默认值 | 说明 |
+- **服务名**：`ziven-bridge`（Cloud Run，region asia-northeast1，端口 5005）
+- **镜像仓库**：Artifact Registry `asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:<tag>`
+- **节点来源（三层容灾）**：
+  1. `specified_nodes`（node-config.json，哥哥维护的 12 个日本节点 JP-01~12）
+  2. `SUBSCRIPTION_URL` 订阅兜底（**按需拉取**：只在 specified 全挂、要切进订阅域那一刻才当场拉最新，不用不刷）
+  3. 全部失效 → node_manager 每 30s 轮询重试
+- **MCP 自动挂载**：构建时 patch 注入 `developer_mode_connector_ids`，GPT 无需手动加号即可调 MCP 工具
+
+> ⚠️ 早期用 `gcr.io` 仓库 / 服务名 `chat2api-xray` 的命令**已废弃**（新项目 gcr.io 无权限，报 `denied: gcr.io repo does not exist`），请用下方 Artifact Registry 命令。
+
+---
+
+## 环境变量
+
+| 变量 | 必填 | 默认 | 说明 |
 |---|---|---|---|
-| `VLESS_ADDR` | ✅ | - | 节点服务器地址（如 43.153.152.106）|
-| `VLESS_PORT` | - | 443 | 节点端口 |
-| `VLESS_UUID` | ✅ | - | 节点 UUID |
-| `VLESS_SNI` | - | magicovo.pages.dev | TLS servername |
-| `VLESS_HOST` | - | magicovo.pages.dev | WS headers Host |
-| `VLESS_PATH` | - | / | WS path |
-| `LOCAL_HTTP_PORT` | - | 10809 | xray 本地 HTTP 代理端口（一般不用动）|
+| `NODE_CONFIG_URL` | 推荐 | - | node-config.json 的 URL（含 specified_nodes 快节点） |
+| `SUBSCRIPTION_URL` | 兜底 | - | 订阅链接（vless；**含 token，放环境变量不写仓库**）。specified 全失效才按需拉取 |
+| `VLESS_ADDR` * | 回退 | - | 单节点回退（仅当无 NODE_CONFIG_URL 或其节点全挂时用） |
+| `VLESS_PORT` * | - | 443 | 节点端口 |
+| `VLESS_UUID` * | 回退 | - | 节点 UUID |
+| `VLESS_SNI` * | - | magicovo.pages.dev | TLS servername |
+| `VLESS_HOST` * | - | magicovo.pages.dev | WS headers Host |
+| `VLESS_PATH` * | - | / | WS path |
+| `LOCAL_HTTP_PORT` | - | 10809 | xray 本地 HTTP 代理端口（一般不动） |
+| `HISTORY_DISABLED` | - | true | 不保存记录并返回 conversation_id（**我们要 false**） |
 
-> 其他 chat2api 官方环境变量照常用（如 `HISTORY_DISABLED=false`）。
-> `PROXY_URL` / `EXPORT_PROXY_URL` **由入口脚本自动设置**，无需手动配。
+> `PROXY_URL` / `EXPORT_PROXY_URL` 由入口脚本自动设置，无需手动配。
+> `*` = 单节点回退参数，正常用 specified_nodes + 订阅时无需配置。
 
 ---
 
-## 构建 & 部署（GCP Cloud Shell / 本地 gcloud）
+## 构建 & 部署（GCP Cloud Shell，完整流程见 DEPLOY.md §3）
 
 ```bash
 cd chat2api-xray
 
-# 1. 构建镜像推 Artifact Registry（或 GCR）
-gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v1 .
+# 0) 首次：建 Artifact Registry 仓库
+gcloud artifacts repositories create ziven-bridge \
+  --repository-format=docker --location=asia-northeast1 --project=$GOOGLE_CLOUD_PROJECT
 
-# 2. 部署到 Cloud Run（注意 --port 5005！chat2api 监听 5005）
-gcloud run deploy chat2api-xray \
-  --image gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v1 \
+# 1. 构建镜像（每次改代码升 tag：v1→v2→v3...）
+gcloud builds submit \
+  --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v2 \
+  .
+
+# 2. 部署 Cloud Run（注意 --port 5005！）
+gcloud run deploy ziven-bridge \
+  --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v2 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
   --memory 512Mi \
-  --set-env-vars="HISTORY_DISABLED=false,VLESS_ADDR=43.153.152.106,VLESS_PORT=443,VLESS_UUID=<你的UUID>,VLESS_SNI=magicovo.pages.dev,VLESS_HOST=magicovo.pages.dev,VLESS_PATH=/"
+  --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
 ```
 
-> ⚠️ 完整命令（含 clone dev 分支 / 验证 / 升级 tag）见 **[DEPLOY.md](./DEPLOY.md)**。
+> `<SUBSCRIPTION_URL>` 换成你的订阅链接（含 token，只放环境变量，不写仓库）。
 
 ---
 
 ## 换节点（以后随时换）
 
-不重新构建、不重新部署镜像，**直接在 Cloud Run 控制台改环境变量**后保存（触发新版本）：
+**不用重新构建镜像、不用改代码**，改配置后重启 Revision 即可：
 
-- 换 IP：改 `VLESS_ADDR`、`VLESS_PORT`
-- 换整个节点：改 `VLESS_ADDR` + `VLESS_UUID`（+ 必要时 `VLESS_SNI` / `VLESS_HOST` / `VLESS_PATH`）
-
-保存后自动部署新 Revision，就开始走新节点了。
-
----
-
-## MCP 连接器自动挂载（2026-09-05 新增）
-
-构建时 `patch_chatformat.py` 会在 `chatgpt/chatFormat.py` 的 `api_messages_to_chat()` 给**每条消息**注入：
-
-```json
-"metadata": {
-  "developer_mode_connector_ids": ["asdk_app_6a95a93c9a50819184dcf3468ae0052a"]
-}
-```
-
-效果：GPT 无需在 ChatGPT 页面手动加号挂 Ziven_MCP，即可调用 MCP 工具（`github_read` / `create_patch_proposal` 等）。
-连接器 ID 对应 Ziven_MCP 应用（`asdk_app_6a95...`），若失效换版本 ID（`asdk_app_v_6a95...`）见 DEPLOY.md §6。
+- **换 specified 节点**：改 ZivenLab dev `node-config.json` 的 `specified_nodes` 数组 → 推代码 → Cloud Run 重启 Revision
+- **换订阅兜底**：重新部署时改 `SUBSCRIPTION_URL` 环境变量
 
 ---
 
 ## 验证
 
-部署后测试：
+部署后测试（token 与 conversation_id 来源见 DEPLOY.md §3-5）：
 
 ```bash
 curl https://<你的run域名>/v1/chat/completions \
@@ -91,4 +97,4 @@ curl https://<你的run域名>/v1/chat/completions \
 ---
 
 *Ziven 于 2026-09-02 实测：xray(arm64) + VLESS 节点 → chatgpt.com 200 OK，无风控。*
-*2026-09-05 更新：新增 MCP 连接器自动挂载 patch（方案B）*
+*2026-09-05：新增 MCP 连接器自动挂载 patch（方案B）+ 节点三层容灾 + 订阅按需拉取 + 服务改名 ziven-bridge。*
