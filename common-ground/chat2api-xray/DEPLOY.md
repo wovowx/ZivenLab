@@ -3,7 +3,7 @@
 > **本文档回答**：chat2api 是什么、为什么这么部署、怎么部署、出了问题怎么办。
 > 任何关于 chat2api 部署 / 环境变量 / 节点 / 风控 / MCP 挂载的疑问，**先查本文档**，不要凭记忆操作。
 >
-> 最后更新：2026-09-05（新增 MCP 连接器自动挂载 patch + 节点列表自动轮换）
+> 最后更新：2026-09-05 22:35（**🔴 重大：Cloud Run 部署必须显式设 `PROXY_URL`，否则 chat2api 直连数据中心 IP → 403 cf_chl_opt** + MCP 连接器自动挂载 ✅ 验证闭环 + node_manager manual 锁定模式）
 
 ---
 
@@ -25,12 +25,13 @@
 
 ## 3. 完整部署命令（从零开始 · 2026-09-05 定稿）
 
-> ✅ **当前线上状态（2026-09-05 20:38 VERIFIED）**：
+> ✅ **当前线上状态（2026-09-05 22:01 VERIFIED·主线闭环）**：
 > - 服务名 **`ziven-bridge`**，URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`
 > - chat2api **1.8.8-beta2** 已起，Uvicorn 监听 5005
-> - node_manager：`specified_nodes=12, subscription_url=set`（12 个日本节点 + 订阅兜底）
-> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v2`
-> - 后续验证（待做）：MCP 自动挂载（改 wrangler CHAT2API_URL → ziven-bridge 后测）
+> - **env 必含 `PROXY_URL=http://127.0.0.1:10809`**（🔴 漏了 → chat2api 直连数据中心 IP → 403 cf_chl_opt，2026-09-05 根因）
+> - node_manager：**manual 锁定 JP-04**（43.153.152.106，柳柳浏览器同源），`mode=manual` + `locked_node=JP-04`，不自动切换
+> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v3`
+> - **MCP 连接器自动挂载 ✅ 验证闭环**（2026-09-05 22:01）：GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号
 
 > 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
 > 实际值在 Cloud Shell 本地变量 `SUBSCRIPTION_URL` 或 Cloud Run 控制台维护（见 6.5）。
@@ -53,18 +54,21 @@ cd common-ground/chat2api-xray
 # 仓库用 Artifact Registry（gcr.io 新项目默认无权限，会报 denied: gcr.io repo does not exist）
 # 首次需建仓库：gcloud artifacts repositories create ziven-bridge --repository-format=docker --location=asia-northeast1 --project=$GOOGLE_CLOUD_PROJECT
 gcloud builds submit \
-  --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v2 \
+  --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v3 \
   .
 
-## 3) 部署 Cloud Run（节点不写死：NODE_CONFIG_URL + SUBSCRIPTION_URL）
+## 3) 部署 Cloud Run（🔴 PROXY_URL 必设！NODE_CONFIG_URL + SUBSCRIPTION_URL 兜底）
 #    <SUBSCRIPTION_URL> 换成你的 edgetunnel 订阅链接（含 token）
+#    🔴🔴 PROXY_URL=http://127.0.0.1:10809 必须显式设置！
+#    ——chat2api 的代理只从 env PROXY_URL 读；entrypoint.sh 里那句 echo 只是打印不是 export！
+#    漏设 → Request proxy: None → chat2api 直连数据中心 IP → 403 cf_chl_opt（2026-09-05 根因）
 gcloud run deploy ziven-bridge \
-  --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v2 \
+  --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v3 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
   --memory 512Mi \
-  --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
+  --set-env-vars="HISTORY_DISABLED=false,PROXY_URL=http://127.0.0.1:10809,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
 
 ## 4) 等部署完成，看节点通道是否打通（重点看 ACTIVE JP-xx）
 gcloud run services logs read ziven-bridge --region asia-northeast1 --limit 100
@@ -90,7 +94,8 @@ curl https://<你的run域名>/v1/chat/completions \
 
 | 变量 | 必填 | 默认 | 说明 |
 |---|---|---|---|
-| `NODE_CONFIG_URL` | 推荐 | - | 节点配置文件（node-config.json）的 URL，含 specified_nodes（手动指定快节点）。不设则回退用 VLESS_* 单节点。 |
+| `PROXY_URL` | **🔴必设** | - | **chat2api 出站代理，必须显式设 `http://127.0.0.1:10809`**（容器内 xray 本地 HTTP 端口）。chat2api 只从该 env 读代理（`utils/configs.py`）；entrypoint.sh 的 echo 不是 export。**漏设 → 直连数据中心 IP → 403 cf_chl_opt**（2026-09-05 根因）。 |
+| `NODE_CONFIG_URL` | 推荐 | - | 节点配置文件（node-config.json）的 URL，含 specified_nodes（手动指定快节点）+ **mode/locked_node（manual 锁定）**。不设则回退用 VLESS_* 单节点。 |
 | `SUBSCRIPTION_URL` | 兜底 | - | 订阅链接（edgetunnel vless；token 敏感，放环境变量不写仓库）。specified 全失效时才拉订阅，且**只在需要用到的那一刻当场拉最新**（不用不刷）。 |
 | `VLESS_ADDR` * | 回退 | - | 节点服务器地址（仅当无 NODE_CONFIG_URL 时用） |
 | `VLESS_PORT` * | - | 443 | 节点端口 |
@@ -117,12 +122,14 @@ curl https://<你的run域名>/v1/chat/completions \
 3) 全部失效 → node_manager 持续轮询重试（每 30s）
 ```
 
-### node-config.json 格式
+### node-config.json 格式（v3：支持 manual 锁定模式）
 ```json
 {
   "specified_nodes": [
     { "addr": "节点IP", "port": 443, "uuid": "节点UUID", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" }
   ],
+  "mode": "manual",            // v3 新增：manual=锁定手动切换 / auto=自动轮换（默认）
+  "locked_node": "JP-04",      // v3 新增：manual 模式下锁定的节点名（须在 specified_nodes 里）
   "check": {
     "interval_sec": 30,
     "timeout_sec": 6,
@@ -131,6 +138,10 @@ curl https://<你的run域名>/v1/chat/completions \
   }
 }
 ```
+> 🔴 **v3 起默认 manual 锁定模式**（柳柳 2026-09-05 确认「不自动切，改手动」）：
+> - `mode=manual` → 启动直接锁 `locked_node`，失败**只告警不自动切换**（MANUAL MODE 提示，继续重试）
+> - 换节点 = 改 `locked_node` 推 dev → Cloud Run 重启 Revision 即生效，**不用重建镜像**（node-config.json 运行时拉取）
+> - `mode=auto` 保持原逻辑（启动探测轮换 + 失败自动切换 + specified 耗尽拉订阅）
 
 > 💡 **12 个节点共用同一 UUID**：JP-01~12 的 `uuid` 都是 `92a8cc7e-...`，这是**有意的**——它们属于同一个订阅账号（同一密钥可配多个优选 IP），不是写错。换账号时记得一起换。
 
@@ -194,8 +205,12 @@ chat2api 默认 metadata 为空 → GPT 收不到插件。逆向来源：`https:
 - 若应用 ID 无效：改 patch 里的 `CONNECTOR_ID` 换版本 ID → 重新构建部署
 - patch 匹配失败会**构建失败**（exit 1），防镜像版本漂移静默改错
 
-### 验证
-部署后给 GPT 发消息让它直接调 `github_read` 读文件——能读到即成功（无需页面手动加号）。
+### 验证（2026-09-05 22:01 ✅ 已闭环）
+部署后给 GPT 发消息让它直接调 `github_read`/`ds_quota`——能调用即成功（无需页面手动加号）。
+```
+POST /api/chat2api/ask → STATUS 200
+💡 DeepSeek 账户余额 0.45 CNY（ds_quota 原生 MCP 调用，无手动加号）
+```
 
 ### 实际调用链路（GPT 是怎么走到这里的）
 GPT 平时**不直接连 run 域名**，而是走一条转发链路：
@@ -216,7 +231,7 @@ ChatGPT 页面/GPT 本体
 3. **内存**：至少 512Mi，xray + node_manager + chat2api 都吃内存。
 4. **`--allow-unauthenticated`**：对外匿名访问（代理端口本来就要被 curl 访问）。
 5. **镜像版本 tag**：每次重新部署建议升 tag（v1→v2...），避免 Cloud Run 缓存旧镜像。
-6. **403 / `cf_chl_opt`**：当前节点 IP 太脏 → 节点自动轮换会处理；检查 node-config.json 列表是否有可用节点。
+6. **403 / `cf_chl_opt`（2026-09-05 根因修正）**：**首要查 PROXY_URL！** 🔴 漏设 `PROXY_URL=http://127.0.0.1:10809` → chat2api 直连数据中心 IP → 403（`Request proxy: None` 即铁证）。**其次**才查节点 IP 脏 / 自动轮换 / 轰炸。排障顺序：①日志看 `Request proxy` ②确认 env 带 PROXY_URL ③节点与浏览器同源 ④才考虑 IP 脏/冷却。
 7. **429**：官方限流，不是部署问题，等 1 小时或换账号/token。
 8. **502**：Cloud Run 容器没起来 / OOM → 看 Cloud Run 日志（`gcloud logging read` 或控制台），确认 node-config.json 拉取成功、至少有 1 个可用节点。
 9. **节点配置拉不下来 / JSON 格式错**：entrypoint.sh 会报错退出 → 检查 NODE_CONFIG_URL 可达、node-config.json 语法。
@@ -229,6 +244,8 @@ ChatGPT 页面/GPT 本体
 
 ## 9. 时间线
 
+- **2026-09-05 22:01**：🎉 **MCP 自动挂载主线闭环 VERIFIED**。发现并根治 403 根因：**Cloud Run env 漏设 PROXY_URL**（chat2api 只从 env 读代理，entrypoint.sh 的 echo 不是 export）→ 补 `PROXY_URL=http://127.0.0.1:10809` 重新部署 v3 → GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号。
+- **2026-09-05**：node_manager 支持 **manual 锁定模式**（`mode=manual` + `locked_node`，失败只告警不自动切换，柳柳确认不自动切改手动）；构建镜像 **v3**（node_manager manual 代码进镜像）。
 - **2026-09-05 20:38**：✅ **ziven-bridge 部署成功 VERIFIED**。服务 URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`，chat2api 1.8.8-beta2 监听 5005，node_manager 12 节点 + 订阅就绪。踩坑修复：curl 缺失 → python3 urllib；chmod 斜杠；gcr.io → Artifact Registry。
 - **2026-09-05**：⚠️ 补齐「从零开始完整部署」流程（§3 定稿）：前置检查 → 拉代码 → 构建 → 部署 → 节点日志验证（ACTIVE JP-xx）→ curl 功能验证；补 §6.4/6.5 订阅链接维护与 token 保管；订阅改为按需拉取（不用不刷）。
 
