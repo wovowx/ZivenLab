@@ -12,12 +12,16 @@ Ziven_MCP 连接器，GPT 即可调用 MCP 工具，无需在页面手动加号�
   chat2api 默认不填该字段 → 本次 patch 在发送前补上。
 
 匹配失败即 exit 1（防止镜像版本漂移导致静默改错）。
+
+v4（2026-09-05）：CONNECTOR_ID 由应用 ID（asdk_app_）换成版本 ID（asdk_app_v_）。
+原因：v3 用应用 ID 实测 GPT 能发现工具但执行被系统禁用
+（"The Ziven_MCP tool has been disabled."）。
 """
 import sys
 
 PATH = "/app/chatgpt/chatFormat.py"
-# 连接器应用 ID（柳柳 2026-09-05 从添加插件信息页抄）
-CONNECTOR_ID = "asdk_app_6a95a93c9a50819184dcf3468ae0052a"
+# 连接器版本 ID（柳柳 2026-09-05 从添加插件信息页抄；asdk_app_v_ 前缀 = 版本 ID）
+CONNECTOR_ID = "asdk_app_v_6a95a93c9a5c81918a5cb77ada6bc3b1"
 
 with open(PATH, "r", encoding="utf-8") as f:
     content = f.read()
@@ -58,4 +62,4 @@ for label, old, new in (("multimodal", old1, new1), ("text", old2, new2)):
 with open(PATH, "w", encoding="utf-8") as f:
     f.write(content)
 
-print("[patch] DONE: developer_mode_connector_ids injected")
+print("[patch] DONE: developer_mode_connector_ids injected (v4, asdk_app_v_)")
