@@ -39,14 +39,14 @@ cd common-ground/chat2api-xray
 # 2) 构建镜像推 Artifact Registry / GCR（每次改代码升 tag：v1→v2→v3...）
 gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v2 .
 
-# 3) 部署 Cloud Run（节点不写死！只配 NODE_CONFIG_URL 指向节点列表）
+# 3) 部署 Cloud Run（节点不写死！只配 NODE_CONFIG_URL + SUBSCRIPTION_URL）
 gcloud run deploy chat2api-xray \
   --image gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v2 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
   --memory 512Mi \
-  --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json"
+  --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<你的edgetunnel订阅链接>"
 
 # 4) 验证（200 且非 cf_chl_opt 即成功）
 curl https://<你的run域名>/v1/chat/completions \
@@ -62,7 +62,8 @@ curl https://<你的run域名>/v1/chat/completions \
 
 | 变量 | 必填 | 默认 | 说明 |
 |---|---|---|---|
-| `NODE_CONFIG_URL` | 推荐 | - | 节点列表 JSON 的 URL（支持多节点自动轮换）。不设则回退用 VLESS_* 单节点。 |
+| `NODE_CONFIG_URL` | 推荐 | - | 节点配置文件（node-config.json）的 URL，含 specified_nodes（手动指定快节点）。不设则回退用 VLESS_* 单节点。 |
+| `SUBSCRIPTION_URL` | 兜底 | - | 订阅链接（edgetunnel vless；token 敏感，放环境变量不写仓库）。specified 全失效时自动拉订阅节点，且每小时自动刷新。 |
 | `VLESS_ADDR` * | 回退 | - | 节点服务器地址（仅当无 NODE_CONFIG_URL 时用） |
 | `VLESS_PORT` * | - | 443 | 节点端口 |
 | `VLESS_UUID` * | 回退 | - | 节点 UUID |
@@ -75,20 +76,29 @@ curl https://<你的run域名>/v1/chat/completions \
 
 > 新部署建议只用 `NODE_CONFIG_URL` + `HISTORY_DISABLED`，VLESS_* 保留作环境变量回退（兼容旧版）。
 
-## 5. 节点自动轮换（2026-09-05 新增）
+## 5. 节点自动轮换（2026-09-05 新增，v2：三层容灾）
 
-### 节点列表格式（node-config.json）
+### 节点来源分层
+```
+1) specified_nodes（优先）：node-config.json 里手动指定的快节点（哥哥维护，你发现快的 IP 发给哥哥）
+2) subscription（兜底）：SUBSCRIPTION_URL 订阅链接（edgetunnel vless 订阅）
+   - specified 全不通 → 自动拉订阅用订阅节点
+   - 订阅内容隔几小时刷新 → 管理器每 subscription_refresh_sec 自动重拉
+3) 全部失效 → node_manager 持续轮询重试（每 30s）
+```
+
+### node-config.json 格式
 ```json
 {
-  "nodes": [
-    { "addr": "节点IP", "port": 443, "uuid": "节点UUID", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" },
-    { "addr": "另一个IP", "port": 443, "uuid": "另一个UUID", "sni": "...", "host": "...", "path": "/" }
+  "specified_nodes": [
+    { "addr": "节点IP", "port": 443, "uuid": "节点UUID", "sni": "magicovo.pages.dev", "host": "magicovo.pages.dev", "path": "/" }
   ],
   "check": {
     "interval_sec": 30,
     "timeout_sec": 6,
     "fail_threshold": 3,
-    "probe_url": "https://www.gstatic.com/generate_204"
+    "probe_url": "https://www.gstatic.com/generate_204",
+    "subscription_refresh_sec": 3600
   }
 }
 ```
@@ -96,14 +106,16 @@ curl https://<你的run域名>/v1/chat/completions \
 ### 工作原理
 1. 容器启动 → entrypoint.sh 按 `NODE_CONFIG_URL` 拉取 node-config.json → 存入 /tmp/nodes.json
 2. node_manager.py 常驻：
-   - **启动探测**：依次尝试列表里的节点，第一个探活成功就留在当前
-   - **主循环**：每 `interval_sec` 秒用当前节点探活（走本地代理请求 `probe_url`，默认 google 204 轻量端点）
-   - **自动切换**：连续失败 `fail_threshold` 次 → 自动切下一个节点 → 重启 xray → 继续探活
-3. 加节点/删节点/换节点 = **改 node-config.json 推代码** → Cloud Run 重启 Revision 生效
+   - **启动探测**：先试 specified_nodes，全不通拉订阅再试，直到找到可用节点
+   - **主循环**：每 `interval_sec` 秒用当前节点探活（google 204 轻量端点）
+   - **自动切换**：连续失败 `fail_threshold` 次 → 自动切下一个节点 → 重启 xray
+   - **订阅刷新**：每 `subscription_refresh_sec` 秒（默认1小时）重拉订阅，内容自动跟上
+3. 加节点/删节点/换节点 = **改 node-config.json 推代码**（specified）或改订阅内容（subscription）→ Cloud Run 重启 Revision 生效
 
 ### 注意
-- 列表全挂 → 卡在启动探测循环（日志可查），此时需要修 node-config.json。
-- Cloud Run 只在新 Revision 启动时拉配置，运行中不热加载（可接受：你改配置后重启一次）。
+- **订阅链接（SUBSCRIPTION_URL）放 Cloud Run 环境变量**，不写进 public 仓库（防 token 泄漏）
+- 列表全挂 → 卡在启动探测循环（日志可查），此时需要修 node-config.json 或订阅
+- Cloud Run 只在新 Revision 启动时拉配置，运行中不热加载（可接受：你改配置后重启一次）
 
 ## 6. 常见操作
 
