@@ -25,6 +25,13 @@
 
 ## 3. 完整部署命令（从零开始 · 2026-09-05 定稿）
 
+> ✅ **当前线上状态（2026-09-05 20:38 VERIFIED）**：
+> - 服务名 **`ziven-bridge`**，URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`
+> - chat2api **1.8.8-beta2** 已起，Uvicorn 监听 5005
+> - node_manager：`specified_nodes=12, subscription_url=set`（12 个日本节点 + 订阅兜底）
+> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v2`
+> - 后续验证（待做）：MCP 自动挂载（改 wrangler CHAT2API_URL → ziven-bridge 后测）
+
 > 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
 > 实际值在 Cloud Shell 本地变量 `SUBSCRIPTION_URL` 或 Cloud Run 控制台维护（见 6.5）。
 
@@ -197,9 +204,13 @@ chat2api 默认 metadata 为空 → GPT 收不到插件。逆向来源：`https:
 10. **基础镜像版本漂移**：`FROM lanqian528/chat2api:latest` 跟随上游更新，patch 脚本匹配失败会构建失败（防静默改错），届时需同步更新 patch 脚本。
 11. **ZivenLab 有 release_guard**：不能直接 push main，always 推 dev，main 走 PR/merge 发布。
 12. **节点列表全挂**：node_manager 卡启动探测，日志一直打 dead on startup；修好 node-config.json 再重启 Revision。
+13. **镜像里没有 curl**（python:3.11-slim / 官方 chat2api 基础镜像）：entrypoint 拉配置用 python3 urllib，**别写 curl**（2026-09-05 踩坑：容器启动即 exit(1)，日志 `curl: command not found`）。
+14. **Dockerfile 里路径别少斜杠**：`chmod +x /usr/local/bin xray`（空格）会构建失败报 `cannot access 'xray'`，必须 `/usr/local/bin/xray`（2026-09-05 踩坑）。
+15. **gcr.io 新项目默认没仓库**：会报 `denied: gcr.io repo does not exist`，用 Artifact Registry（`asia-northeast1-docker.pkg.dev/...`）并先 `gcloud artifacts repositories create`。
 
 ## 9. 时间线
 
+- **2026-09-05 20:38**：✅ **ziven-bridge 部署成功 VERIFIED**。服务 URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`，chat2api 1.8.8-beta2 监听 5005，node_manager 12 节点 + 订阅就绪。踩坑修复：curl 缺失 → python3 urllib；chmod 斜杠；gcr.io → Artifact Registry。
 - **2026-09-05**：⚠️ 补齐「从零开始完整部署」流程（§3 定稿）：前置检查 → 拉代码 → 构建 → 部署 → 节点日志验证（ACTIVE JP-xx）→ curl 功能验证；补 §6.4/6.5 订阅链接维护与 token 保管；订阅改为按需拉取（不用不刷）。
 
 - **2026-09-02**：首次部署（v1），解决 Cloud Run 公网 IP 风控，走 VLESS 节点。
