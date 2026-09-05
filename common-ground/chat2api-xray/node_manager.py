@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-xray 节点管理器 v2：多来源 + 自动容灾 + 订阅自动刷新
+xray 节点管理器 v2：多来源 + 自动容灾 + 订阅按需拉取
 ====================================================
 节点来源分层：
   1. specified_nodes（优先）：node-config.json 里手动指定的快节点
      （柳柳挑好的 IP，哥哥维护）
   2. subscription（兜底）：环境变量 SUBSCRIPTION_URL 指向订阅链接
-     （edgetunnel vless 订阅；内容隔几小时刷新，管理器定时重拉自动跟上）
+     （edgetunnel vless 订阅；内容隔几小时刷新，需要用到时才当场拉最新）
 
 行为：
-  - 启动：先试 specified，全不通则拉订阅、试订阅节点，直到找到可用节点
+  - 启动：先试 specified；全不通才当场拉订阅、试订阅节点，直到找到可用节点
   - 主循环：每 interval 秒探活；连续 fail_threshold 次失败 → 自动切下一个
-  - 订阅刷新：每 subscription_refresh_sec 秒重新拉一次订阅（默认 3600）
+  - 订阅拉取：不用不刷——只在「要切进订阅域」的那一刻当场拉一次最新（柳柳要求）
+  - 订阅域内轮换不再反复刷，重启容器即重新从 specified 开始
 
 配合 chat2api：xray 本地代理端口由 LOCAL_HTTP_PORT 指定，chat2api 的
 PROXY_URL / EXPORT_PROXY_URL 由 entrypoint.sh 设为同一端口。
@@ -256,8 +257,9 @@ def main():
         sys.exit("ERROR: no specified_nodes and no SUBSCRIPTION_URL")
     print(f"[node-mgr] specified_nodes={len(pool.specified)}, subscription_url={'set' if subscription_url else 'none'}", flush=True)
 
-    # 启动时先拉一次订阅（如有）
-    pool.refresh_subscription(force=True)
+    # 启动：先试 specified；只有没有 specified 时才当场拉订阅（平时不主动刷）
+    if not pool.specified:
+        pool.refresh_subscription(force=True)
 
     nodes = pool.nodes()
     if not nodes:
@@ -288,25 +290,15 @@ def main():
         xray_proc = None
         idx += 1
         probe_cursor += 1
-        # 完整轮过一轮还没通 → 重新拉订阅（内容可能已刷新）
+        # specified 完整轮完一轮还没通 → 当场拉一次订阅（此时才需要用到订阅）
         if probe_cursor >= max(1, len(nodes)):
             pool.refresh_subscription(force=True)
             probe_cursor = 0
 
-    # ---- 主循环：健康检查 + 自动切换 + 订阅定时刷新 ----
+    # ---- 主循环：健康检查 + 自动切换（订阅只在「需要用到」时当场拉） ----
+    in_subscription = idx >= len(pool.specified)
     while True:
         time.sleep(interval)
-
-        # 定时刷新订阅（内容隔几小时会变）
-        pool.refresh_subscription()
-        new_nodes = pool.nodes()
-        if len(new_nodes) != len(nodes):
-            nodes = new_nodes
-            idx = min(idx, max(0, len(nodes) - 1))
-            print(f"[node-mgr] node pool size changed -> {len(nodes)}", flush=True)
-        if not nodes:
-            print("[node-mgr] node pool empty, waiting ...", flush=True)
-            continue
 
         ok = probe(probe_url, timeout)
         if ok:
@@ -324,6 +316,15 @@ def main():
         xray_proc = None
         fail_count = 0
         idx += 1
+
+        # 从 specified 域切到订阅域 → 当场拉一次最新订阅（不用就不刷）
+        if idx >= len(pool.specified) and not in_subscription:
+            print("[node-mgr] specified exhausted, fetching fresh subscription ...", flush=True)
+            pool.refresh_subscription(force=True)
+            nodes = pool.nodes()
+            print(f"[node-mgr] node pool now {len(nodes)} nodes", flush=True)
+            in_subscription = True
+
         node = nodes[idx % len(nodes)]
         write_xray_config(node)
         xray_proc = start_xray()
