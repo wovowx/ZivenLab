@@ -13,6 +13,9 @@ Ziven_MCP 连接器，GPT 即可调用 MCP 工具，无需在页面手动加号�
 
 匹配失败即 exit 1（防止镜像版本漂移导致静默改错）。
 
+v5（2026-09-05）：CONNECTOR_ID 改为运行时读环境变量 MCP_CONNECTOR_ID。
+以后换连接器 ID：只需在 Cloud Run 环境变量改 MCP_CONNECTOR_ID → 重启 Revision，
+不用重建镜像（构建这一次，ID 以后随便换）。
 v4（2026-09-05）：CONNECTOR_ID 由应用 ID（asdk_app_）换成版本 ID（asdk_app_v_）。
 原因：v3 用应用 ID 实测 GPT 能发现工具但执行被系统禁用
 （"The Ziven_MCP tool has been disabled."）。
@@ -20,11 +23,21 @@ v4（2026-09-05）：CONNECTOR_ID 由应用 ID（asdk_app_）换成版本 ID（a
 import sys
 
 PATH = "/app/chatgpt/chatFormat.py"
-# 连接器版本 ID（柳柳 2026-09-05 从添加插件信息页抄；asdk_app_v_ 前缀 = 版本 ID）
-CONNECTOR_ID = "asdk_app_v_6a95a93c9a5c81918a5cb77ada6bc3b1"
 
 with open(PATH, "r", encoding="utf-8") as f:
     content = f.read()
+
+# Patch 0: 文件顶部补 import os（chatFormat.py 默认没有 import os）
+if "import os\n" not in content:
+    lines = content.split("\n")
+    for i, line in enumerate(lines):
+        if line.startswith("import "):
+            lines.insert(i, "import os")
+            break
+    content = "\n".join(lines)
+    print("[patch] OK: import-os inserted")
+else:
+    print("[patch] SKIP: import os already present")
 
 # Patch 1: multimodal 分支（带附件消息）
 old1 = (
@@ -35,9 +48,9 @@ old1 = (
 new1 = (
     "            metadata = {\n"
     '                "attachments": attachments,\n'
-    '                "developer_mode_connector_ids": ["%s"]\n'
+    '                "developer_mode_connector_ids": [os.environ.get("MCP_CONNECTOR_ID", "")]\n'
     "            }"
-) % CONNECTOR_ID
+)
 
 # Patch 2: 纯文本分支
 old2 = (
@@ -48,8 +61,8 @@ old2 = (
 new2 = (
     '            content_type = "text"\n'
     "            parts = [content]\n"
-    '            metadata = {"developer_mode_connector_ids": ["%s"]}'
-) % CONNECTOR_ID
+    '            metadata = {"developer_mode_connector_ids": [os.environ.get("MCP_CONNECTOR_ID", "")]}'
+)
 
 for label, old, new in (("multimodal", old1, new1), ("text", old2, new2)):
     count = content.count(old)
@@ -62,4 +75,4 @@ for label, old, new in (("multimodal", old1, new1), ("text", old2, new2)):
 with open(PATH, "w", encoding="utf-8") as f:
     f.write(content)
 
-print("[patch] DONE: developer_mode_connector_ids injected (v4, asdk_app_v_)")
+print("[patch] DONE: developer_mode_connector_ids injected (v5, env-driven MCP_CONNECTOR_ID)")
