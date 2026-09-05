@@ -1,0 +1,18 @@
+{
+  "nodes": [
+    {
+      "addr": "43.153.152.106",
+      "port": 443,
+      "uuid": "92a8cc7e-24f8-4980-86ff-a2f7d2afe4e5",
+      "sni": "magicovo.pages.dev",
+      "host": "magicovo.pages.dev",
+      "path": "/"
+    }
+  ],
+  "check": {
+    "interval_sec": 30,
+    "timeout_sec": 6,
+    "fail_threshold": 3,
+    "probe_url": "https://www.gstatic.com/generate_204"
+  }
+}
