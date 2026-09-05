@@ -281,9 +281,9 @@ def main():
         xray_proc = start_xray()
         time.sleep(2)
         if probe(probe_url, timeout):
-            print(f"[node-mgr] ACTIVE node[{idx}] {node['addr']} ({'specified' if idx < len(pool.specified) else 'subscription'})", flush=True)
+            print(f"[node-mgr] ACTIVE {node.get('name','?')} node[{idx}] {node['addr']} ({'specified' if idx < len(pool.specified) else 'subscription'})", flush=True)
             break
-        print(f"[node-mgr] node[{idx}] {node['addr']} dead on startup, try next", flush=True)
+        print(f"[node-mgr] {node.get('name','?')} node[{idx}] {node['addr']} dead on startup, try next", flush=True)
         stop_xray(xray_proc)
         xray_proc = None
         idx += 1
@@ -314,7 +314,7 @@ def main():
                 fail_count = 0
             continue
         fail_count += 1
-        print(f"[node-mgr] probe fail {fail_count}/{threshold} on {nodes[idx % len(nodes)]['addr']}", flush=True)
+        print(f"[node-mgr] probe fail {fail_count}/{threshold} on {nodes[idx % len(nodes)].get('name','?')} {nodes[idx % len(nodes)]['addr']}", flush=True)
         if fail_count < threshold:
             continue
 
@@ -329,7 +329,7 @@ def main():
         xray_proc = start_xray()
         time.sleep(2)
         source = "specified" if idx < len(pool.specified) else "subscription"
-        print(f"[node-mgr] SWITCHED to node[{idx}] {node['addr']} ({source})", flush=True)
+        print(f"[node-mgr] SWITCHED to {node.get('name','?')} node[{idx}] {node['addr']} ({source})", flush=True)
 
 
 if __name__ == "__main__":
