@@ -182,35 +182,47 @@ curl https://<你的run域名>/v1/chat/completions \
 - 真实订阅链接（含 token）只存在于：Cloud Shell 本地变量 / Cloud Run 环境变量 / 你自己的收藏
 - 不要在聊天里把链接发到公开渠道；哥哥也不会把它写进任何公开文件
 
-## 7. MCP 连接器自动挂载（2026-09-05 新增）
+## 7. MCP 连接器自动挂载（2026-09-06 v7 实测成功）
 
 ### 背景
-柳柳在 ChatGPT 页面**左下角加号**挂 Ziven_MCP 连接器，GPT 才能调 MCP 工具（`github_read` / `create_patch_proposal` 等）。但插件挂载是**消息级**的（官方文档原话：*select one or more apps for a single message*），每次发消息都要手动加，很烦。
+柳柳在 ChatGPT 页面**左下角加号**挂 Ziven_MCP 连接器，GPT 才能调 MCP 工具（`github_read` / `create_patch_proposal` 等）。但插件挂载是**消息级**的（官方文档原话：*select one or more apps for a single message*），每次发消息都要手动加，很烦。chat2api 定制镜像用 patch 自动注入，免手动。
 
-### 原理（逆向确认 2026-09-05）
-ChatGPT 网页端「挂 MCP 连接器」= 在消息 metadata 里写：
+### ⚠️ 真实 payload 真相（2026-09-05 柳柳 F12 抓包铁证，推翻旧假设）
+**挂插件 ≠ 往 metadata 写 `developer_mode_connector_ids`！**（v3-v6 用这个错误字段，GPT 一直报 The tool has been disabled）
+
+真实浏览器挂插件发的 f/conversation payload：
 ```json
-"metadata": {
-  "developer_mode_connector_ids": ["asdk_app_6a95a93c9a50819184dcf3468ae0052a"]
+content.parts = ["@Ziven_MCP "]
+metadata = {
+  "system_hints": ["plugin:asdk_app_6a95a93c9a50819184dcf3468ae0052a"],
+  "serialization_metadata": {"custom_symbol_offsets": [{"id": "plugin:asdk_app_6a95a93c9a50819184dcf3468ae0052a", "symbol": "ecosystemMention", "startIndex": 0, "endIndex": 10}]},
+  "submission_mode": "manual_send"
 }
+// 顶层也有 system_hints: ["plugin:asdk_app_6a95a93c9a50819184dcf3468ae0052a"]
 ```
-chat2api 默认 metadata 为空 → GPT 收不到插件。逆向来源：`https://www.codebai.cn/posts/chatgpt网页逆向`（f/conversation payload）。
+- parts 要 `@Ziven_MCP ` 前缀 + metadata 带 `system_hints` + `serialization_metadata` 偏移 + `submission_mode`
+- 顶层 ChatService.py 的 `chat_request["system_hints"]` 也要注入插件
+- **正确 ID = 应用 ID** `asdk_app_6a95a93c9a50819184dcf3468ae0052a`（柳柳页面 + F12 抓包双证实）
+- ⛔ 版本 ID `asdk_app_v_6a95a93c9a5c81918a5cb77ada6bc3b1` 是 v5/v6 误用，已废弃
 
-### 方案 B（当前已 implement）
-构建时用 `patch_chatformat.py` 在 `chatgpt/chatFormat.py` 的 `api_messages_to_chat()` 里给**每条消息**注入 `developer_mode_connector_ids`。
-
-- **连接器应用 ID**：`asdk_app_6a95a93c9a50819184dcf3468ae0052a`（柳柳 2026-09-05 从添加插件信息页抄）
-- **版本 ID（备用）**：`asdk_app_v_6a95a93c9a5c81918a5cb77ada6bc3b1`
-  > ℹ️ 应用 ID 与版本 ID **本来就是两个不同的字符串**（前缀 `asdk_app_` vs `asdk_app_v_`），不是笔误；应用 ID 优先，失效才换版本 ID。
-- 若应用 ID 无效：改 patch 里的 `CONNECTOR_ID` 换版本 ID → 重新构建部署
+### 方案（v7 当前 implement）
+构建时用 `patch_chatformat.py`（ZivenLab `common-ground/chat2api-xray/patch_chatformat.py`）：
+- patch `/app/chatgpt/chatFormat.py`：user 消息 parts 前缀 `@Ziven_MCP ` + metadata 注入 system_hints/serialization_metadata/submission_mode；multimodal 分支也补 system_hints
+- patch `/app/chatgpt/ChatService.py`：顶层 chat_request["system_hints"] 注入插件
+- CONNECTOR_ID 可被环境变量 `MCP_CONNECTOR_ID` 覆盖（默认应用 ID）
 - patch 匹配失败会**构建失败**（exit 1），防镜像版本漂移静默改错
 
-### 验证（2026-09-05 22:01 ✅ 已闭环）
-部署后给 GPT 发消息让它直接调 `github_read`/`ds_quota`——能调用即成功（无需页面手动加号）。
+### 验证（2026-09-06 00:10 ✅ 新对话实测成功）
+新对话 `6a9c3dbc`（zivencheng 长期计划 GPTs）+ v7 注入，GPT 直接调 `ds_quota` 成功：
 ```
 POST /api/chat2api/ask → STATUS 200
 💡 DeepSeek 账户余额 0.45 CNY（ds_quota 原生 MCP 调用，无手动加号）
 ```
+
+### 旧框插件失效（2026-09-06 关键教训）
+- 旧框 `6a9bbad2` 页面手动加插件也无效（The tool has been disabled）——**不是注入格式问题，是插件更新后旧框不支持新插件**
+- 换新对话 `6a9c3dbc` + v7 注入 → 成功
+- ⚠️ 22:01 那次「成功」= 旧对话浏览器挂过插件的残留，不是注入成功——**务必用新对话验证，别拿旧对话的结果当证据**
 
 ### 实际调用链路（GPT 是怎么走到这里的）
 GPT 平时**不直接连 run 域名**，而是走一条转发链路：
