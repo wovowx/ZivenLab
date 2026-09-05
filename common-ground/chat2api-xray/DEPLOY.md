@@ -43,12 +43,12 @@ git checkout dev
 cd common-ground/chat2api-xray
 
 ## 2) 构建镜像（每次改代码升 tag：v1→v2→v3...，防 Cloud Run 缓存旧镜像）
-gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v2 .
+gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/ziven-bridge:v2 .
 
 ## 3) 部署 Cloud Run（节点不写死：NODE_CONFIG_URL + SUBSCRIPTION_URL）
 #    <SUBSCRIPTION_URL> 换成你的 edgetunnel 订阅链接（含 token）
-gcloud run deploy chat2api-xray \
-  --image gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v2 \
+gcloud run deploy ziven-bridge \
+  --image gcr.io/$GOOGLE_CLOUD_PROJECT/ziven-bridge:v2 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
@@ -56,7 +56,7 @@ gcloud run deploy chat2api-xray \
   --set-env-vars="HISTORY_DISABLED=false,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
 
 ## 4) 等部署完成，看节点通道是否打通（重点看 ACTIVE JP-xx）
-gcloud run services logs read chat2api-xray --region asia-northeast1 --limit 100
+gcloud run services logs read ziven-bridge --region asia-northeast1 --limit 100
 # 期望看到：ACTIVE JP-01 node[0] 202.144.194.203 (specified)
 # 然后看有没有 node_manager 报错 / xray 启动失败
 
@@ -138,8 +138,8 @@ curl https://<你的run域名>/v1/chat/completions \
 
 ### 6.2 改代码后重新部署（如改 MCP patch / node_manager）
 1. 改 ZivenLab `common-ground/chat2api-xray/` 代码 → 推 dev
-2. `gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/chat2api-xray:v<N+1> .`
-3. `gcloud run deploy chat2api-xray --image ...v<N+1> ...`（其余参数同上，见 §3）
+2. `gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/ziven-bridge:v<N+1> .`
+3. `gcloud run deploy ziven-bridge --image ...v<N+1> ...`（其余参数同上，见 §3）
 
 ### 6.3 换 conversation_id
 见 chat2api skill（改仓库 wrangler.toml `GPT_CONVERSATION_ID` + 推代码部署）。
