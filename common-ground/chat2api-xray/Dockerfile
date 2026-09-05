@@ -34,6 +34,9 @@ RUN set -eux; \
 COPY patch_chatformat.py /patch_chatformat.py
 RUN python /patch_chatformat.py && rm /patch_chatformat.py
 
+# 节点管理器（健康检查 + 自动故障切换，2026-09-05）
+COPY node_manager.py /node_manager.py
+
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
