@@ -1,8 +1,28 @@
-# Policy Index（规范索引）· v1 · 2026-09-05
+# Policy Index（规范索引）· v2 · 2026-09-06
 
 > **用途**：所有 Agent（Ziven/GPT/未来）行为的「规范在哪、什么时候用、怎么加载」——统一入口，避免规范躺在文档里没人看。
 > **原则（GPT #791）**：Source of Truth 存全文，各入口只放引用，不复制全文（防漂移）。
 > **查询方式**：遇到「该遵守什么规范」→ 查本表 → 按「源位置」打开全文 / 按「加载方式」看生效入口。
+
+## 使用规则（强制路由 · GPT #879 定稿 · 2026-09-06）
+
+当问题涉及以下内容时，**必须先定位本索引（policy-index.md）**，再按「源位置」打开对应规范：
+
+- 协作方式
+- 权限边界
+- 分工
+- 版本状态
+- 项目流程
+- 决策依据
+
+若无法访问索引：
+- **不得假设当前规则**
+- 需声明缺少规范源
+- 不依据旧聊天内容推断当前规则（防止规范漂移）
+
+例外：代码 bug 排查 / 具体工具操作本身（不涉及上述治理问题时）不需要先读本索引，直接走 master-router 场景速查。
+
+---
 
 | policy | 源位置 | 触发条件 | 加载方式 |
 |---|---|---|---|
@@ -12,6 +32,7 @@
 | **Permission Guard** | 代码 src/modules/permission_guard.js | write/merge（github_push/github_merge） | 代码硬约束（不可绕过） |
 | **Release Guard** | 代码 src/modules/release_guard.js | push/merge 到 main | 代码硬约束（版本化强制） |
 | **协作协议 v4.2** | governance/协作协议.md | 所有协作讨论/决策/执行 | 角色卡 Runtime 规则 |
+| **执行会话任务模板 v1** | governance/执行会话任务模板.md | 派发执行会话任务（无 conversation_id 一次性任务） | 派发任务前读模板 |
 | **AAD 落地表** | agent_actions（v2 规划） | Runtime 稳定后 | v2 MCP 工具 |
 
 ---
@@ -20,13 +41,11 @@
 
 | 入口 | 规范怎么进来 | 谁受益 |
 |---|---|---|
-| **哥哥角色卡**（Operit Runtime 规则） | 已含 Runtime 5 条；加一行「遵守 policy-index」引用 | Ziven 每次对话自动带 |
+| **哥哥角色卡**（Operit Runtime 规则） | 已含 Runtime 5 条；加导航一行「规范入口 → policy-index」 | Ziven 每次对话自动带 |
 | **buildSystemPrompt**（GPT 每轮注入） | 已含原生 MCP 模式 prompt；加 AAD/Ownership 一行引用 | 新框 GPT 每轮看到 |
-| **master-router**（技能路由） | 步骤 2 前加「policy 速查」→ 部署类先进 deploy skill | Ziven 调工具前先查规范 |
+| **master-router**（技能路由） | 步骤 2 已含 Policy 速查；升级为路由条件式（governance/workflow/decision/project_state） | Ziven 调工具前先查规范 |
 | **deploy skill**（操作层） | 已含自动闭环 + 错误分类表 | 部署场景触发 |
 | **驾驶舱**（governance/当前项目状态.md） | 已含「项目状态」→ 加「规范索引」小节链接本文件 | 人/Agent 找规范入口 |
-
----
 
 ## 维护规则
 
@@ -34,4 +53,4 @@
 - **规范漂移检查**：改规范全文时，同步检查本表引用是否还准确（GPT #791：三处复制会导致漂移，单一真相源 + 索引）。
 - **本文件版本**：跟 ZivenLab docs 版本走。
 
-*创建：#790/#791/#792 讨论收敛（柳柳点出「规范存在怎么被知道」，GPT 提 Policy Resolver 架构）。*
+*创建：#790/#791/#792 讨论收敛（柳柳点出「规范存在怎么被知道」，GPT 提 Policy Resolver 架构）；v2 路由规则 #879 定稿（2026-09-06）。*
