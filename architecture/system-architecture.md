@@ -55,14 +55,13 @@ L2 项目意识层  mainline / nodes / decisions（这些事代表什么、我�
 
 ---
 
-## 3. 现状（🟡 未闭环）+ GPT 真实消费路径（2026-09-07 晚查证）
+## 3. 现状（🟡 未闭环）+ GPT 消费路径（2026-09-07 晚柳柳亲述确认）
 
-> ⚠️ **认知修正（柳柳指正）**：GPT 的 @ 事件不是 Worker event_processor 自动回复的——GPT 是在**自己的 ChatGPT app（固定 conversation_id + Ziven_MCP 插件）里自主处理**：自己 claim → 自己读消息 → 自己回复（chat_send）→ 自己 ack。证据：chat_agent_events 中 GPT 事件 `claimed_by=gpt`。
+> ✅ **正确认知（柳柳亲述）**：@GPT 走 **chat2api**——event_processor 以 gpt 身份 claim（claimed_by=gpt 正常）→ buildSystemPrompt 拼 [AGENT_CONTEXT] → callChat2Api（同一 conversation_id）→ GPT 真身回复 → sendMessage → ack。GPT 天然拥有**所有被 @ 的消息 + 对应的回复**（同一 conversation_id 都进同一对话）；**缺失的只是「没被 @ 的消息」**（聊天室中没@到 GPT 的讨论）。M1.2 = 把「没被 @ 的消息」作为 delta 补发给 GPT（人类群聊补看）。
 
 **A3 M1.2 Agent Rejoin Context**
-- 已完成（代码层面）：context_resolver.js、trigger/delta/knowledge 恢复层、event_processor 注入逻辑（v6.27.x 已部署）。
-- 🟡 **未闭环根因（已确认）**：恢复包注入挂在 `event_processor → chat2api`（Runtime A），但 GPT 实际走 Runtime B（app + Ziven_MCP 自主处理）——**两条链没接上**，恢复包从没进入 GPT 实际消费路径。
-- **正确方向（柳柳模型）**：GPT 在自己 app 里对**被 @ 的消息**天然有上下文；缺的只是**两次 @ 之间没经过 @ 的对话**。M1.2 = 聊天室中枢在下次 @ 时，把中间缺失的消息直接补给 GPT（人类群聊补看）。
+- 已完成（代码层面）：context_resolver.js、trigger/delta/knowledge 恢复层、event_processor 注入逻辑（v6.27.x 已部署）；注入挂在 event_processor → chat2api ——**链路方向正确**。
+- 🟡 **未闭环**：GPT 真身 #938 反馈「看不到 [AGENT_CONTEXT]」。已排除 resolver 组装问题（debug 端点实测正确）。**待排查注入透传**：buildSystemPrompt → chat2api payload → ChatGPT 真身这一段为何不可感知。
 - 原则：**内部组件存在 ≠ 用户体验完成**。
 
 ---
