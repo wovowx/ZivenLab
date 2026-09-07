@@ -1,8 +1,8 @@
 # 聊天室系统架构总览（system-architecture v1）
 
 > **用途**：回答「整个聊天室系统为什么这样设计、由什么组成」。
-> **状态**：待柳柳拍板后正式生效（2026-09-07 Ziven × GPT 讨论收敛）。
-> **讨论链**：#957→#958→#959→#960→#961→#962→#963→#964→#965→#966→#967→#968
+> **状态**：待柳柳拍板后正式生效（2026-09-07 Ziven × GPT 讨论收敛 + 2026-09-07 晚 GPT 链路实况修正）。
+> **讨论链**：#957→#958→#959→#960→#961→#962→#963→#964→#965→#966→#967→#968→#969→#970→#971→#972
 > **搭档文档**：
 > - 怎么实现 → `common-ground/聊天室实现文档.md`
 > - 一个项目走到哪 → `projects/{项目名}/mainline.md`
@@ -16,7 +16,7 @@
 
 **M1.x** = 聊天室能力的里程碑切片：
 - M1.1 Agent Presence State（Agent 消费位置状态）— 已完成
-- M1.2 Agent Rejoin Context（Agent 重新加入群聊的上下文恢复）— 未闭环
+- M1.2 Agent Rejoin Context（Agent 重新加入群聊的上下文恢复）— 未闭环（根因已确认）
 - M1.3 Mention UX（@ 选择 UI）— 未开始
 
 ---
@@ -49,17 +49,20 @@ L2 项目意识层  mainline / nodes / decisions（这些事代表什么、我�
 
 | 模块 | 状态 | 说明 |
 |---|---|---|
-| A1 链路基础设施 | ✅ | @ziven → chat_messages → chat_agent_events → claim → 隧道唤醒 Operit → reply → ack 全自动闭环 |
+| A1 链路基础设施 | ✅ | @ziven → chat_messages → chat_agent_events → claim → 隧道唤醒 Operit → reply → ack 全自动闭环（Ziven 侧）；GPT 侧见 §3 说明 |
 | A2 M1.1 Agent Presence State | ✅ | agent_chat_state 表（agent_id+thread_id 唯一），last_consumed_message_id = 最后一次完整闭环位置，ack 后推进 |
 | A4 场景↔conversation_id 路由 | ✅ | §9.6：工作室（Ziven thread 3682f872 / GPT 固定 id）/ 聊天两空间分流，Ziven 可跨查 |
 
 ---
 
-## 3. 现状（🟡 未闭环）
+## 3. 现状（🟡 未闭环）+ GPT 真实消费路径（2026-09-07 晚查证）
+
+> ⚠️ **认知修正（柳柳指正）**：GPT 的 @ 事件不是 Worker event_processor 自动回复的——GPT 是在**自己的 ChatGPT app（固定 conversation_id + Ziven_MCP 插件）里自主处理**：自己 claim → 自己读消息 → 自己回复（chat_send）→ 自己 ack。证据：chat_agent_events 中 GPT 事件 `claimed_by=gpt`。
 
 **A3 M1.2 Agent Rejoin Context**
-- 已完成：context_resolver.js、trigger/delta/knowledge 恢复层、event_processor 注入逻辑（已部署）。
-- 未完成：**GPT 真身实际接收验证**（GPT #938 反馈看不到 [AGENT_CONTEXT]）、chat2api payload 注入链路确认、分批恢复机制。
+- 已完成（代码层面）：context_resolver.js、trigger/delta/knowledge 恢复层、event_processor 注入逻辑（v6.27.x 已部署）。
+- 🟡 **未闭环根因（已确认）**：恢复包注入挂在 `event_processor → chat2api`（Runtime A），但 GPT 实际走 Runtime B（app + Ziven_MCP 自主处理）——**两条链没接上**，恢复包从没进入 GPT 实际消费路径。
+- **正确方向（柳柳模型）**：GPT 在自己 app 里对**被 @ 的消息**天然有上下文；缺的只是**两次 @ 之间没经过 @ 的对话**。M1.2 = 聊天室中枢在下次 @ 时，把中间缺失的消息直接补给 GPT（人类群聊补看）。
 - 原则：**内部组件存在 ≠ 用户体验完成**。
 
 ---
@@ -128,7 +131,7 @@ projects/{项目名}/
 ## 9. 演进路线
 
 ```
-Step1  M1.2 Agent Rejoin Context 闭环（恢复真能送达 GPT）
+Step1  M1.2 Agent Rejoin Context 闭环（把两次 @ 之间缺失的消息补给 GPT —— 按 Runtime B 实际路径）
 Step2  Project Mainline v1（主线 + 指针 + UI 当前节点卡片）
 Step3  M1.3 Mention UX（@ 有恢复机制才值得做）
 Step4  Conversation Binding 完整化（routing 是基础设施）
@@ -136,4 +139,4 @@ Step4  Conversation Binding 完整化（routing 是基础设施）
 
 ---
 
-*Ziven × GPT 2026-09-07 讨论收敛；待柳柳拍板。*
+*Ziven × GPT 2026-09-07 讨论收敛；GPT 链路实况 2026-09-07 晚修正（柳柳指正）。待柳柳拍板。*
