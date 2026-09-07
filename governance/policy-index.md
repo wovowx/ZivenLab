@@ -32,7 +32,8 @@
 | **Permission Guard** | 代码 src/modules/permission_guard.js | write/merge（github_push/github_merge） | 代码硬约束（不可绕过） |
 | **Release Guard** | 代码 src/modules/release_guard.js | push/merge 到 main | 代码硬约束（版本化强制） |
 | **协作协议 v4.2** | governance/协作协议.md | 所有协作讨论/决策/执行 | 角色卡 Runtime 规则 |
-| **执行会话任务模板 v1** | governance/执行会话任务模板.md | 派发执行会话任务（无 conversation_id 一次性任务） | 派发任务前读模板 |
+| **GPT 协作规范 v1**（总入口） | governance/GPT协作规范.md | 与 GPT 协作：分工/派发执行会话/指令表述/通道 | 协作前读规范；派发任务前读模板 |
+| **执行会话任务模板 v1.1** | governance/执行会话任务模板.md（已并入 GPT协作规范#2） | 派发执行会话任务（无 conversation_id 一次性任务）——旧引用兼容 | 派发任务前读模板 |
 | **AAD 落地表** | agent_actions（v2 规划） | Runtime 稳定后 | v2 MCP 工具 |
 
 ---
