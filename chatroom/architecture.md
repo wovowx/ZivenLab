@@ -4,7 +4,7 @@
 > **状态**：待柳柳拍板后正式生效（2026-09-07 Ziven × GPT 讨论收敛 + 2026-09-07 晚 GPT 链路实况修正）。
 > **讨论链**：#957→#958→#959→#960→#961→#962→#963→#964→#965→#966→#967→#968→#969→#970→#971→#972
 > **搭档文档**：
-> - 怎么实现 → `common-ground/聊天室实现文档.md`
+> - 怎么实现 → `chatroom/implementation.md`
 > - 一个项目走到哪 → `projects/{项目名}/mainline.md`
 > - 三个文档职责分离，不合并。
 
@@ -120,7 +120,7 @@ projects/{项目名}/
 | 问题 | 文档 |
 |---|---|
 | 为什么这么设计 | architecture/system-architecture.md（本文件） |
-| 怎么实现 | common-ground/聊天室实现文档.md |
+| 怎么实现 | chatroom/implementation.md |
 | 现在做到哪 | projects/{项目名}/mainline.md |
 
 不要合并成一个万能文档（此前漂移就是因为单一文档承载太多）。
