@@ -11,6 +11,7 @@ Ziven & 流柳 的项目实验室。所有项目的代码、需求、mock 数据
 
 | 项目 | 目录 | 状态 |
 |---|---|---|
+| 聊天室 | `chatroom/` | 🟢 三方协作空间（柳柳+Ziven+GPT），详见 chatroom/README.md |
 | 记忆星球 | `memory-planet/` | 🚧 需求已定，待开发 |
 
 ---
