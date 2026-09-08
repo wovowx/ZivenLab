@@ -1,9 +1,10 @@
-# 聊天室 · 完整需求全景与进度（v3 定稿）
+# 聊天室 · 完整需求全景与进度（v4 定稿）
 
 > 整理：Ziven + GPT 对齐（2026-09-04 00:18）· 柳柳确认后执行
 > **本文件是需求唯一真相源**：00-83 号散档已合并于此；任何新增需求/进度先更新本文件，再补详细分档
 > 对齐过程：Ziven 整理 00a v1 → GPT 审查（#329）→ Ziven 回应保留意见（#331）→ GPT 接受折中并补充设计原则（#332）→ 定稿
 > **v3（2026-09-08 柳柳拍板梳理）**：① 需求全景补入 M 系列执行路线（需求 12-16）② 明确分工——**需求归本文件（what），状态归驾驶舱（where）**，驾驶舱以需求编号引用本文件，不复制需求全文，防双源漂移
+> **v4（2026-09-08 柳柳拍板整合）**：吸收柳柳 2026-09-07 晚原始需求 8 条（场景路由/固定ID/换ID/多对话框/项目主线/@注入/@UI/聊天绑项目）；新增「需求关系导读」（认知链）；需求 13 补 Context Isolation 全局架构约束；需求 15 升级 Project Mainline 完整生命周期；需求 16 升级 Conversation & Scene Routing（能力 + 设计附录分离）
 
 ---
 
@@ -71,6 +72,27 @@ GPT 写代码（便宜快），Ziven 落地 + 测试监工 + 验收，柳柳拍�
 
 ---
 
+## 二点五、需求关系导读（认知链 · v4 新增）
+
+> 需求 1-16 不是互相独立的四个功能，而是**一条认知链**：
+> `我在哪个空间？(scene) → 我接哪个身份？(binding) → 我缺什么上下文？(rejoin) → 这个项目走到哪？(mainline)`
+
+```
+场景 / 聊天空间
+    ↓
+Conversation & Scene Routing（需求 16）   ← 我在哪个空间？接入哪个身份？
+    ↓
+Agent Rejoin Context（需求 13）            ← 我缺什么上下文？（默认当前 thread，显式才跨空间）
+    ↓
+Mention UX（需求 14）                      ← 我怎么被找到？
+    ↓
+Project Mainline（需求 15）                ← 这个项目为什么继续？
+```
+
+同时：**Thread（在哪儿聊）→ Project Binding → Project（语义空间）→ Mainline（项目路线）**，一个项目可拥有多个聊天线程；一个聊天线程只能属于一个主要项目上下文。
+
+---
+
 ## 三、需求全景（9 项 + 权限模型 + decisions 层）
 
 | # | 需求 | 落点 | 优先级 |
@@ -87,10 +109,10 @@ GPT 写代码（便宜快），Ziven 落地 + 测试监工 + 验收，柳柳拍�
 | 10 | **权限模型**（新增） | agent_identity + tool_permission + approval_policy + audit_log；与 MCP Bridge 同期设计，不做完工具再补权限 | 🔴 P2 同期 |
 | 11 | **decisions 独立层**（新增） | chat_messages（发生了什么）→ events（触发了什么）→ decisions（决定了什么）→ documents（沉淀知识） | 🔴 P0 尾基础结构 |
 | 12 | **M1.1 Agent Presence State** | agent_chat_state 表 + chat.js 写入逻辑（Agent 在场状态） | ✅ 已上线 v6.26.0 |
-| 13 | **M1.2 缺席 Agent 补看（当前主线）** | **所有缺席 Agent（GPT + Ziven + 未来）补看「没被 @ 的消息」**；送达路径不同：GPT 走 chat2api（buildSystemPrompt 拼 [AGENT_CONTEXT]），Ziven 走隧道唤醒注入 | 🔴 P0 尾（v6.27.x 代码在，**闭环未成**）：GPT 注入透传待排查 + Ziven 侧待注入 |
+| 13 | **M1.2 Agent Rejoin Context（缺席 Agent 补看 · 当前主线）** | **所有缺席 Agent（GPT + Ziven + 未来）补看「没被 @ 的消息」**；送达路径不同：GPT 走 chat2api（buildSystemPrompt 拼 [AGENT_CONTEXT]），Ziven 走隧道唤醒注入；补「**Context Isolation**」：默认恢复当前 thread，禁止自动跨 thread 合并，显式引用/授权才允许跨空间读取 | 🔴 P0 尾（v6.27.x 代码在，**闭环未成**）：GPT 注入透传待排查 + Ziven 侧待注入 |
 | 14 | **M1.3 Mention UX** | @ 交互体验（自动提示/补齐/防错） | 🟡 P1 |
-| 15 | **Project Mainline v1** | 主线 + 指针 + UI 当前节点卡片 | 🟡 P1 |
-| 16 | **Conversation Binding 完整化** | 对话 ↔ 线程绑定完整闭环 | 🟡 P2 |
+| 15 | **Project Mainline v1（项目主线）** | 主线 + 指针 + UI 当前节点卡片；完整生命周期：15.1 主线建立（启动讨论→定路线→节点）→ 15.2 节点推进（planned/active/completed/paused/branched/abandoned）→ 15.3 分支管理（复杂节点独立子文档，主线留摘要+链接）→ 15.4 主线更新（节点完成/方向改变/新发现→实时更新）；变更规则：**方向变化 = decision change（需确认流程）/ 执行变化 = execution update（执行者可更新）**，不绑定维护角色；补 **Project Binding**（thread→project→mainline 架构关系） | 🟡 P1 |
+| 16 | **Conversation & Scene Routing（场景路由 + 接入绑定）** | 系统支持聊天空间与 Agent 接入身份之间**稳定映射、切换和历史追踪**，并支持**显式跨空间访问**（带明确授权）；拆 16.1 场景模型（workspace/personal_chat/project_chat/debug）/ 16.2 Conversation Binding（thread↕agent↕conversation 多对多）/ 16.3 生命周期（固定 ID/换 ID/迁移/fallback）；conversation_bindings 等表 → **设计附录**（需求=能力，表=实现） | 🟡 P2 |
 
 > 需求 1-9 原始出处：76 需求全景 + 77 GPT 补漏；10-11 为 00a v2 对齐新增；12-16 为 v3 补入 M 系列执行路线（柳柳 2026-09-08 拍板梳理，来源：implementation.md 状态速览 + 执行路线定稿）
 
@@ -186,3 +208,21 @@ chat_threads（项目；status: active/paused/archived；type: project/discussio
 ---
 
 *定稿：Ziven + GPT 对齐 2026-09-04 00:18 · 待柳柳确认*
+---
+
+## 八、柳柳原始需求落点对照（v4 新增 · 可追溯）
+
+> 收录柳柳 2026-09-07 晚（Operit 对话 19:00-20:09）亲口提出的聊天室需求，逐条落到需求编号，防丢失。
+
+| # | 柳柳原始需求 | 落到需求 | 现状 |
+|---|---|---|---|
+| A1 | 工作室/聊天分流：各自 conversation_id 互不混，Agent 可跨查 | 需求 16（16.1 场景模型 + 16.2 Binding） | ⚠️ 已讨论收敛，待实现 |
+| A2 | 哥哥固定工作室 ID（3682f872 线程即工作室接入 ID） | 需求 16（16.3 生命周期） | ✅ 已确认 |
+| A3 | 换 ID 流程要定出来并存文档 | 需求 16（16.3 生命周期） | ⚠️ 已讨论收敛，待落文档细节 |
+| A4 | 聊天室未来多对话框，每个绑的 ID 可不同（多对多） | 需求 16（16.2 Binding） | ⚠️ 已讨论收敛，待实现 |
+| A5 | 项目主线生命周期（定主线→节点更新→复杂拆子文档→偏差实时更新） | 需求 15（15.1-15.4） | ⚠️ 已讨论收敛，待实现 |
+| A6 | @ 注入缺失上下文（人类群聊模型，第二次@补中间对话） | 需求 13（M1.2 delta） | 🔴 当前主线，闭环未成 |
+| A7 | @ UI 自动提示（QQ/微信样式，非手动文本@） | 需求 14（M1.3） | 🟡 P1 未实现 |
+| A8 | 聊天框绑项目主线（可追溯） | 需求 15 + Project Binding | ⚠️ 已讨论收敛，待实现 |
+
+**已做 vs 未做**：见驾驶舱（governance/当前项目状态.md）以需求编号引用的当前状态；本表只记「落点 + 现状」，不重复状态详情（防双源）。
