@@ -31,7 +31,7 @@
 > - **env 必含 `PROXY_URL=http://127.0.0.1:10809`**（🔴 漏了 → chat2api 直连数据中心 IP → 403 cf_chl_opt，2026-09-05 根因）
 > - **🔴 NODE_CONFIG_URL 必须指向当前仓库路径** = `https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json`（2026-09-08 事故：目录整合后 env 还是旧路径 `common-ground/chat2api-xray/` → 404 → 容器启动失败）
 > - node_manager：**manual 锁定 JP-04**（43.153.152.106，柳柳浏览器同源），`mode=manual` + `locked_node=JP-04`，不自动切换
-> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v3`
+> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v3`（▲ **v4 待构建**：含 conversation_id 透出 patch_conv_id.py，见「7.X conversation_id 真相」）
 > - **MCP 连接器自动挂载 ✅ 验证闭环**（2026-09-05 22:01）：GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号
 
 > 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
