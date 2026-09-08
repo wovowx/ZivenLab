@@ -12,7 +12,7 @@
 | **带 conversation_id** | GPT 真身 | 讨论 / 决策 / 架构 / 方案对齐 | 正式讨论会话（长期上下文） |
 | **不带 conversation_id** | 执行 Agent（写代码实例） | 做事：按目标完成实现 | 执行会话（history_disabled=true，用完即焚） |
 
-> �UPDATE v1.1（2026-09-08 柳柳拍板「执行 GPT 独立框」v4.1）**：执行 GPT 方向已拍板——**与带 id 讨论 GPT 彻底分开，聊天室单独开执行聊天框（execution-room）专放执行会话，每次换 conversation_id 就更新绑定新 id 到执行框**。执行 GPT = 新的执行 Runtime（Execution Bootstrap Context），delta=过程记忆不给、knowledge=结论状态必须有。
+> ⚠️ UPDATE v1.1（2026-09-08 柳柳拍板「执行 GPT 独立框」v4.1）**：执行 GPT 方向已拍板——**与带 id 讨论 GPT 彻底分开，聊天室单独开执行聊天框（execution-room）专放执行会话，每次换 conversation_id 就更新绑定新 id 到执行框**。执行 GPT = 新的执行 Runtime（Execution Bootstrap Context），delta=过程记忆不给、knowledge=结论状态必须有。
 > 当前状态：**架构已拍板（requirements v4.1 + architecture B4），无 id 模式仍在用、独立框实现推进中**——实现完成前，本节「不带 id 执行会话」描述仍为当前实际运行方式；实现后更新本节。
 
 **判断当前联系的是谁：**
