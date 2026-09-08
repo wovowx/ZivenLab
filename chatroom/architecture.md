@@ -70,10 +70,18 @@ L2 项目意识层  mainline / nodes / decisions（这些事代表什么、我�
 
 - **B1 conversation_bindings**：thread ↔ agent ↔ conversation_id 接入路由。
   - 三概念分离：`route_type`（primary/fallback/migration/temporary）+ `access_mode`（exclusive/shared）+ `status`（active/archived）
-  - 补 `purpose` 字段（development/brainstorm/debug…），同一 thread 可绑多个 conversation 时能解释为什么。
+  - 补 `purpose` 字段（development/brainstorm/debug/execution…），同一 thread 可绑多个 conversation 时能解释为什么。**执行框（execution-room）绑定：purpose=execution / access_mode=exclusive / route_type=temporary**。
   - 铁规：Context 边界永远按 agent+thread，不按 conversation_id；conversation 内部历史不可信；换档 = 旧归档 + 新激活 + 写 `conversation_route_changed` 事件。
 - **B2 Project Mainline v1**：见 §6。
 - **B3 Agent Rejoin 补看**：第二次 @ 时把两次 @ 之间缺失的消息补偿给 Agent = 人类群聊补看。`last_consumed_message_id` = Agent 最后一次参与群聊的位置，不是阅读位置。
+- **B4 Execution Runtime（v4.1 柳柳拍板）**：执行 GPT = 新的执行 Runtime 加入项目，不是「缺席的讨论 GPT 回来」。
+  - **Execution Bootstrap Context**（独立于 Agent Rejoin Context）：task_context（要执行什么/验收标准）+ project_context（哪个项目/当前主线节点）+ constraints_context（架构规则/禁改项/决策）+ files_context（实现文档/相关文件）。
+  - **边界铁律**：delta=过程记忆（聊天废话，执行 GPT 不需要），knowledge=结论状态（当前决定/实现位置，必须有）。执行 GPT 不继承讨论 GPT 的 delta。
+  - 底层复用 context_resolver，但拆两个方法：`resolve_rejoin_context()`（讨论 GPT/Ziven 补看）+ `resolve_execution_context()`（执行 GPT 启动）——别让执行伪装 rejoin（否则出现「执行 GPT 怎么有 last_consumed_message_id」）。
+  - **执行框 thread 长期存在，conversation_id 短生命周期**：thread 是聊天室事实（长期），conversation_id 是外部模型接入状态（短命可换）。执行框（长期）→ 挂 GPT session A/B/C，不反过来。
+  - **领 id**：execution_session_manager 负责（execution_session_init 空初始化 → 创建临时 conversation → 拿 conversation_id → 写 conversation_bindings → 返回 ready → 再开任务），不做隐式初始化。
+  - **换 id**：归档旧 binding（status=archived）+ 新增新 binding（status=active, reason=context_reset）+ 写 conversation_binding_changed 事件，不 UPDATE。
+  - **execution_run 模型（P2/P3 预留）**：execution_run_id/task/thread/status/pending|running|success|failed/started_at/finished_at——区分「聊天消息」和「执行任务」（一次执行可能换 id/重试/超时/分批）。
 
 ---
 
