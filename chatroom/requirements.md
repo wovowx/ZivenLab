@@ -1,8 +1,9 @@
-# 聊天室 · 完整需求全景与进度（v2 定稿）
+# 聊天室 · 完整需求全景与进度（v3 定稿）
 
 > 整理：Ziven + GPT 对齐（2026-09-04 00:18）· 柳柳确认后执行
 > **本文件是需求唯一真相源**：00-83 号散档已合并于此；任何新增需求/进度先更新本文件，再补详细分档
 > 对齐过程：Ziven 整理 00a v1 → GPT 审查（#329）→ Ziven 回应保留意见（#331）→ GPT 接受折中并补充设计原则（#332）→ 定稿
+> **v3（2026-09-08 柳柳拍板梳理）**：① 需求全景补入 M 系列执行路线（需求 12-16）② 明确分工——**需求归本文件（what），状态归驾驶舱（where）**，驾驶舱以需求编号引用本文件，不复制需求全文，防双源漂移
 
 ---
 
@@ -85,8 +86,13 @@ GPT 写代码（便宜快），Ziven 落地 + 测试监工 + 验收，柳柳拍�
 | 9 | TTS 接口 | audio_url + /upload | 🟡 P3 预留 |
 | 10 | **权限模型**（新增） | agent_identity + tool_permission + approval_policy + audit_log；与 MCP Bridge 同期设计，不做完工具再补权限 | 🔴 P2 同期 |
 | 11 | **decisions 独立层**（新增） | chat_messages（发生了什么）→ events（触发了什么）→ decisions（决定了什么）→ documents（沉淀知识） | 🔴 P0 尾基础结构 |
+| 12 | **M1.1 Agent Presence State** | agent_chat_state 表 + chat.js 写入逻辑（Agent 在场状态） | ✅ 已上线 v6.26.0 |
+| 13 | **M1.2 缺席 Agent 补看（当前主线）** | **所有缺席 Agent（GPT + Ziven + 未来）补看「没被 @ 的消息」**；送达路径不同：GPT 走 chat2api（buildSystemPrompt 拼 [AGENT_CONTEXT]），Ziven 走隧道唤醒注入 | 🔴 P0 尾（v6.27.x 代码在，**闭环未成**）：GPT 注入透传待排查 + Ziven 侧待注入 |
+| 14 | **M1.3 Mention UX** | @ 交互体验（自动提示/补齐/防错） | 🟡 P1 |
+| 15 | **Project Mainline v1** | 主线 + 指针 + UI 当前节点卡片 | 🟡 P1 |
+| 16 | **Conversation Binding 完整化** | 对话 ↔ 线程绑定完整闭环 | 🟡 P2 |
 
-> 需求 1-9 原始出处：76 需求全景 + 77 GPT 补漏；10-11 为 00a v2 对齐新增
+> 需求 1-9 原始出处：76 需求全景 + 77 GPT 补漏；10-11 为 00a v2 对齐新增；12-16 为 v3 补入 M 系列执行路线（柳柳 2026-09-08 拍板梳理，来源：implementation.md 状态速览 + 执行路线定稿）
 
 ---
 
@@ -150,9 +156,14 @@ chat_threads（项目；status: active/paused/archived；type: project/discussio
 | v2.1-v2.4 | 双写+计数器 / 缓存 / tool_calls / **三方对等+真@mentions（PR#90 全绿）** |
 | A4 | @ziven 唤醒桥 v1（60s 轮询 workflow） |
 | 00a v1 | 唯一索引文档（本文件前身） |
+| 09-06 | **P0-2 Phase2 Ziven 消费链 MVP 闭环**（柳柳亲手 @ziven 验收）；M1-a dispatcher 上线 v6.22.0/1/3；隧道 setsid 常驻；**M1-b 回复可见性三件套 v6.25.0/1；M1.1 Agent Presence State v6.26.0** |
+| 09-07 | **M1.2 Recovery Package 代码**（v6.27.x：context_resolver + [AGENT_CONTEXT] + debug 端点，v6.27.6 VERIFIED）；聊天室目录整合（chatroom/ 唯一根 + README）；github_move 工具（v6.29.0/v6.32.0）；neat-freak 洁癖 skill 上传 + 机制内嵌（v6.30.0/v6.31.0） |
+| 09-08 | 需求梳理 v3（本文件）：补入 M 系列需求 12-16，明确「需求归本文件/状态归驾驶舱」分工 |
 
 ### 🚧 进行中 / 待办
-见「五、优先级定稿」P0-P3；MCP Bridge 方案已三方对齐待柳柳拍板开工。
+- **M1.2 闭环（需求 13 · 当前主线）**：GPT 侧注入透传待排查（v6.27.x 注入挂在 event_processor/Runtime A，与 GPT 实际消费路径脱节——详见 chatroom/implementation.md §4）+ Ziven 侧隧道注入待接。
+- 其余见「五、优先级定稿」P0-P3；MCP Bridge（P1）方案已三方对齐待柳柳拍板开工。
+- **状态跟进**：各需求当前状态 → 驾驶舱（governance/当前项目状态.md）以需求编号引用，不在本文件复制双份。
 
 ---
 
