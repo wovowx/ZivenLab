@@ -135,9 +135,62 @@ def patch_chatservice():
     return content
 
 
+def patch_conversation_id():
+    """patch 两个文件，让新建对话的 conversation_id 透出到 OpenAI 兼容响应（v8 2026-09-08）
+
+    背景：chat2api 内部能从 ChatGPT SSE 流读到 conversation_id 并保存，
+    但 OpenAI 兼容层（/v1/chat/completions）响应里没有 conversation_id 字段，
+    导致客户端「新建对话后拿不到新 id」→ 无法绑定执行 GPT 独立框（需求16 v4.1）。
+    改动：
+    A. chatFormat.py stream_response：SSE 流读到的新 conversation_id 存回 service（若还没有）
+    B. api/chat2api.py send_conversation：非流式响应（dict）加 conversation_id
+    """
+    # ---- A. chatFormat.py：SSE 流里读到的新对话 id 存回 service ----
+    PATH = "/app/chatgpt/chatFormat.py"
+    with open(PATH, "r", encoding="utf-8") as f:
+        content = f.read()
+    old_a = '                conversation_id = chunk_old_data.get("conversation_id")'
+    new_a = ('                conversation_id = chunk_old_data.get("conversation_id")
+'
+             "                if conversation_id and not service.conversation_id:
+"
+             "                    service.conversation_id = conversation_id")
+    count = content.count(old_a)
+    if count != 1:
+        print(f"[conv_id] ERROR: pattern[stream_response] found {count} times, expected 1", file=sys.stderr)
+        sys.exit(1)
+    content = content.replace(old_a, new_a)
+    print("[conv_id] OK: chatFormat stream_response stores conversation_id")
+    with open(PATH, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    # ---- B. api/chat2api.py：非流式响应补 conversation_id ----
+    PATH = "/app/api/chat2api.py"
+    with open(PATH, "r", encoding="utf-8") as f:
+        content = f.read()
+    old_b = '            return JSONResponse(res, media_type="application/json", background=background)'
+    new_b = ('            if isinstance(res, dict) and getattr(chat_service, 'conversation_id', None):
+'
+             '                res["conversation_id"] = chat_service.conversation_id
+'
+             '            return JSONResponse(res, media_type="application/json", background=background)')
+    count = content.count(old_b)
+    if count != 1:
+        print(f"[conv_id] ERROR: pattern[json_response] found {count} times, expected 1", file=sys.stderr)
+        sys.exit(1)
+    content = content.replace(old_b, new_b)
+    print("[conv_id] OK: chat2api response includes conversation_id")
+    with open(PATH, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("[conv_id] DONE")
+
+
+
+
 if __name__ == "__main__":
     cf = patch_chatformat()
     cs = patch_chatservice()
+    patch_conversation_id()
     print("\n=== VERIFY ===")
     print("[chatFormat] '@Ziven_MCP' count:", cf.count("@Ziven_MCP"))
     print("[chatFormat] system_hints count:", cf.count("system_hints"))
