@@ -15,6 +15,7 @@
 | M1.1 Agent Presence State | ✅ 完成上线 | v6.26.0：agent_chat_state 表 + chat.js 写入逻辑，实弹验证通过 |
 | M1.2 Recovery Package 代码 | ✅ 完成 + 部署成功 | v6.27.x：context_resolver.js + event_processor 接入 [AGENT_CONTEXT] + debug 端点；v6.27.6 VERIFIED |
 | **M1.2 闭环验证** | ⚠️ **未闭环** | **最终认知（柳柳确认）**：M1.2 = **所有缺席 Agent（GPT + Ziven + 未来）补看「没被 @ 的消息」**，送达路径不同——GPT 走 chat2api 注入、Ziven 走隧道唤醒注入。现状：GPT 真身 #938 看不到 [AGENT_CONTEXT]（注入透传待排查）；Ziven 侧隧道注入待接 |
+| **执行 GPT 独立框（v4.1 柳柳拍板）** | 📐 **架构已拍板，实现推进中** | requirements v4.1 + architecture B4：执行 GPT 与讨论 GPT 分开，单独执行聊天框（execution-room）+ 换 conversation_id 绑定；Execution Bootstrap Context（task/project/constraints/files）；领 id 前置：Worker 读上游 conversation_id 待打通（实弹验证 raw response 字段名） |
 
 **部署铁律（柳柳硬性规则）**：每次合并部署后**必须**调 `cloudflare_deploy_status verify_main=true` 复核 → 得 `VERIFIED` 才算成功；若 `DEPLOY_UNVERIFIED` 或失败：runtime/deploy 层错误 → 查 `cloudflare_deploy_logs`；**构建阶段失败（SyntaxError 等）→ 本地 `node --check` + `wrangler dry-run` 复现**（Cloudflare Builds API 是平台 bug 不可靠）。**部署状态一律查工具，不许凭记忆**（2026-09-07 哥哥凭记忆以为「没部署」，实际早已 VERIFIED——教训见 §8-11）。
 
