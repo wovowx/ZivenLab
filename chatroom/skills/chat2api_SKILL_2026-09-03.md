@@ -41,8 +41,8 @@
 
 ## 服务详情
 
-- URL：https://chat2api-1029559493109-1029559493109.asia-northeast1.run.app
-- 镜像：asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/chat2api-repo/chat2api-xray:v1（xray 定制版，走柳柳 VLESS 日本节点，IP 与浏览器同源）
+- URL：https://ziven-bridge-1029559493109.asia-northeast1.run.app
+- 镜像：asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v3（xray 定制版，走柳柳 VLESS 日本节点，IP 与浏览器同源）
 
 ## 调用方法（标准姿势）
 
