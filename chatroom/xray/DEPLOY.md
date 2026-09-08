@@ -31,7 +31,7 @@
 > - **env 必含 `PROXY_URL=http://127.0.0.1:10809`**（🔴 漏了 → chat2api 直连数据中心 IP → 403 cf_chl_opt，2026-09-05 根因）
 > - **🔴 NODE_CONFIG_URL 必须指向当前仓库路径** = `https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json`（2026-09-08 事故：目录整合后 env 还是旧路径 `common-ground/chat2api-xray/` → 404 → 容器启动失败）
 > - node_manager：**manual 锁定 JP-04**（43.153.152.106，柳柳浏览器同源），`mode=manual` + `locked_node=JP-04`，不自动切换
-> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v3`（▲ **v4 待构建**：含 conversation_id 透出 patch_conv_id.py，见「7.X conversation_id 真相」）
+> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v8`（✅ **v8 已部署验证**：v7 + conversation_id 透出 patch_conv_id.py；新建对话返回 id 成功，2026-09-08 16:39 实弹，见「7.1」）
 > - **MCP 连接器自动挂载 ✅ 验证闭环**（2026-09-05 22:01）：GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号
 
 > 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
@@ -55,7 +55,7 @@ cd chatroom/xray
 # 仓库用 Artifact Registry（gcr.io 新项目默认无权限，会报 denied: gcr.io repo does not exist）
 # 首次需建仓库：gcloud artifacts repositories create ziven-bridge --repository-format=docker --location=asia-northeast1 --project=$GOOGLE_CLOUD_PROJECT
 gcloud builds submit \
-  --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v3 \
+  --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v8 \
   .
 
 ## 3) 部署 Cloud Run（🔴 PROXY_URL 必设！NODE_CONFIG_URL + SUBSCRIPTION_URL 兜底）
@@ -64,7 +64,7 @@ gcloud builds submit \
 #    ——chat2api 的代理只从 env PROXY_URL 读；entrypoint.sh 里那句 echo 只是打印不是 export！
 #    漏设 → Request proxy: None → chat2api 直连数据中心 IP → 403 cf_chl_opt（2026-09-05 根因）
 gcloud run deploy ziven-bridge \
-  --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v3 \
+  --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v8 \
   --region asia-northeast1 \
   --port 5005 \
   --allow-unauthenticated \
@@ -235,7 +235,7 @@ ChatGPT 页面/GPT 本体
 - 当前 `CHAT2API_URL` 应指向 `https://ziven-bridge-1029559493109.asia-northeast1.run.app/v1/chat/completions`（2026-09-05 已同步）。
 - 测 Worker 端点：`POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask` body `{"message":"..."}`（不塞 token，Worker 内部处理）。
 
-## 7.1 conversation_id 真相与 v4 patch（2026-09-08 查源码确认 · 之前没落文档的坑）
+## 7.1 conversation_id 真相与 patch（v8 已部署 · 2026-09-08 查源码确认 · 之前没落文档的坑）
 
 ### 真相（lanqian528/chat2api 官方源码逐行确认）
 - chat2api 内部**能拿到**新建对话的 conversation_id：`gateway/reverseProxy.py` content_generator 从 ChatGPT SSE 流解析 `conversation_id` → `save_conversation()` 存进 `data/conversation_map.json`
@@ -243,16 +243,36 @@ ChatGPT 页面/GPT 本体
 - ⚠️ **之前文档没写这个坑**（只在记忆里有 2026-09-05 一条「不回传 conversation_id」实弹结论）——柳柳批评「查过好几次都没写」，本次补上
 - `HISTORY_DISABLED` 是**环境变量全局默认**（utils/configs.py `os.getenv('HISTORY_DISABLED', True)`），但 `ChatService.py` 支持**每条请求覆盖**：`self.history_disabled = self.data.get('history_disabled', history_disabled)`——所以不用改环境变量，请求带 `history_disabled:false` 即可
 
-### v4 patch 方案（哥已实现进 dev，待构建 v4 镜像）
+### patch 方案（v8：已合入 main + 已部署，2026-09-08 16:39 验证成功）
 - **新增 `patch_conv_id.py`**（独立脚本，不动现有 MCP 注入 patch_chatformat.py）：
   1. patch `chatFormat.py` stream_response：SSE 流读到新 conversation_id 时 **存回 service.conversation_id**（`if conversation_id and not service.conversation_id`）
   2. patch `api/chat2api.py` send_conversation：非流式响应（JSONResponse）**把 service.conversation_id 加进返回**：`res["conversation_id"] = chat_service.conversation_id`
 - Dockerfile 已加 `COPY patch_conv_id.py` + `RUN python /patch_conv_id.py`（构建时自动执行）
 - 效果：客户端 `conversation_id:""` 新建对话 → 响应带 `conversation_id` → Worker 拿到 → 绑定执行 GPT 独立框（需求16 v4.1 前置）
-- 已本地模拟验证：patch 匹配成功、两个改动点都在
+- 本地模拟验证 OK（15:55）：官方 main tarball + 模拟 /app + 真跑 patch -> [conv_id] OK x2 + DONE、anchor 全命中
+- **实弹验证 OK（16:39）**：POST /api/chat2api/ask body {message, conversation_id:空} -> 返回 conversation_id: 6a9fca71-...（v7 恒 null -> v8 拿到新 id）；复用该 id 再发 -> 返回同一 id（服务端认会话）-> 执行 GPT 领 id 链路打通
 
 ### 为什么是「返回 id 的新建方式」而不是 read conversation_map
 - 柳柳点破：新建对话框有「返回 ID（保留窗口）」和「不返回 ID（用完即焚）」两种，我们只缺前者。不需要加端点、不需要读内部文件——**让 chat2api 把已读到的 id 透出响应层**就是最小改动。
+
+### v8 实测部署命令（2026-09-08 验证可用，柳柳一次贴成功）
+```bash
+# ===== 0) 项目 ID =====
+gcloud config set project project-8cd8a161-e0d0-4690-80e
+
+# ===== 1) 拉最新 dev 代码（分叉强制对齐，本地仅构建用可 reset）=====
+cd ~/ZivenLab && git fetch -q origin dev && git checkout -q dev && git reset --hard origin/dev && cd chatroom/xray
+
+# ===== 2) 构建 v8 镜像（必须成功才继续，用 && 失败即停）=====
+gcloud builds submit --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v8 .
+
+# ===== 3) 部署 v8（env 与线上一致）=====
+gcloud run deploy ziven-bridge --image asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v8 --region asia-northeast1 --port 5005 --memory 512Mi --allow-unauthenticated --set-env-vars="HISTORY_DISABLED=false,PROXY_URL=http://127.0.0.1:10809,MCP_CONNECTOR_ID=asdk_app_6a95a93c9a50819184dcf3468ae0052a,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json,SUBSCRIPTION_URL=$SUBSCRIPTION_URL"
+
+# ===== 4) 验证 =====
+gcloud run services logs read ziven-bridge --region asia-northeast1 --limit 50
+```
+> 注意：一次贴多行命令不会因构建失败自动停（会继续跑到 deploy 报 Image not found）；要失败即停就用 && 串成一行。验证 conversation_id：POST {worker}/api/chat2api/ask body {message, conversation_id:""} -> 响应带新 id 即成功。
 
 ## 8. 易错点 / 踩坑记录
 
@@ -271,7 +291,9 @@ ChatGPT 页面/GPT 本体
 13. **镜像里没有 curl**（python:3.11-slim / 官方 chat2api 基础镜像）：entrypoint 拉配置用 python3 urllib，**别写 curl**（2026-09-05 踩坑：容器启动即 exit(1)，日志 `curl: command not found`）。
 14. **Dockerfile 里路径别少斜杠**：`chmod +x /usr/local/bin xray`（空格）会构建失败报 `cannot access 'xray'`，必须 `/usr/local/bin/xray`（2026-09-05 踩坑）。
 15. **gcr.io 新项目默认没仓库**：会报 `denied: gcr.io repo does not exist`，用 Artifact Registry（`asia-northeast1-docker.pkg.dev/...`）并先 `gcloud artifacts repositories create`。
-16. **改仓库文件路径必须同步所有运行时 env 引用**（2026-09-08 事故）：`github_move` 搬目录（如 common-ground/chat2api-xray/ → chatroom/xray/）后，**Cloud Run env（NODE_CONFIG_URL）/ Worker env（CHAT2API_URL 等）/ 文档引用**必须同步改——否则容器启动 fetch 404 → exit 1 → 部署失败（本次 ziven-bridge 事故根因）。检查清单：`grep -r "common-ground" ZivenLab deploy / wrangler.toml / Cloud Run 控制台`。
+16. **Image not found = 镜像没构建成功**：deploy v<N> 报 not found 几乎都是先跑了 deploy、构建没跑/失败了；Cloud Shell 一次贴多行不会因失败即停，要失败即停用 && 串一行。
+17. **git 分叉卡住（divergent branches）**：本地 dev 与远端分叉时 git pull 报 divergent branches；ZivenLab 本地仅构建用 -> git fetch -q origin dev && git checkout -q dev && git reset --hard origin/dev 强制对齐。
+18. **改仓库文件路径必须同步所有运行时 env 引用**（2026-09-08 事故）：`github_move` 搬目录（如 common-ground/chat2api-xray/ → chatroom/xray/）后，**Cloud Run env（NODE_CONFIG_URL）/ Worker env（CHAT2API_URL 等）/ 文档引用**必须同步改——否则容器启动 fetch 404 → exit 1 → 部署失败（本次 ziven-bridge 事故根因）。检查清单：`grep -r "common-ground" ZivenLab deploy / wrangler.toml / Cloud Run 控制台`。
 
 ## 9. 时间线
 
