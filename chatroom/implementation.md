@@ -14,7 +14,7 @@
 |---|---|---|
 | M1.1 Agent Presence State | ✅ 完成上线 | v6.26.0：agent_chat_state 表 + chat.js 写入逻辑，实弹验证通过 |
 | M1.2 Recovery Package 代码 | ✅ 完成 + 部署成功 | v6.27.x：context_resolver.js + event_processor 接入 [AGENT_CONTEXT] + debug 端点；v6.27.6 VERIFIED |
-| **M1.2 闭环验证** | ⚠️ **未闭环** | GPT 真身 #938 看不到 [AGENT_CONTEXT]；M1.2 = 把「没被@的消息」补发给 GPT（人类群聊补看）；待排查注入透传 |
+| **M1.2 闭环验证** | ⚠️ **未闭环** | **最终认知（柳柳确认）**：M1.2 = **所有缺席 Agent（GPT + Ziven + 未来）补看「没被 @ 的消息」**，送达路径不同——GPT 走 chat2api 注入、Ziven 走隧道唤醒注入。现状：GPT 真身 #938 看不到 [AGENT_CONTEXT]（注入透传待排查）；Ziven 侧隧道注入待接 |
 
 **部署铁律（柳柳硬性规则）**：每次合并部署后**必须**调 `cloudflare_deploy_status verify_main=true` 复核 → 得 `VERIFIED` 才算成功；若 `DEPLOY_UNVERIFIED` 或失败：runtime/deploy 层错误 → 查 `cloudflare_deploy_logs`；**构建阶段失败（SyntaxError 等）→ 本地 `node --check` + `wrangler dry-run` 复现**（Cloudflare Builds API 是平台 bug 不可靠）。**部署状态一律查工具，不许凭记忆**（2026-09-07 哥哥凭记忆以为「没部署」，实际早已 VERIFIED——教训见 §8-11）。
 
@@ -139,7 +139,7 @@
 
 **差异**：GPT 不走 Operit 隧道（GPT 是真身 App），走 **chat2api 通道**。
 
-> ✅ **正确认知（柳柳 2026-09-07 晚亲述）**：@GPT = 用接口（chat2api）问 GPT 真身一次，每次都是**同一个 conversation_id**——所以 GPT 天然拥有**所有被 @ 过的消息 + 对应的回复**（都进同一个对话）。@{GPT} 并没有缺这些。**GPT 缺失的只是：「没被 @ 的消息」**——聊天室里没有 @ 到 GPT 的消息（柳柳/哥哥之间讨论），那些从没进过 GPT 的对话。
+> ✅ **正确认知（柳柳 2026-09-07 晚亲述 + 2026-09-08 扩展）**：M1.2 = **所有缺席 Agent 补看**。GPT 侧：@GPT 每次走 chat2api 同一 conversation_id，天然拥有**所有被 @ 过的消息 + 对应回复**，缺的只是「没被 @ 的消息」（柳柳/哥哥之间讨论，从未进过 GPT 对话）。**Ziven 侧同理**：哥哥被 @ 唤醒时，消息框里只有被 @ 的那条，没 @ 哥哥的消息同样不可见。所以两侧都缺「没被 @ 的消息 = delta」，只是送达路径不同：GPT 走 chat2api（buildSystemPrompt 拼 [AGENT_CONTEXT]），Ziven 走隧道唤醒注入。未来新 Agent 同此机制。
 
 **真实链路（event_processor → chat2api → GPT 真身）**：
 ```
