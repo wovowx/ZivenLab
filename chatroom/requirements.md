@@ -5,6 +5,7 @@
 > 对齐过程：Ziven 整理 00a v1 → GPT 审查（#329）→ Ziven 回应保留意见（#331）→ GPT 接受折中并补充设计原则（#332）→ 定稿
 > **v3（2026-09-08 柳柳拍板梳理）**：① 需求全景补入 M 系列执行路线（需求 12-16）② 明确分工——**需求归本文件（what），状态归驾驶舱（where）**，驾驶舱以需求编号引用本文件，不复制需求全文，防双源漂移
 > **v4（2026-09-08 柳柳拍板整合）**：吸收柳柳 2026-09-07 晚原始需求 8 条（场景路由/固定ID/换ID/多对话框/项目主线/@注入/@UI/聊天绑项目）；新增「需求关系导读」（认知链）；需求 13 补 Context Isolation 全局架构约束；需求 15 升级 Project Mainline 完整生命周期；需求 16 升级 Conversation & Scene Routing（能力 + 设计附录分离）
+> **v4.1（2026-09-08 柳柳拍板 · 执行 GPT 独立框）**：柳柳亲定——**执行代码/操作的 GPT 与带 id 讨论 GPT 彻底分开**：聊天室单独开一个执行聊天框（execution-room）专放执行会话；每次换执行 GPT 的 conversation_id 就更新绑定新 id 到这个框。执行 GPT 是「新的执行 Runtime 加入项目」，用独立 **Execution Bootstrap Context**（task/project/constraints/files），不复用 Rejoin 补看 delta；**delta=过程记忆（聊天废话不给），knowledge=结论状态（当前决定/实现位置必须有）**；执行框 thread 长期存在、conversation_id 短生命周期；conversation_bindings 加 purpose=execution/exclusive/temporary；换 id=归档旧+新增新+写 conversation_binding_changed 事件；领 id 走 execution_session_manager（execution_session_init 先初始化再任务，不做隐式初始化）。对应需求 16 Execution Runtime 细化 + 架构 B4。
 
 ---
 
@@ -112,7 +113,7 @@ Project Mainline（需求 15）                ← 这个项目为什么继续�
 | 13 | **M1.2 Agent Rejoin Context（缺席 Agent 补看 · 当前主线）** | **所有缺席 Agent（GPT + Ziven + 未来）补看「没被 @ 的消息」**；送达路径不同：GPT 走 chat2api（buildSystemPrompt 拼 [AGENT_CONTEXT]），Ziven 走隧道唤醒注入；补「**Context Isolation**」：默认恢复当前 thread，禁止自动跨 thread 合并，显式引用/授权才允许跨空间读取 | 🔴 P0 尾（v6.27.x 代码在，**闭环未成**）：GPT 注入透传待排查 + Ziven 侧待注入 |
 | 14 | **M1.3 Mention UX** | @ 交互体验（自动提示/补齐/防错） | 🟡 P1 |
 | 15 | **Project Mainline v1（项目主线）** | 主线 + 指针 + UI 当前节点卡片；完整生命周期：15.1 主线建立（启动讨论→定路线→节点）→ 15.2 节点推进（planned/active/completed/paused/branched/abandoned）→ 15.3 分支管理（复杂节点独立子文档，主线留摘要+链接）→ 15.4 主线更新（节点完成/方向改变/新发现→实时更新）；变更规则：**方向变化 = decision change（需确认流程）/ 执行变化 = execution update（执行者可更新）**，不绑定维护角色；补 **Project Binding**（thread→project→mainline 架构关系） | 🟡 P1 |
-| 16 | **Conversation & Scene Routing（场景路由 + 接入绑定）** | 系统支持聊天空间与 Agent 接入身份之间**稳定映射、切换和历史追踪**，并支持**显式跨空间访问**（带明确授权）；拆 16.1 场景模型（workspace/personal_chat/project_chat/debug）/ 16.2 Conversation Binding（thread↕agent↕conversation 多对多）/ 16.3 生命周期（固定 ID/换 ID/迁移/fallback）；conversation_bindings 等表 → **设计附录**（需求=能力，表=实现） | 🟡 P2 |
+| 16 | **Conversation & Scene Routing（场景路由 + 接入绑定）** | 系统支持聊天空间与 Agent 接入身份之间**稳定映射、切换和历史追踪**，并支持**显式跨空间访问**（带明确授权）；拆 16.1 场景模型（workspace/personal_chat/project_chat/debug）/ 16.2 Conversation Binding（thread↕agent↕conversation 多对多）/ 16.3 生命周期（固定 ID/换 ID/迁移/fallback）；conversation_bindings 等表 → **设计附录**（需求=能力，表=实现）；**Execution Runtime 细化（v4.1 柳柳拍板）**：执行 GPT 独立身份+独立执行聊天框（execution-room）；Execution Bootstrap Context（task/project/constraints/files，复用 context_resolver 拆 resolve_execution_context()）；执行框 thread 长期、conversation_id 短生命周期；换 id=归档+新增+写事件（execution_session_manager 触发，非聊天行为）；领 id=execution_session_init 空初始化→写 binding→再任务；execution_run 模型（P2/P3 预留） | 🟡 P2 |
 
 > 需求 1-9 原始出处：76 需求全景 + 77 GPT 补漏；10-11 为 00a v2 对齐新增；12-16 为 v3 补入 M 系列执行路线（柳柳 2026-09-08 拍板梳理，来源：implementation.md 状态速览 + 执行路线定稿）
 
