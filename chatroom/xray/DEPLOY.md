@@ -3,7 +3,7 @@
 > **本文档回答**：chat2api 是什么、为什么这么部署、怎么部署、出了问题怎么办。
 > 任何关于 chat2api 部署 / 环境变量 / 节点 / 风控 / MCP 挂载的疑问，**先查本文档**，不要凭记忆操作。
 >
-> 最后更新：2026-09-05 22:35（**🔴 重大：Cloud Run 部署必须显式设 `PROXY_URL`，否则 chat2api 直连数据中心 IP → 403 cf_chl_opt** + MCP 连接器自动挂载 ✅ 验证闭环 + node_manager manual 锁定模式）
+> 最后更新：2026-09-08 10:10（**🔴🔴 重大事故：聊天室目录整合后 Cloud Run env NODE_CONFIG_URL 仍指向旧路径 → 容器启动失败 503**；柳柳控制台改 env 为新路径后恢复。教训：**改仓库文件路径必须同步所有运行时引用（Cloud Run env / Worker env / 文档），不能只改仓库内引用**）
 
 ---
 
@@ -14,21 +14,22 @@
 | **chat2api** | 将 ChatGPT 网页端逆向成 OpenAI 风格 API 的服务（GitHub: `LanQian528/chat2api`）。哥哥用它给 GPT 发消息（Worker 转发端点 `/api/chat2api/ask`）。 |
 | **xray (VLESS)** | 容器内代理。Cloud Run 出口是 Google 数据中心 IP，高频调用会被 ChatGPT 风控（`cf_chl_opt`/403），xray 把出站流量走自己的 VLESS 节点，与真人流量同出口 IP，风控风险降到最低。 |
 | **node_manager.py** | 节点管理器：常驻健康检查 + 节点失效自动切换（2026-09-05 新增）。 |
-| **定制镜像** | ZivenLab `common-ground/chat2api-xray/` 基于官方镜像叠加 xray + MCP patch + 节点管理器。 |
+| **定制镜像** | ZivenLab `chatroom/xray/` 基于官方镜像叠加 xray + MCP patch + 节点管理器。 |
 
 ## 2. 部署架构
 
 - **平台**：Google Cloud Run（region: asia-northeast1）
 - **端口**：5005（chat2api 监听）
 - **存储**：无状态容器，代码在镜像里，节点/环境由外部配置源控制
-- **代码仓库**：`wovowx/ZivenLab` → `common-ground/chat2api-xray/`（开发走 dev 分支；main 由 PR 合入）
+- **代码仓库**：`wovowx/ZivenLab` → `chatroom/xray/`（开发走 dev 分支；main 由 PR 合入）
 
 ## 3. 完整部署命令（从零开始 · 2026-09-05 定稿）
 
-> ✅ **当前线上状态（2026-09-05 22:01 VERIFIED·主线闭环）**：
+> ✅ **当前线上状态（2026-09-08 10:10 恢复 VERIFIED）**：
 > - 服务名 **`ziven-bridge`**，URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`
 > - chat2api **1.8.8-beta2** 已起，Uvicorn 监听 5005
 > - **env 必含 `PROXY_URL=http://127.0.0.1:10809`**（🔴 漏了 → chat2api 直连数据中心 IP → 403 cf_chl_opt，2026-09-05 根因）
+> - **🔴 NODE_CONFIG_URL 必须指向当前仓库路径** = `https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json`（2026-09-08 事故：目录整合后 env 还是旧路径 `common-ground/chat2api-xray/` → 404 → 容器启动失败）
 > - node_manager：**manual 锁定 JP-04**（43.153.152.106，柳柳浏览器同源），`mode=manual` + `locked_node=JP-04`，不自动切换
 > - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v3`
 > - **MCP 连接器自动挂载 ✅ 验证闭环**（2026-09-05 22:01）：GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号
@@ -48,7 +49,7 @@ gcloud config get-value project          # 确认项目对
 git clone https://github.com/wovowx/ZivenLab.git
 cd ZivenLab
 git checkout dev
-cd common-ground/chat2api-xray
+cd chatroom/xray
 
 ## 2) 构建镜像（每次改代码升 tag：v1→v2→v3...，防 Cloud Run 缓存旧镜像）
 # 仓库用 Artifact Registry（gcr.io 新项目默认无权限，会报 denied: gcr.io repo does not exist）
@@ -68,7 +69,7 @@ gcloud run deploy ziven-bridge \
   --port 5005 \
   --allow-unauthenticated \
   --memory 512Mi \
-  --set-env-vars="HISTORY_DISABLED=false,PROXY_URL=http://127.0.0.1:10809,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/common-ground/chat2api-xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
+  --set-env-vars="HISTORY_DISABLED=false,PROXY_URL=http://127.0.0.1:10809,NODE_CONFIG_URL=https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json,SUBSCRIPTION_URL=<SUBSCRIPTION_URL>"
 
 ## 4) 等部署完成，看节点通道是否打通（重点看 ACTIVE JP-xx）
 gcloud run services logs read ziven-bridge --region asia-northeast1 --limit 100
@@ -162,10 +163,10 @@ curl https://<你的run域名>/v1/chat/completions \
 ## 6. 常见操作
 
 ### 6.1 换/加/删节点（最常用）
-改 ZivenLab dev `common-ground/chat2api-xray/node-config.json` 的 **`specified_nodes`** 数组（**注意字段名是 `specified_nodes`，不是 `nodes`**，早期文档/日志曾误写成 `nodes` 导致读不到）→ 推代码 → Cloud Run 重启 Revision（控制台「编辑并部署新修订版」或 gcloud run deploy 同配置）。
+改 ZivenLab dev `chatroom/xray/node-config.json` 的 **`specified_nodes`** 数组（**注意字段名是 `specified_nodes`，不是 `nodes`**，早期文档/日志曾误写成 `nodes` 导致读不到）→ 推代码 → Cloud Run 重启 Revision（控制台「编辑并部署新修订版」或 gcloud run deploy 同配置）。
 
 ### 6.2 改代码后重新部署（如改 MCP patch / node_manager）
-1. 改 ZivenLab `common-ground/chat2api-xray/` 代码 → 推 dev
+1. 改 ZivenLab `chatroom/xray/` 代码 → 推 dev
 2. `gcloud builds submit --tag asia-northeast1-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/ziven-bridge/ziven-bridge:v<N+1> .`
 3. `gcloud run deploy ziven-bridge --image ...v<N+1> ...`（其余参数同上，见 §3）
 
@@ -206,7 +207,7 @@ metadata = {
 - ⛔ 版本 ID `asdk_app_v_6a95a93c9a5c81918a5cb77ada6bc3b1` 是 v5/v6 误用，已废弃
 
 ### 方案（v7 当前 implement）
-构建时用 `patch_chatformat.py`（ZivenLab `common-ground/chat2api-xray/patch_chatformat.py`）：
+构建时用 `patch_chatformat.py`（ZivenLab `chatroom/xray/patch_chatformat.py`）：
 - patch `/app/chatgpt/chatFormat.py`：user 消息 parts 前缀 `@Ziven_MCP ` + metadata 注入 system_hints/serialization_metadata/submission_mode；multimodal 分支也补 system_hints
 - patch `/app/chatgpt/ChatService.py`：顶层 chat_request["system_hints"] 注入插件
 - CONNECTOR_ID 可被环境变量 `MCP_CONNECTOR_ID` 覆盖（默认应用 ID）
@@ -251,9 +252,11 @@ ChatGPT 页面/GPT 本体
 13. **镜像里没有 curl**（python:3.11-slim / 官方 chat2api 基础镜像）：entrypoint 拉配置用 python3 urllib，**别写 curl**（2026-09-05 踩坑：容器启动即 exit(1)，日志 `curl: command not found`）。
 14. **Dockerfile 里路径别少斜杠**：`chmod +x /usr/local/bin xray`（空格）会构建失败报 `cannot access 'xray'`，必须 `/usr/local/bin/xray`（2026-09-05 踩坑）。
 15. **gcr.io 新项目默认没仓库**：会报 `denied: gcr.io repo does not exist`，用 Artifact Registry（`asia-northeast1-docker.pkg.dev/...`）并先 `gcloud artifacts repositories create`。
+16. **改仓库文件路径必须同步所有运行时 env 引用**（2026-09-08 事故）：`github_move` 搬目录（如 common-ground/chat2api-xray/ → chatroom/xray/）后，**Cloud Run env（NODE_CONFIG_URL）/ Worker env（CHAT2API_URL 等）/ 文档引用**必须同步改——否则容器启动 fetch 404 → exit 1 → 部署失败（本次 ziven-bridge 事故根因）。检查清单：`grep -r "common-ground" ZivenLab deploy / wrangler.toml / Cloud Run 控制台`。
 
 ## 9. 时间线
 
+- **2026-09-08 10:10**：⚠️ **📛 事故 + 恢复：聊天室目录整合（chatroom/）后，Cloud Run env `NODE_CONFIG_URL` 仍指向旧路径 `common-ground/chat2api-xray/`**（已 404）→ 容器启动即失败（entrypoint.sh fetch 404 → exit 1 → 未监听 5005 → Cloud Run 部署失败）。柳柳在 Google Cloud 控制台把 env 改为新路径 `chatroom/xray/` → 重新部署成功 → 验证 403 Not authenticated（服务正常监听）✅。**教训：改仓库文件路径（github_move 搬目录）必须同步所有运行时引用——包括 Cloud Run env / Worker env / 文档引用，不能只改仓库内引用**。
 - **2026-09-05 22:01**：🎉 **MCP 自动挂载主线闭环 VERIFIED**。发现并根治 403 根因：**Cloud Run env 漏设 PROXY_URL**（chat2api 只从 env 读代理，entrypoint.sh 的 echo 不是 export）→ 补 `PROXY_URL=http://127.0.0.1:10809` 重新部署 v3 → GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号。
 - **2026-09-05**：node_manager 支持 **manual 锁定模式**（`mode=manual` + `locked_node`，失败只告警不自动切换，柳柳确认不自动切改手动）；构建镜像 **v3**（node_manager manual 代码进镜像）。
 - **2026-09-05 20:38**：✅ **ziven-bridge 部署成功 VERIFIED**。服务 URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`，chat2api 1.8.8-beta2 监听 5005，node_manager 12 节点 + 订阅就绪。踩坑修复：curl 缺失 → python3 urllib；chmod 斜杠；gcr.io → Artifact Registry。
