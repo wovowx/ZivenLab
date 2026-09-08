@@ -170,7 +170,7 @@ chat_threads（项目；status: active/paused/archived；type: project/discussio
 ## 七、GPT 通道与节点（chat2api 速查）
 
 - **Worker 转发**：POST `https://mcp-memory.wovowx.workers.dev/api/chat2api/ask`（Body `{"message":"..."}`，token 在 Worker 环境变量）
-- **Cloud Run**：`chat2api-1029559493109.asia-northeast1.run.app`（端口 5005，镜像 chat2api-xray:v1）
+- **Cloud Run**：`ziven-bridge-1029559493109.asia-northeast1.run.app`（服务名 ziven-bridge，端口 5005，镜像 ziven-bridge:v3；**完整运维手册见 chatroom/xray/DEPLOY.md**）
 - **节点环境变量（6 个）**：VLESS_ADDR / VLESS_PORT / VLESS_UUID / VLESS_SNI / VLESS_HOST / VLESS_PATH
 - **节点**：日本1 `43.153.152.106:443`（UUID 92a8cc7e-...），日本2 `43.133.191.142:443`
 - **conversation_id（正式）**：`6a98cb19-3b88-83ee-a7be-314d60f0aa64`；废弃 `6a96fcf8-...`
