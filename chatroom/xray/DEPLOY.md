@@ -235,6 +235,25 @@ ChatGPT 页面/GPT 本体
 - 当前 `CHAT2API_URL` 应指向 `https://ziven-bridge-1029559493109.asia-northeast1.run.app/v1/chat/completions`（2026-09-05 已同步）。
 - 测 Worker 端点：`POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask` body `{"message":"..."}`（不塞 token，Worker 内部处理）。
 
+## 7.1 conversation_id 真相与 v4 patch（2026-09-08 查源码确认 · 之前没落文档的坑）
+
+### 真相（lanqian528/chat2api 官方源码逐行确认）
+- chat2api 内部**能拿到**新建对话的 conversation_id：`gateway/reverseProxy.py` content_generator 从 ChatGPT SSE 流解析 `conversation_id` → `save_conversation()` 存进 `data/conversation_map.json`
+- **但 OpenAI 兼容层（/v1/chat/completions）的响应里没有 conversation_id 字段**——`api/chat2api.py` 只是把 OpenAI 格式（choices[0].message.content）原样返回，所以客户端请求 `conversation_id=""` 新建对话后**拿不到新 id**（Worker 读 `data.conversation_id || null` 恒为 null）
+- ⚠️ **之前文档没写这个坑**（只在记忆里有 2026-09-05 一条「不回传 conversation_id」实弹结论）——柳柳批评「查过好几次都没写」，本次补上
+- `HISTORY_DISABLED` 是**环境变量全局默认**（utils/configs.py `os.getenv('HISTORY_DISABLED', True)`），但 `ChatService.py` 支持**每条请求覆盖**：`self.history_disabled = self.data.get('history_disabled', history_disabled)`——所以不用改环境变量，请求带 `history_disabled:false` 即可
+
+### v4 patch 方案（哥已实现进 dev，待构建 v4 镜像）
+- **新增 `patch_conv_id.py`**（独立脚本，不动现有 MCP 注入 patch_chatformat.py）：
+  1. patch `chatFormat.py` stream_response：SSE 流读到新 conversation_id 时 **存回 service.conversation_id**（`if conversation_id and not service.conversation_id`）
+  2. patch `api/chat2api.py` send_conversation：非流式响应（JSONResponse）**把 service.conversation_id 加进返回**：`res["conversation_id"] = chat_service.conversation_id`
+- Dockerfile 已加 `COPY patch_conv_id.py` + `RUN python /patch_conv_id.py`（构建时自动执行）
+- 效果：客户端 `conversation_id:""` 新建对话 → 响应带 `conversation_id` → Worker 拿到 → 绑定执行 GPT 独立框（需求16 v4.1 前置）
+- 已本地模拟验证：patch 匹配成功、两个改动点都在
+
+### 为什么是「返回 id 的新建方式」而不是 read conversation_map
+- 柳柳点破：新建对话框有「返回 ID（保留窗口）」和「不返回 ID（用完即焚）」两种，我们只缺前者。不需要加端点、不需要读内部文件——**让 chat2api 把已读到的 id 透出响应层**就是最小改动。
+
 ## 8. 易错点 / 踩坑记录
 
 1. **端口必须是 5005**，Cloud Run 默认 8080 会连不上。
