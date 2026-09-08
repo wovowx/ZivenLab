@@ -34,6 +34,13 @@ RUN set -eux; \
 COPY patch_chatformat.py /patch_chatformat.py
 RUN python /patch_chatformat.py && rm /patch_chatformat.py
 
+# 新建对话返回 conversation_id patch（2026-09-08）
+# 让 chat2api 把新建对话的 conversation_id 透出到 OpenAI 兼容响应，
+# 客户端才能「新建对话 → 拿到 id → 绑定执行 GPT 独立框」（需求16 v4.1）。
+# 匹配失败即构建失败（防镜像版本漂移静默改错）。
+COPY patch_conv_id.py /patch_conv_id.py
+RUN python /patch_conv_id.py && rm /patch_conv_id.py
+
 # 节点管理器（健康检查 + 自动故障切换，2026-09-05）
 COPY node_manager.py /node_manager.py
 
