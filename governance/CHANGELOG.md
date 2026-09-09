@@ -11,6 +11,11 @@
 - 每个文档含：表清单 + 各表字段（列/类型/含义）+ 关系 + 典型流程 + 常见坑 + 变更记录
 - 目的：查任何表结构开文档即知，不再逐张现查（柳柳 2026-09-09 提出「每次都要重新查数据结构」痛点）
 
+### 更新（conversation_bindings 健康字段 · M1.3）
+- execution domain 文档补 5 列：health（unknown/healthy/stale/failed）+ last_checked_at + last_success_at + last_failure_at + check_count
+- 健康语义定稿（Ziven + GPT 讨论，柳柳拍板）：status（生命周期）与 health（健康）正交；bind=unknown，首次真实成功调用→healthy，失败→failed+switch_candidate（不自动换档）；查询无副作用
+- 代码侧：execution_session_manager v6.32.14（MCP 代码仓），表结构 ALTER 已完成
+
 ### 决策
 - 数据模型与表结构声明文档化：database-overview 是「过一遍现有表」依据（Table Change Guard）
 - 遗留待办：execution/thread_members 空表结构待补、knowledge 疑似废弃待确认（等 schema_dump 工具上线后快照覆盖）
