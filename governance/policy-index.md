@@ -36,6 +36,7 @@
 | **GPT 协作规范 v1**（总入口） | governance/GPT协作规范.md | 与 GPT 协作：分工/派发执行会话/指令表述/通道 | 协作前读规范；派发任务前读模板 |
 | **执行会话任务模板 v1.1** | governance/执行会话任务模板.md（已并入 GPT协作规范#2） | 派发执行会话任务（无 conversation_id 一次性任务）——旧引用兼容 | 派发任务前读模板 |
 | **AAD 落地表** | agent_actions（v2 规划） | Runtime 稳定后 | v2 MCP 工具 |
+| **唤醒链路决策记录** | governance/唤醒链路决策记录.md | 聊天室 @Ziven 唤醒链路 / Operit 启动自启方案查证 | 查证时读全文（唯一真相源） |
 
 ---
 
