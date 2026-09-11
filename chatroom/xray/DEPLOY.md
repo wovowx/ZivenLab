@@ -3,7 +3,14 @@
 > **本文档回答**：chat2api 是什么、为什么这么部署、怎么部署、出了问题怎么办。
 > 任何关于 chat2api 部署 / 环境变量 / 节点 / 风控 / MCP 挂载的疑问，**先查本文档**，不要凭记忆操作。
 >
-> 最后更新：2026-09-08 10:10（**🔴🔴 重大事故：聊天室目录整合后 Cloud Run env NODE_CONFIG_URL 仍指向旧路径 → 容器启动失败 503**；柳柳控制台改 env 为新路径后恢复。教训：**改仓库文件路径必须同步所有运行时引用（Cloud Run env / Worker env / 文档），不能只改仓库内引用**）
+> 最后更新：2026-09-11 16:30（**平台迁移 Northflank 完成**：Cloud Run → Northflank liu--zivenlab--x7t9qxpv5vy6.code.run，全链路实测「通」，部署 #433/#434 VERIFIED）
+>
+> 🔴🔴 **2026-09-11 平台迁移公告**：chat2api 已从 **Google Cloud Run** 迁移到 **Northflank**（原因：Cloud Run 免费额度/运维依赖柳柳 gcloud 控制台）。
+> - 新服务 URL：**https://liu--zivenlab--x7t9qxpv5vy6.code.run**（Northflank，Public，端口 5005 HTTP/1）
+> - 源码仓库不变：`wovowx/ZivenLab` 分支 `dev` → Build context `chatroom/xray`，Dockerfile `chatroom/xray/Dockerfile`
+> - **本文档 §1-§3 的 Cloud Run 部署命令是历史存档（2026-09-02~09-10 时代）**；当前部署在 Northflank 控制台完成，见「§3.5 Northflank 部署（当前）」
+> - Cloud Run 旧服务 ziven-bridge 暂保留未删（可回退），验证稳定后清理
+> - ⚠️ 之前「改仓库文件路径必须同步所有运行时引用」的教训仍然有效：NODE_CONFIG_URL 必须指向 `chatroom/xray/node-config.json`（2026-09-08 事故）
 
 ---
 
@@ -18,24 +25,24 @@
 
 ## 2. 部署架构
 
-- **平台**：Google Cloud Run（region: asia-northeast1）
-- **端口**：5005（chat2api 监听）
+- **平台（当前）**：**Northflank**（服务 liu--zivenlab--x7t9qxpv5vy6，2026-09-11 起）
+- **平台（历史）**：Google Cloud Run（region: asia-northeast1，ziven-bridge，2026-09-02~09-10，暂保留可回退）
+- **端口**：5005（chat2api 监听，Northflank 配 HTTP/1）
 - **存储**：无状态容器，代码在镜像里，节点/环境由外部配置源控制
 - **代码仓库**：`wovowx/ZivenLab` → `chatroom/xray/`（开发走 dev 分支；main 由 PR 合入）
 
-## 3. 完整部署命令（从零开始 · 2026-09-05 定稿）
+## 3. 完整部署命令（从零开始 · 2026-09-05 定稿；**当前平台已迁 Northflank，见 §3.5**）
 
-> ✅ **当前线上状态（2026-09-08 10:10 恢复 VERIFIED）**：
-> - 服务名 **`ziven-bridge`**，URL `https://ziven-bridge-1029559493109.asia-northeast1.run.app`
-> - chat2api **1.8.8-beta2** 已起，Uvicorn 监听 5005
-> - **env 必含 `PROXY_URL=http://127.0.0.1:10809`**（🔴 漏了 → chat2api 直连数据中心 IP → 403 cf_chl_opt，2026-09-05 根因）
-> - **🔴 NODE_CONFIG_URL 必须指向当前仓库路径** = `https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json`（2026-09-08 事故：目录整合后 env 还是旧路径 `common-ground/chat2api-xray/` → 404 → 容器启动失败）
+> ✅ **当前线上状态（2026-09-11 16:30 Northflank VERIFIED）**：
+> - 服务名 **`liu--zivenlab--x7t9qxpv5vy6`**，URL **https://liu--zivenlab--x7t9qxpv5vy6.code.run**
+> - chat2api 已起（定制镜像，Uvicorn 监听 5005）
+> - **env 必含 `PROXY_URL=http://127.0.0.1:10809`**（🔴 漏了 → chat2api 直连数据中心 IP → 403 cf_chl_opt，2026-09-05 根因，仍适用）
+> - **🔴 NODE_CONFIG_URL 必须指向当前仓库路径** = `https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json`
 > - node_manager：**manual 锁定 JP-04**（43.153.152.106，柳柳浏览器同源），`mode=manual` + `locked_node=JP-04`，不自动切换
-> - 镜像仓库：Artifact Registry `asia-northeast1-docker.pkg.dev/项目ID/ziven-bridge/ziven-bridge:v8`（✅ **v8 已部署验证**：v7 + conversation_id 透出 patch_conv_id.py；新建对话返回 id 成功，2026-09-08 16:39 实弹，见「7.1」）
-> - **MCP 连接器自动挂载 ✅ 验证闭环**（2026-09-05 22:01）：GPT 经 ziven-bridge 原生调 `ds_quota` 成功（余额 0.45 CNY），无需手动加号
+> - Northflank env（4个）：`HISTORY_DISABLED=false` + `PROXY_URL=http://127.0.0.1:10809` + `NODE_CONFIG_URL=<上方>` + `SUBSCRIPTION_URL=<订阅链接>`（绑卡验证过，Sandbox 不扣费）
+> - **MCP 连接器自动挂载**：镜像内 patch，GPT 原生可调 MCP 工具（2026-09-05 闭环）
 
-> 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
-> 实际值在 Cloud Shell 本地变量 `SUBSCRIPTION_URL` 或 Cloud Run 控制台维护（见 6.5）。
+> 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；实际值在 Northflank / Cloud Run 控制台维护。
 
 ```bash
 # ========== 从零开始完整部署 ==========
