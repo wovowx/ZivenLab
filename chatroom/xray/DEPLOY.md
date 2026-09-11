@@ -98,6 +98,57 @@ curl https://<你的run域名>/v1/chat/completions \
 > ⚠️ **节点配置源（NODE_CONFIG_URL）** 默认指向 ZivenLab dev 分支的 `node-config.json`。
 > 改节点 = 改那个 JSON 推代码 → Cloud Run 重启 Revision 即生效；不用再进 Cloud Run 控制台改环境变量。
 
+## 3.5 Northflank 部署（当前 · 2026-09-11 真相源）⭐
+
+> 本节是**当前平台**的部署方式（Cloud Run 那一套 §3 已归档为历史）。
+> 核心结论：**源码不变，平台换 Northflank，镜像自动构建（不用 gcloud、不用 Cloud Shell）**。
+
+### 3.5.1 服务创建（Northflank 控制台，柳柳已操作完成）
+
+1. 项目 `liuliu` → **部署仓库（Deploy Repository）**
+2. 选仓库 `wovowx/ZivenLab` + 分支 `dev`
+3. **Advanced build settings**：
+   - Build context：`chatroom/xray`
+   - Dockerfile location：`chatroom/xray/Dockerfile`
+4. **Resources + Networking**：
+   - 端口 `5005`，Protocol **HTTP/1**（改 HTTP 才能 Public）
+   - Accessibility：**Public**
+   - 资源：nf-compute-10 0.1 shared / 1 实例 / 512MB
+5. **Runtime variables（JSON 模式）**：四个 env（见 3.5.2）
+6. 点 Create service → 若弹 **Add a payment method**（Sandbox 验证真人，**不扣费**）→ 绑卡后创建成功
+7. 成功 → 域名 `https://liu--zivenlab--x7t9qxpv5vy6.code.run`
+
+### 3.5.2 Northflank 环境变量（4个，JSON 直接贴）
+
+```json
+{
+  "HISTORY_DISABLED": "false",
+  "PROXY_URL": "http://127.0.0.1:10809",
+  "NODE_CONFIG_URL": "https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json",
+  "SUBSCRIPTION_URL": "https://magicovo.pages.dev/sub?token=d97736f2f2ba5ecf10b8b850b3a712c9"
+}
+```
+
+> ⚠️ `SUBSCRIPTION_URL` 含 token，理论上敏感——但当前已写进 ZivenLab 仓库 env（柳柳部署时贴的），若担心可改用 Northflank 控制台 secrets 存。PROXY_URL 必须保留（403 根因仍在）。
+
+### 3.5.3 功能验证（同样适用）
+
+```bash
+# 直接打新通道（无 token 时提示 Not authenticated = 服务在线）
+curl -s -o /dev/null -w '%{http_code}\n' https://liu--zivenlab--x7t9qxpv5vy6.code.run/v1/chat/completions
+# 走 Worker 转发（推荐，token 在 CF env）
+curl -s -X POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"回复一个字就好"}'
+# {"ok":true,"reply":"通","conversation_id":"6aa39eae-..."} = 全链路通
+```
+
+### 3.5.4 换节点 / 升级（Northflank 版）
+
+- **换节点**：改 node-config.json 的 `locked_node` → 推 dev → Northflank 控制台 **Restart** 服务（不用重建镜像）
+- **升级镜像（代码改了）**：推 dev → Northflank 控制台 **Redeploy**（用新 commit 构建）
+- **改 env**：Northflank 控制台 → Runtime 变量 → 更新 → Redeploy
+
 ## 4. 环境变量速查
 
 | 变量 | 必填 | 默认 | 说明 |
