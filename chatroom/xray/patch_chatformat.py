@@ -34,6 +34,12 @@ import sys
 # 连接器 ID（可用环境变量 MCP_CONNECTOR_ID 覆盖）
 CONNECTOR_ID = os.environ.get("MCP_CONNECTOR_ID", "asdk_app_6a95a93c9a50819184dcf3468ae0052a")
 
+# ⛔ MCP 连接器自动挂载开关（v8 · 柳柳 2026-10-16 拍板·方案甲）
+# 默认关闭：构建出的镜像发消息时【不再自动注入 @Ziven_MCP 前缀 + 插件 system_hints】，
+#            即 GPT 发消息不再被强制挂 MCP 连接器。
+# 想恢复注入：构建镜像时设环境变量 MCP_ORIGIN_INJECT=1（代码完整保留，仅开关控制）。
+INJECT_MCP = os.environ.get("MCP_ORIGIN_INJECT", "0") == "1"
+
 def patch_chatformat():
     """patch /app/chatgpt/chatFormat.py：消息级 metadata + @提及"""
     PATH = "/app/chatgpt/chatFormat.py"
@@ -88,6 +94,11 @@ def patch_chatformat():
     ) % (CONNECTOR_ID, CONNECTOR_ID)
 
     for label, old, new in (("multimodal", old1, new1), ("text", old2, new2)):
+        if not INJECT_MCP:
+            # v8：开关关闭（MCP_ORIGIN_INJECT 默认 0）→ 不做注入，保留原逻辑不动。
+            # 想恢复：构建时设 MCP_ORIGIN_INJECT=1。
+            print(f"[chatFormat] SKIP: {label} (MCP_ORIGIN_INJECT!=1, 默认关闭)")
+            continue
         count = content.count(old)
         if count != 1:
             print(f"[chatFormat] ERROR: pattern[{label}] found {count} times, expected 1", file=sys.stderr)
@@ -120,14 +131,18 @@ def patch_chatservice():
         print("[ChatService] SKIP: import os already present")
 
     # Patch 1: 顶层 system_hints 注入插件
-    old = '            "system_hints": [],'
-    new = '            "system_hints": ["plugin:%s"],'
-    count = content.count(old)
-    if count != 1:
-        print(f"[ChatService] ERROR: pattern[system_hints] found {count} times, expected 1", file=sys.stderr)
-        sys.exit(1)
-    content = content.replace(old, new % CONNECTOR_ID)
-    print("[ChatService] OK: system_hints injected")
+    if not INJECT_MCP:
+        # v8：开关关闭 → 不注入，保留原样
+        print("[ChatService] SKIP: system_hints (MCP_ORIGIN_INJECT!=1, 默认关闭)")
+    else:
+        old = '            "system_hints": [],'
+        new = '            "system_hints": ["plugin:%s"],'
+        count = content.count(old)
+        if count != 1:
+            print(f"[ChatService] ERROR: pattern[system_hints] found {count} times, expected 1", file=sys.stderr)
+            sys.exit(1)
+        content = content.replace(old, new % CONNECTOR_ID)
+        print("[ChatService] OK: system_hints injected")
 
     with open(PATH, "w", encoding="utf-8") as f:
         f.write(content)
