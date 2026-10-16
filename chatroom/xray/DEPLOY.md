@@ -244,6 +244,8 @@ curl -s -X POST https://mcp-memory.wovowx.workers.dev/api/chat2api/ask   -H 'Con
 
 ## 7. MCP 连接器自动挂载（2026-09-06 v7 实测成功）
 
+> 🔴 **v8（2026-10-16 柳柳拍板·方案甲）默认关闭**：这段注入逻辑已加 `MCP_ORIGIN_INJECT` 开关，**默认 `0` 不注入**——GPT 发消息不再带 `@Ziven_MCP` 前缀、不被强制挂 MCP 连接器（当前方案 GPT 只做外包写代码，不需要 MCP）。**代码完整保留**，想恢复注入：构建镜像时设环境变量 `MCP_ORIGIN_INJECT=1` → Redeploy 即可。以下 v7 内容为注入机制的实现细节，仅当 `MCP_ORIGIN_INJECT=1` 时的行为。
+
 ### 背景
 柳柳在 ChatGPT 页面**左下角加号**挂 Ziven_MCP 连接器，GPT 才能调 MCP 工具（`github_read` / `create_patch_proposal` 等）。但插件挂载是**消息级**的（官方文档原话：*select one or more apps for a single message*），每次发消息都要手动加，很烦。chat2api 定制镜像用 patch 自动注入，免手动。
 
