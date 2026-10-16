@@ -280,7 +280,7 @@ dev 推送 → PR → rebase 合并 → sync dev → 推 main 自动部署 → �
 > - **恢复包 = 聊天室的一等消息（方案 A），不是独立 context artifact**。原因（柳柳原话沉淀）：**哥哥能读但 GPT 不行**——GPT 走 Runtime B（app + Ziven_MCP 插件自主处理）无法主动去取独立 artifact；把它发成聊天室普通消息，GPT 就能像人一样直接看到。
 > - **设计本质 = 人类群聊机制（柳柳类比）**：每次聊天后别人续聊了很多消息，缺席 Agent 回来时**从自己上次看到的位置（阅读游标）接着往下看**——即用 M1.1 的 `last_consumed_message_id` 做游标，**增量续读**没看过的消息，**只补错过的、不重塞整段历史**。
 > - 这正对应 M1.2 三层恢复包的 **Layer 2 Delta Context**（从 last_consumed 之后漏了什么）。
-> - **据此推断实现方向**：修复点不在 context_resolver（三层组装正确），而在**把 delta 恢复包以一等消息形式补进 GPT 实际消费路径（Runtime B）**，而非当前挂在 event_processor（Runtime A）的 [AGENT_CONTEXT] 注入。待与 GPT 敲定实现边界后动手。
+> - **据此推断实现方向**：不走复杂「一等消息/独立 artifact」机制——**柳柳拍板：直接补发消息包给 chat2api**。chat2api 接的是 **GPT 本体**，本体无工具（工具前缀 @Ziven_MCP 已于 v8 默认关闭），只需把 delta 恢复包**作为文本直接塞进发给 GPT 的消息**即可。即：@GPT 触发时，event_processor 在发给 chat2api 的消息里拼上恢复包文本 → GPT 本体直接读到（走 Runtime A/chat2api 这条链）。**推翻之前「Runtime B 消费/一等消息」的推断——柳柳 2026-10-16 拉回：就走 chat2api 直接塞**。
 
 **M1.3 Mention UX（@ UI）**
 - 前端 @选择器 + agent 展示（降低触发成本）
