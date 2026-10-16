@@ -276,6 +276,12 @@ dev 推送 → PR → rebase 合并 → sync dev → 推 main 自动部署 → �
 - 摘要：被@触发 → 读已有 thread_contexts → 不足才生成临时摘要，不主动生成（防成本失控）
 - 分批：同步只返回 trigger + delta 最近 N 条 + summary；超限生成 context_snapshot_id 异步存储，Agent 自己拉（不做 3 次同步 chat2api，Worker 30s 上限 CHAT_TIMEOUT_MS=27000）
 
+> 🔴🔴 **2026-10-16 柳柳拍板·M1.2 落地决策（本次对话主线）**：
+> - **恢复包 = 聊天室的一等消息（方案 A），不是独立 context artifact**。原因（柳柳原话沉淀）：**哥哥能读但 GPT 不行**——GPT 走 Runtime B（app + Ziven_MCP 插件自主处理）无法主动去取独立 artifact；把它发成聊天室普通消息，GPT 就能像人一样直接看到。
+> - **设计本质 = 人类群聊机制（柳柳类比）**：每次聊天后别人续聊了很多消息，缺席 Agent 回来时**从自己上次看到的位置（阅读游标）接着往下看**——即用 M1.1 的 `last_consumed_message_id` 做游标，**增量续读**没看过的消息，**只补错过的、不重塞整段历史**。
+> - 这正对应 M1.2 三层恢复包的 **Layer 2 Delta Context**（从 last_consumed 之后漏了什么）。
+> - **据此推断实现方向**：修复点不在 context_resolver（三层组装正确），而在**把 delta 恢复包以一等消息形式补进 GPT 实际消费路径（Runtime B）**，而非当前挂在 event_processor（Runtime A）的 [AGENT_CONTEXT] 注入。待与 GPT 敲定实现边界后动手。
+
 **M1.3 Mention UX（@ UI）**
 - 前端 @选择器 + agent 展示（降低触发成本）
 - 不扩展 project/document/task mention（M1 不做，避免提前进入 Workspace State Runtime P3）
