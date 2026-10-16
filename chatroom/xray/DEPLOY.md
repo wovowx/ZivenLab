@@ -40,7 +40,7 @@
 > - **🔴 NODE_CONFIG_URL 必须指向当前仓库路径** = `https://raw.githubusercontent.com/wovowx/ZivenLab/dev/chatroom/xray/node-config.json`
 > - node_manager：**manual 锁定 JP-04**（43.153.152.106，柳柳浏览器同源），`mode=manual` + `locked_node=JP-04`，不自动切换
 > - Northflank env（4个）：`HISTORY_DISABLED=false` + `PROXY_URL=http://127.0.0.1:10809` + `NODE_CONFIG_URL=<上方>` + `SUBSCRIPTION_URL=<订阅链接>`（绑卡验证过，Sandbox 不扣费）
-> - **MCP 连接器自动挂载**：镜像内 patch，GPT 原生可调 MCP 工具（2026-09-05 闭环）
+> - **MCP 连接器自动挂载**：镜像内 patch_chatformat.py。**v8（2026-10-16）起默认关闭**——不再自动注入 `@Ziven_MCP` 前缀 + 插件 system_hints（柳柳拍板·方案甲：发消息时不挂 MCP，代码保留）。想恢复：构建镜像时设环境变量 `MCP_ORIGIN_INJECT=1` 后 Redeploy 即可。
 > - （Cloud Run 时代的镜像/架构记录见本文档历史部分 §3 下方存档）
 
 > 🔒 **订阅链接含 token，永不写进公开仓库**。本文档用占位符 `<SUBSCRIPTION_URL>`；
