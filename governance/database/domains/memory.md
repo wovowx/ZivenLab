@@ -43,6 +43,15 @@
 | source_ref | text | 来源引用 |
 | created_at | timestamptz | |
 
+## memory_aliases（检索别名索引）
+**用途**：一条记忆补多个检索入口（项目名/简称/技术名），解决「想不起 key 也能找到」。2026-10-18 建。检索流程：先关键词 search 查 content/key → 再匹配 alias → 合并 → 过滤 status='active'。
+
+| 列 | 类型 | 含义 |
+|---|---|---|
+| alias | text 唯一 | 别名/关键词/旧称 |
+| memory_id | uuid | 关联记忆 |
+| created_at | timestamptz | |
+
 ## files（文件）
 **用途**：上传文件的元数据（实际内容在 Supabase Storage）。
 
