@@ -21,7 +21,8 @@
 | execution_runs | execution | execution | 执行 GPT | 每次执行 run |
 | conversation_bindings | execution | execution | 执行框/路由 | GPT 会话↔线程绑定 |
 | conversation_binding_events | execution | execution | 执行框 | 绑定变更审计 |
-| memories | memory | memory | 记忆/上下文 | 记忆条目 |
+| memories | memory | memory | 记忆/上下文 | 记忆条目（2026-10-17 升级加 version/status/supersedes/source_ref/valid_from-to，实现当前有效判定） |
+| memory_events | memory | memory | 记忆/审计 | 记忆变更账本（追加式，禁 UPDATE/DELETE，可追溯） |
 | files | memory | memory | 记忆/媒体 | 上传文件元数据 |
 | knowledge | memory | memory | 记忆 | （待确认废弃） |
 | decision | collaboration | decision workflow | 主链路 | 决策记录 |
