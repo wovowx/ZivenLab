@@ -107,6 +107,18 @@
 
 ---
 
+## 🧠 记忆系统深度升级（2026-10-18 柳柳确认「整体还没升级完成」）
+
+> 借鉴 Zep/Graphiti 双时间轴、Letta Skill Learning/睡眠计算、Anthropic 渐进式披露。详细设计存记忆 `⚙️/记忆系统升级设计`（可读档/复苏）。
+
+| 优先 | 项 | 现状 | 落地 |
+|---|---|---|---|
+| P0 | ①激活双时间轴抗污染 | memories 表已含 valid_from/valid_to/version/supersedes_id + memory_events 审计流，但**未真正维护**（全 version=1、valid_from 默认时间戳） | 改 handleMemoryTool 写读：更新时旧行置 valid_to/archived + 新行 version+1/supersedes_id/valid_from；检索默认只回当前有效+可追溯「何时被推翻」 |
+| P1 | ②自动技能沉淀 | 技能靠手工建 | 从高频动作自动提炼 SKILL.md |
+| P2 | ③睡眠时计算 | 自我迭代偏手动 | 定时反思任务 |
+
+状态：⬜ ①进行中（先读设计→改 handleMemoryTool→测→发布）
+
 ## 当前待发批次（dev · 攒批不频繁部署 · 柳柳 2026-09-04）
 
 - deploy skill v6.4.3 命名纪律（推 dev 消息用 vX.Y.Z: 名称）——待作正式 release 练习（GPT #536）
