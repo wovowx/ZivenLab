@@ -33,6 +33,7 @@
 | **Release Guard** | 代码 src/modules/release_guard.js | push/merge 到 main | 代码硬约束（版本化强制） |
 | **Database Guard**（Table Change Guard） | governance/database/schema-policy.md | 加表/改表前 | 文档规则 + 工具 necessity 强制（v1 文档已落地，工具化 v2） |
 | **协作协议 v4.2** | governance/协作协议.md | 所有协作讨论/决策/执行 | 角色卡 Runtime 规则 |
+| **像人类一样的持续学习** | governance/整体架构.md 记忆层小节 | 记忆偏离/换框/退化时拉回正轨（关联记忆浮现/失败中汲取/联想获取灵感/反思/自然淡忘） | 记忆库指针 💕/柳柳的愿景（2026-10-19）；驾驶舱/导航表引用 |
 | **GPT 协作规范 v1**（总入口） | governance/GPT协作规范.md | 与 GPT 协作：分工/派发执行会话/指令表述/通道 | 协作前读规范；派发任务前读模板 |
 | **执行会话任务模板 v1.1** | governance/执行会话任务模板.md（已并入 GPT协作规范#2） | 派发执行会话任务（无 conversation_id 一次性任务）——旧引用兼容 | 派发任务前读模板 |
 | **AAD 落地表** | agent_actions（v2 规划） | Runtime 稳定后 | v2 MCP 工具 |
