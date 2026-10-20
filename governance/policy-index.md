@@ -26,6 +26,7 @@
 
 | policy | 源位置 | 触发条件 | 加载方式 |
 |---|---|---|---|
+| **项目时间轴星系·写入与回顾规范 v1.0** | governance/项目时间轴星系.md | 建/查项目或主体的时间轴节点（时序书写与回顾） | 文档阅读（做时间轴/回望项目演化时） |
 | **AAD 行为透明** | 协作协议#八（Agent 行为透明协议） | all_tasks（所有任务） | 角色卡引用 + buildSystemPrompt 引用 |
 | **Ownership 闭环责任** | 协作协议#九（闭环责任协议） | long_running（长任务/部署/等待类） | 角色卡引用；deploy skill#6 |
 | **Deploy Closure 部署自动闭环** | deploy skill#6（部署自动闭环验证） | deploy 场景（merge 后） | 部署时读 deploy skill；merge 工具返回提示 |
