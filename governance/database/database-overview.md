@@ -3,7 +3,7 @@
 > **数据源唯一**：所有表都在 Supabase（`shxfosnnaoxzscrhvkat.supabase.co`），承载 mcp-memory Worker。不搞多库、不另起数据源。
 >
 > **维护闭环（2026-10-20 与 GPT 讨论收敛，柳柳拍板 P0 落地）**：分三层建立持续可核验的闭环，而不是一次写厚文档——
-> - **现状层**：`dump_schema` 脚本自动导出真实表结构（本文件只记录事实 + 人工字典，生成文件与人工说明分离）。
+> - **现状层**：`dump_schema` 已实现可用（`supabase_schema action=schema_dump` 生成 md/json 结构快照，实测 23 表；快照供核对/检测漂移，机器生成不手改，生成文件与人工字典分离）。
 > - **解释层**：本文件即为每张表的业务字典（purpose/owner/used_by/lifecycle/relationships/source_status），未知项明确标 `unknown`，不编造。
 > - **历史层**：`change-log.md`（待 P0 后随手起）+ 复用现有治理记录（需求/决策/执行/PR），只做索引链接，不复制第二份事实。
 >
