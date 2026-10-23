@@ -13,7 +13,7 @@
 - 记录已知风险与未验证项；不包含生产代码、数据库结构、部署或 Worker 行为变更。
 
 ### 发布边界
-- `ZivenLab/dev` 相对 `main` 的 GitHub compare 当前显示 ahead 101、behind 0、14 个文件变化，变化范围全部是治理/架构文档；`wovowx/mcp-memory` 的 `dev` 与 `main` 当前 identical（0/0）。
+- `ZivenLab/dev` 相对 `main` 的 GitHub compare 当前显示 ahead 105、behind 0、15 个文件变化，变化范围全部是 `governance/` 治理/架构文档；`wovowx/mcp-memory` 的 `dev` 与 `main` 当前 identical（0/0）。
 - 为避免将 101 个开发提交历史整体搬入 main，本候选建议采用 **squash 为一个文档快照提交**；合并前须再次核对 PR 文件清单，合并后验证 main 与 dev 收敛。
 - 状态：仅候选记录；未合并 main，未部署。
 
