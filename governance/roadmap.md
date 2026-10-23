@@ -11,7 +11,7 @@
 >
 > **当前主线是整体架构存量整理，不是旧版聊天室/Wake Bridge 路线。** 阶段 0 架构级盘点已完成，当前按 `governance/资产盘点与整理升级计划.md` 执行：
 > 1. 校正文档真相源与导航：现状架构文档已创建，并已加入 README、导航表与 CHANGELOG；目标蓝图与真实实现分开记录。
-> 2. 建立目标—现状差距矩阵：已新增 `governance/架构差距矩阵.md`，覆盖文档恢复、search_history/suggest、迁移审计、Pages、/memory-universe、重复函数、入口/版本与宿主交接；导航和关键状态入口已回读核验。
+> 2. 建立目标—现状差距矩阵：已新增 `governance/架构差距矩阵.md`，覆盖文档恢复、search_history/suggest、迁移审计、Pages、/memory-universe、重复函数、入口/版本与宿主交接；导航和关键状态入口已回读核验。本轮继续校正文档与真实源码的偏差：重写 `mcp-memory/dev/README.md` 以匹配实际目录；根据当前 `mcp_router.js`、`category.js` 与 Supabase `skills` 只读查询，修正 category 旧路径和 `memory_move` 的注册、可发现性、dispatch 与 schema 门禁描述；同时确认当前 `src/tools/` 目录只有 `github_v64.js`，未见 `github.js`。
 > 3. 验证基线已登记：`governance/架构差距矩阵.md` 已记录 search_history/suggest 的逐场景测试契约与证据要求。GPT 侧当前不能执行 JS 行为测试，跨宿主交接入口已在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 重建并回读核验。该测试事项保留在差距矩阵中，不因登记或恢复交接入口自动成为当前执行任务。
 > 4. 依据矩阵按风险和证据做最小、可逆修复；不未经授权改数据库、生产代码或部署，不为减少文件而合并。
 >
