@@ -17,7 +17,7 @@
 
 | 表名 | owner | used_by | purpose | relationships | source_status |
 |---|---|---|---|---|---|
-| memories | memory | 记忆管理 skill / memory 工具 | 记忆条目主表（2026-10-17 升级 type/status/version/supersedes_id/source_ref/valid_from-to，当前有效判定） | supersedes_id 自关联；alias→memory_aliases | verified |
+| memories | memory | `memory_unified.js` 等记忆工具 | 记忆条目主表；当前已核实字段包含 `id`、`value`、`category`、`title`、`valid_to`、`trigger_intents`、`entities`、`related_memory_ids` 等；更完整字段以重新生成的 schema dump 为准 | `memory_aliases` 以记忆 ID/关联键形成检索关联（具体约束待 schema 核验） | verified |
 | memory_events | memory | 记忆/审计 | 记忆变更账本（追加式，禁 UPDATE/DELETE，可追溯每次记忆演化） | →memories | verified |
 | memory_aliases | memory | memory search 检索 | 检索别名索引（多钥匙：一条记忆多入口） | →memories | verified |
 
@@ -55,7 +55,7 @@
 | 表名 | owner | used_by | purpose | relationships | source_status |
 |---|---|---|---|---|---|
 | actors | platform | 全系统 | Agent 身份注册（system/ziven/gpt/liuliu…） | | verified |
-| skills | platform | 全系统 | MCP 技能注册（68 个） | | verified |
+| skills | platform | MCP Router / Skill 工具 | MCP 工具注册、文本型 Skill 元数据、启用状态及使用统计；68 是历史数量，当前总数未全量核准 | Markdown Skill 文件位于 `src/skills/`，与此表不是同一资产集合 | verified |
 | tool_policies | platform | permission | 工具权限策略（github_push/merge 等审批） | | verified |
 | system_config | platform | 配置系统 | 系统 KV 配置（如 operit_tunnel_url/bearer_token） | | verified |
 | chat_webhook_audit | chatroom | webhook | webhook 投递审计（聊天室暂停范围） | →chat_agent_events | verified |
