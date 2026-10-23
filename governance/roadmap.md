@@ -12,7 +12,7 @@
 > **当前主线是整体架构存量整理，不是旧版聊天室/Wake Bridge 路线。** 阶段 0 架构级盘点已完成，当前按 `governance/资产盘点与整理升级计划.md` 执行：
 > 1. 校正文档真相源与导航：现状架构文档已创建，并已加入 README、导航表与 CHANGELOG；目标蓝图与真实实现分开记录。
 > 2. 建立目标—现状差距矩阵：已新增 `governance/架构差距矩阵.md`，覆盖文档恢复、search_history/suggest、迁移审计、Pages、/memory-universe、重复函数、入口/版本与宿主交接；导航和关键状态入口已回读核验。
-> 3. 建立验证基线（当前进行中）：GPT 侧 JS handler 不可用，需要 Operit 运行 search_history/suggest mock 行为测试。但此前引用的 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 本次读取返回 Not Found，dev 根目录列表也未显示该文件；先恢复真实路径或在安全写入路径可用后重建交接文档，再交付测试任务。当前没有测试通过证据。
+> 3. 建立验证基线（当前进行中）：`governance/架构差距矩阵.md` 已补充 search_history/suggest 的逐场景执行契约（空白关键词、已有/无历史、正常/空建议、缺表与非 2xx、网络/JSON 失败），并列明当前代码风险与证据要求。GPT 侧 JS handler 不可用，需 Operit 运行并回填真实命令、退出码和输出。此前引用的 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 本次读取返回 Not Found，交接入口仍待恢复；当前没有测试通过证据。
 > 4. 依据矩阵按风险和证据做最小、可逆修复；不未经授权改数据库、生产代码或部署，不为减少文件而合并。
 >
 > 当前阶段检查点：governance/现状架构.md 是真实实现地图；governance/整体架构.md 是目标蓝图；governance/资产盘点与整理升级计划.md 记录整理方案；本路线图只控制当前行动顺序。
