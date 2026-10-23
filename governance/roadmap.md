@@ -19,7 +19,7 @@
 >
 > `/memory-universe` 当前属于未投入使用的半成品：已记录未认证路由风险，但柳柳已决定本轮暂缓处理，正式启用前再作为阻断验收项复核。聊天室与唤醒链路保持暂停，不在本主线恢复或修复。
 >
-> **发布收敛检查点（2026-10-23）：** `docs-2026.10.1` 已通过 PR #74 以 squash 方式合并至 `ZivenLab/main`，合并提交标题为 `v2026.10.1: 架构真相源与验证基线快照`。合并后重新 compare 已确认 `main` 与 `dev` identical（ahead 0 / behind 0）；15 个变化文件全部位于 `governance/`。本次仅发布治理文档，不涉及生产代码、数据库或部署；当时 `mcp-memory/dev` 与 `main` identical（0/0）。随后因交接文件恢复与 README 结构校正，截至本次 compare，`mcp-memory/dev` 领先 `main` 3 个提交、behind 0，差异为新增 `CROSS-HOST-BRIDGE.md` 与修改 `README.md`。当前继续推进 `search_history/suggest` 行为验证主线。
+> **发布收敛检查点（2026-10-23）：** `docs-2026.10.1` 已通过 PR #74 以 squash 方式合并至 `ZivenLab/main`，合并提交标题为 `v2026.10.1: 架构真相源与验证基线快照`。合并后曾确认 `ZivenLab/main` 与 `dev` identical（ahead 0 / behind 0）；15 个变化文件全部位于 `governance/`。本次仅发布治理文档，不涉及生产代码、数据库或部署。当时 `mcp-memory/dev` 与 `main` 也 identical；随后恢复 `CROSS-HOST-BRIDGE.md` 并校正 README，当前存在待发布的文档差异，具体范围以发布前重新 compare 为准。当前继续推进架构存量整理与文档口径收敛；search_history/suggest 行为测试契约保留为后续事项，不因已登记自动切换主线。
 >
 > **以下旧版 P0/P1/P2 与架构演进内容保留作历史路线/待办参考；如与上方活跃主线冲突，以本节、当前项目状态驾驶舱和资产盘点计划为准。**
 
