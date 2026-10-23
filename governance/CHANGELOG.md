@@ -26,6 +26,12 @@
 
 ## [docs-2026.10] - 2026-10-23
 
+### 架构存量整理阶段 2 收束（2026-10-23）
+- 在 `governance/现状架构.md` 增加核心模块职责/依赖地图，覆盖 Worker/MCP、工具实现、agent_runtime、execution、共享 utils、Markdown Skill 与注册表层；明确 `permission_guard.js` 的 Runtime 接入未证实，不把源码存在误写为已生效。
+- 将资产整理计划阶段口径统一为：阶段 0 整体盘点、阶段 1 真相源/导航校正、阶段 2 存量职责与依赖整理、阶段 3 最小可逆执行方案、阶段 4 分批实施与验证、阶段 5 整体验收/发布。阶段 2 验收完成；未决契约仍待阶段 3 排序。
+- 修复真相源导航中 `CROSS-HOST-BRIDGE.md` 的过期 Not Found 描述，确认其在 `wovowx/mcp-memory/dev` 已重建并回读核验；这不代表任何测试已经执行。
+- 修正 `资产全景.md` 对 `src/modules/` 的过期目录描述；新增权限守卫接入状态未证实的差距项。仅改 ZivenLab/dev 治理文档，不改生产代码、数据库或部署，不运行测试、不推 main。
+
 ### 校正（跨宿主交接状态）
 - 回读现状架构时发现旧文档把 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 描述为可用交接入口，但本次 GitHub 读取返回 Not Found，且 dev 根目录目录清单未显示该文件。已同步修正现状架构、差距矩阵、roadmap 与驾驶舱。差距矩阵进一步固化 search_history/suggest 的逐场景 mock 执行契约与证据要求；交接入口恢复前不声称已交付 Operit 或测试通过。
 
