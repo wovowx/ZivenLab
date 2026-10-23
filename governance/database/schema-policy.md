@@ -24,8 +24,8 @@
   ↓ ② 写 necessity（为什么不能复用现有表）
   ↓ ③ 工具校验 necessity 非空 + 列出相关表
   ↓ ④ 建表/改表
-  ↓ ⑤ 自动生成 schema snapshot + diff
-  ↓ ⑥ 更新 overview + domain 文档
+  ↓ ⑤ 通过 `src/tools/database.js` 的 `schema_dump` 输出结构快照（当前只返回文本/JSON，未证实自动落盘或自动生成 diff）
+  ↓ ⑥ 人工保存/比较快照，并更新 overview + domain 文档
   ↓ ⑦ 完成
 ```
 
@@ -34,7 +34,7 @@
 | 层 | 位置 | 内容 | 谁维护 |
 |---|---|---|---|
 | 文档 | ZivenLab/governance/database/ | overview + domains/ + schema-policy | 人/Agent 人工 |
-| 脚本 | mcp-memory/src/modules/supabase_schema/ | dump/diff/validate | 代码仓工具 |
+| 实现 | mcp-memory/src/tools/database.js 的 `schema_dump` / `dump_schema` action | 读取 Supabase PostgREST OpenAPI definitions 并返回 Markdown/JSON；当前未发现独立 `src/modules/supabase_schema/` 目录，也未证实自动落盘或 diff/validate 闭环 | 代码仓工具 |
 | 事实 | Supabase | 真实表结构 | 数据库本身 |
 
 ## 变更记录
