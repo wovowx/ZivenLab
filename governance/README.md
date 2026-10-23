@@ -13,25 +13,28 @@
 | 怎么协作 / 怎么讨论 | `governance/协作协议.md` | 协作规则（规则源） |
 | 版本记录 | `governance/CHANGELOG.md` | 变更历史 |
 
-## 📁 目录结构
+## 📁 目录结构（概念示意；具体文件以仓库实时目录为准）
 
 ```
 ZivenLab/
-├── governance/     ← 当前规则（权威，只放规矩）
-│   ├── README.md
-│   ├── 当前项目状态.md   （驾驶舱）
-│   ├── roadmap.md       （路线，原85号）
-│   ├── 协作协议.md       （规则）
-│   └── CHANGELOG.md     （版本）
-│
-├── common-ground/   ← 历史讨论 + 工作区（草稿，非权威）
-│   ├── 00~85 ...（历史讨论，旧位置留 redirect）
-│   └── ...
-│
-├── architecture/    ← （规划）为什么这么设计
-├── discussions/     ← （规划）当时怎么讨论
-└── archive/         ← （规划）已结束历史
+├── governance/       ← 当前治理与项目真相源
+│   ├── README.md     （治理入口）
+│   ├── 当前项目状态.md（驾驶舱）
+│   ├── roadmap.md    （路线源）
+│   ├── 协作协议.md   （协作规则）
+│   ├── policy-index.md（规范索引）
+│   ├── 真相源导航表.md（全部权威文档位置）
+│   ├── 整体架构.md / 资产全景.md / 资产盘点与整理升级计划.md
+│   ├── database/    （数据库总览、域文档与设计规范）
+│   └── 其他治理、需求、复苏与时间轴文档
+├── common-ground/   ← 聊天室历史材料（保留；非当前治理真相源）
+├── chatroom/        ← 聊天室项目资产（已暂停，保留）
+├── memory-planet/   ← 呈现层设计资产
+├── test/            ← 测试资产
+└── README.md
 ```
+
+> `architecture/`、`discussions/`、`archive/` 是旧规划中的目录名，不代表当前仓库已存在这些目录；本轮不为了匹配旧示意而新建或移动文件。治理文档按职责集中在 `governance/`，具体权威文件请查 `governance/真相源导航表.md`。
 
 ## 🚩 引用规范
 
