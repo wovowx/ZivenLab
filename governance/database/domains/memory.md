@@ -28,7 +28,7 @@
 **坑**：不同来源的记忆 key 格式不同（事件/实体/日常…）；分类用于归档。
 
 ## memory_events（事件账本）
-**用途**：记录 memories 每次 create/update/revoke/restore 事件。追加式账本，`memory_events 禁止 UPDATE/DELETE`（触发器，2026-10-17 实装）。支持追溯、审计、回滚。
+**目标语义**：记录 memories 的 create/update/revoke/restore 等生命周期事件，作为追溯与审计依据。文档历史记录称 `memory_events` 禁止 UPDATE/DELETE（触发器，2026-10-17 实装）；当前触发器/RLS 规则仍应以实时数据库证据复核。**实现覆盖不能由表设计推定**：2026-10-23 对 `mcp-memory/dev/src/tools/memory_unified.js` 的静态检查只看到 `putMemory` 在 update 路径显式 POST `memory_events`，且未检查该请求的 HTTP 状态；create、soft-delete、rename、move 未见完整的显式生命周期事件链。当前 rename/move 先软删源、再写目标，相关写请求不检查 HTTP 状态，也无事务/补偿/核验。因此暂不能声称所有变更均可审计或可靠回滚；此处是源码静态发现，不代表已证实发生数据丢失。
 
 | 列 | 类型 | 含义 |
 |---|---|---|
