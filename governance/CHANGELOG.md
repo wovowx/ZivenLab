@@ -29,9 +29,9 @@
 ### 阶段 4 第一批实施记录（待验证）
 - 柳柳明确授权仅修改 `wovowx/mcp-memory/dev` 的记忆写入、软删除、rename/move 与导入结果逻辑，并补充隔离 mock 场景。
 - `putMemory` 对查找/列表非 2xx 抛出明确错误，对 create/update/history 写请求检查 HTTP 结果；软删除检查响应并回查 active 记录；rename/move 改为目标先写、确认成功后再软删除源；两条导入路径只按返回成功结果计数，并统计失败项。
-- 已增加 mock 回归断言覆盖 INSERT HTTP 500、历史事件 HTTP 503 时不继续 PATCH、UPDATE HTTP 503。测试目前只完成写入和静态回读，尚未运行。
+- 已增加 mock 回归断言覆盖 INSERT HTTP 500、历史事件 HTTP 503 时不继续 PATCH、UPDATE HTTP 503、rename 目标写入失败不软删除源，以及软删除成功但验证回查 HTTP 503 时明确报告源删除未确认。Operit 初轮 E1 `npm run check` 在旧 SHA `d68b26e29b190694e234f9dbac0909b0dea331ad` exit 0，E2 `node tests/webhook_idempotency_test.mjs` 为 18/18；代码复核后又新增一项修复与测试，因此旧证据不覆盖当前 HEAD，当前 E1/E2 待重跑。
 - 已在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 建立 Operit 执行交接：`npm run check` 与 `node tests/webhook_idempotency_test.mjs`；需记录真实 Node 版本、SHA、退出码和原始输出。E3 真实 endpoint 明确不执行。
-- 未改数据库/schema/注册表、未部署、未推 main；阶段 4 第一批尚待 E1/E2 验证，验证完成前不进入下一批。
+- 未改数据库/schema/注册表、未部署、未推 main；阶段 4 第一批仍待修复后 E1/E2 重跑与复核完成，验证完成前不进入下一批。已知非事务性限制：memory_events POST 成功而当前值 PATCH 失败时会留下更新尝试事件；当前明确返回 update 失败，不误报当前值成功。
 
 ### 决策记录（GitHub Pages 暂缓处理）
 - 柳柳判断 `mcp-memory` 的 GitHub Pages 目前似乎未使用、像半成品，并表示本轮「不用管」。本轮不修改 Pages workflow、不停用、不部署，也不让该项继续阻塞架构整理。
