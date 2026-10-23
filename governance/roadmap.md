@@ -19,7 +19,7 @@
 >
 > `/memory-universe` 当前属于未投入使用的半成品：已记录未认证路由风险，但柳柳已决定本轮暂缓处理，正式启用前再作为阻断验收项复核。聊天室与唤醒链路保持暂停，不在本主线恢复或修复。
 >
-> **发布收敛检查点（2026-10-23）：** `ZivenLab/dev` 相对 `main` 领先超过 100 个提交、behind 0，GitHub compare 显示 15 个文件变化，均为 `governance/` 治理/架构文档；`mcp-memory/dev` 与 `main` identical（0/0）。已准备 `docs-2026.10.1` 文档快照候选，建议 squash 为一个 main 提交，避免把历史开发提交逐条带入 main。当前尚未合并；必须先向柳柳报告版本、文件范围和验证边界并取得明确确认。批准发布并验证分支收敛后，回到 search_history/suggest 行为验证主线。
+> **发布收敛检查点（2026-10-23）：** `docs-2026.10.1` 已通过 PR #74 以 squash 方式合并至 `ZivenLab/main`，合并提交标题为 `v2026.10.1: 架构真相源与验证基线快照`。合并后重新 compare 已确认 `main` 与 `dev` identical（ahead 0 / behind 0）；15 个变化文件全部位于 `governance/`。本次仅发布治理文档，不涉及生产代码、数据库或部署；`mcp-memory/dev` 与 `main` 仍 identical（0/0）。发布收敛已完成，回到 `search_history/suggest` 行为验证主线。
 >
 > **以下旧版 P0/P1/P2 与架构演进内容保留作历史路线/待办参考；如与上方活跃主线冲突，以本节、当前项目状态驾驶舱和资产盘点计划为准。**
 
