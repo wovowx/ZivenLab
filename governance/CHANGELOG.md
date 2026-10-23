@@ -21,7 +21,7 @@
 
 ### 发布边界
 - `ZivenLab/dev` 相对 `main` 的 GitHub compare 显示领先超过 100 个提交、behind 0；15 个变化文件全部是 `governance/` 治理/架构文档。`wovowx/mcp-memory` 的 `dev` 与 `main` 当前 identical（0/0）。此处记录的是本次发布核查快照，合并前仍须重新 compare。
-- 为避免将 101 个开发提交历史整体搬入 main，本候选建议采用 **squash 为一个文档快照提交**；合并前须再次核对 PR 文件清单，合并后验证 main 与 dev 收敛。
+- 为避免将大量开发提交历史逐条搬入 main，本候选建议采用 **squash 为一个文档快照提交**；合并前须再次核对 PR 文件清单，合并后验证 main 与 dev 收敛。
 - 状态：仅候选记录；未合并 main，未部署。
 
 ## [docs-2026.10] - 2026-10-23
