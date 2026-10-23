@@ -11,8 +11,8 @@
 >
 > **当前主线是整体架构存量整理，不是旧版聊天室/Wake Bridge 路线。** 阶段 0 架构级盘点已完成，当前按 `governance/资产盘点与整理升级计划.md` 执行：
 > 1. 校正文档真相源与导航：现状架构文档已创建，并已加入 README、导航表与 CHANGELOG；目标蓝图与真实实现分开记录。
-> 2. 建立目标—现状差距矩阵（当前进行中）：逐项记录证据、风险、处理方式与验收条件，不重复完整盘点。
-> 3. 建立验证基线：针对 search_history/suggest、迁移审计、重复函数等候选，区分静态检查、mock 行为测试与真实 MCP/HTTP 证据；GPT 侧当前不能运行 Node JS handler，须明确交给 Operit 执行。
+> 2. 建立目标—现状差距矩阵：已新增 `governance/架构差距矩阵.md`，覆盖文档恢复、search_history/suggest、迁移审计、Pages、/memory-universe、重复函数、入口/版本与宿主交接；导航和关键状态入口已回读核验。
+> 3. 建立验证基线（当前进行中）：已在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 交给 Operit 核验 search_history/suggest 的 mock 行为测试边界；等待真实命令/输出/退出码，不声称测试通过。
 > 4. 依据矩阵按风险和证据做最小、可逆修复；不未经授权改数据库、生产代码或部署，不为减少文件而合并。
 >
 > 当前阶段检查点：governance/现状架构.md 是真实实现地图；governance/整体架构.md 是目标蓝图；governance/资产盘点与整理升级计划.md 记录整理方案；本路线图只控制当前行动顺序。
