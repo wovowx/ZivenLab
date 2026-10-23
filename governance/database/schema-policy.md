@@ -8,9 +8,9 @@
 
 2. **加表/改表必须过现有表**：任何新增/修改表结构前，**必须先打开 `database-overview.md` 过一遍现有表信息**，证明「现有表无法覆盖、不是重复造轮子」，把必要性写清楚，才可以加。
 
-3. **建表工具强制 necessity**：`supabase_schema` 建表/改表时必须传 `necessity`（必要性说明），不传拒建。工具会在建表前列出相关现有表，强制「过一遍」。
+3. **建表工具强制 necessity**：`mcp-memory/src/tools/database.js` 的 `create_table` action（另兼容 `supabase_schema_create` 名称）必须传 `necessity`（必要性说明），不传则返回 `TABLE_CHANGE_GUARD_REQUIRED` 并尝试列出现有表。该机制是建表前置门槛，不代表所有外部工具包装都已逐一验证。
 
-4. **机器发现漂移（目标机制，自动闭环待验证）**：`supabase_schema action=schema_dump` 可用于读取结构快照；但当前未核实每次变更后自动写入 `schema/generated-schema.md`、生成 diff 并由 CI 监控的闭环，仓库当前也未见该输出目录。未完成工具/CI 核验前，不得把「能导出快照」表述成「自动检测漂移已生效」。
+4. **机器发现漂移（目标机制，自动闭环待验证）**：`mcp-memory/src/tools/database.js` 的 `schema_dump` / `dump_schema` action 可读取 Supabase PostgREST OpenAPI definitions 并返回结构快照；当前源码只构造并返回 Markdown/JSON，没有证据表明会自动写入 `schema/generated-schema.md`、生成 diff 或触发 CI。未完成工具/CI 核验前，不得把「能导出快照」表述成「自动检测漂移已生效」。
 
 5. **语义人工维护**：表的「为什么存在 / 生命周期 / 关系 / 坑」由人/ Agent 写进 `domains/*.md`，工具不自动生成语义（机器管结构、人管意义）。
 
