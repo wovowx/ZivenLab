@@ -10,7 +10,7 @@
 
 3. **建表工具强制 necessity**：`supabase_schema` 建表/改表时必须传 `necessity`（必要性说明），不传拒建。工具会在建表前列出相关现有表，强制「过一遍」。
 
-4. **机器发现漂移**：每次 schema 变更后自动生成 `schema/generated-schema.md` 快照 + diff（工具做，不靠记性）。结构变化一定被发现。
+4. **机器发现漂移（目标机制，自动闭环待验证）**：`supabase_schema action=schema_dump` 可用于读取结构快照；但当前未核实每次变更后自动写入 `schema/generated-schema.md`、生成 diff 并由 CI 监控的闭环，仓库当前也未见该输出目录。未完成工具/CI 核验前，不得把「能导出快照」表述成「自动检测漂移已生效」。
 
 5. **语义人工维护**：表的「为什么存在 / 生命周期 / 关系 / 坑」由人/ Agent 写进 `domains/*.md`，工具不自动生成语义（机器管结构、人管意义）。
 
