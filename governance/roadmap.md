@@ -11,7 +11,7 @@
 >
 > **当前主线是整体架构存量整理，不是旧版聊天室/Wake Bridge 路线。** 阶段 0 架构级盘点已完成，当前按 `governance/资产盘点与整理升级计划.md` 执行：
 > 1. 校正文档真相源与导航：现状架构文档已创建，并已加入 README、导航表与 CHANGELOG；目标蓝图与真实实现分开记录。
-> 2. 建立目标—现状差距矩阵：已新增 `governance/架构差距矩阵.md`，覆盖文档恢复、search_history/suggest、迁移审计、Pages、/memory-universe、重复函数、入口/版本与宿主交接；导航和关键状态入口已回读核验。本轮继续校正文档与真实源码的偏差：重写 `mcp-memory/dev/README.md` 以匹配实际目录；根据当前 `mcp_router.js`、`category.js` 与 Supabase `skills` 只读查询，修正 category 旧路径和 `memory_move` 的注册、可发现性、dispatch 与 schema 门禁描述；同时确认当前 `src/tools/` 目录只有 `github_v64.js`，未见 `github.js`；修正 `governance/database/schema-policy.md` 中不存在的 `src/modules/supabase_schema/` 路径，并明确 `schema_dump` 当前只返回快照文本/JSON，自动落盘与 diff 闭环未证实；并只读核对上传职责，确认 `/upload` 与 `ai.js` 的 data URI 图片预处理复用 `utils/storage.js` 的 `uploadFileToSupabase`，不重复造上传实现；`queryFiles` 的全仓调用方尚未穷尽，暂不判废。
+> 2. 建立目标—现状差距矩阵：已新增 `governance/架构差距矩阵.md`，覆盖文档恢复、search_history/suggest、迁移审计、Pages、/memory-universe、重复函数、入口/版本与宿主交接；导航和关键状态入口已回读核验。本轮继续校正文档与真实源码的偏差：重写 `mcp-memory/dev/README.md` 以匹配实际目录；根据当前 `mcp_router.js`、`category.js` 与 Supabase `skills` 只读查询，修正 category 旧路径和 `memory_move` 的注册、可发现性、dispatch 与 schema 门禁描述；确认当前 `src/tools/` 目录只有 `github_v64.js`，未见 `github.js`；修正 `governance/database/schema-policy.md` 中不存在的 `src/modules/supabase_schema/` 路径，并明确 `schema_dump` 只返回快照文本/JSON，自动落盘与 diff 闭环未证实；核对上传职责，确认 `/upload` 与 `ai.js` 共用 `utils/storage.js` 的 `uploadFileToSupabase`，`queryFiles` 的全仓调用方尚未穷尽，暂不判废。另按当前 `memory_unified.js` 源码修正文档：rename/move 实际先软删源再写目标，写请求不检查 HTTP 状态、无事务/补偿/核验；显式事件写入覆盖不足。此项仅登记风险，未改生产实现、未执行数据操作。
 > 3. 验证基线已登记：`governance/架构差距矩阵.md` 已记录 search_history/suggest 的逐场景测试契约与证据要求。GPT 侧当前不能执行 JS 行为测试，跨宿主交接入口已在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 重建并回读核验。该测试事项保留在差距矩阵中，不因登记或恢复交接入口自动成为当前执行任务。
 > 4. 依据矩阵按风险和证据做最小、可逆修复；不未经授权改数据库、生产代码或部署，不为减少文件而合并。
 >
