@@ -3,9 +3,9 @@
 > **数据源唯一**：所有表都在 Supabase（`shxfosnnaoxzscrhvkat.supabase.co`），承载 mcp-memory Worker。不搞多库、不另起数据源。
 >
 > **维护闭环（2026-10-20 与 GPT 讨论收敛，柳柳拍板 P0 落地）**：分三层建立持续可核验的闭环，而不是一次写厚文档——
-> - **现状层**：`dump_schema` 可生成 md/json 结构快照；本文记录的 23 表是 2026-10-20 历史快照。2026-10-23 通过表清单工具观察到 25 张表，其中包含 `sb1_0_test_memories` 与 `sb1_0_test_memory_events` 两张测试表；这不是同一统计口径下的已重跑 schema dump，后续应重新生成机器快照再逐项对齐。
+> - **现状层**：`supabase_schema action=schema_dump` 曾用于返回结构快照；但当前仓库未发现约定中的 `schema/generated-schema.md` 输出目录，也未核实自动落盘/CI 漂移检测闭环。本文记录的 23 表是 2026-10-20 历史快照。2026-10-23 通过表清单工具观察到 25 张表，其中包含 `sb1_0_test_memories` 与 `sb1_0_test_memory_events` 两张测试表；这不是同一统计口径下的已重跑 schema dump，后续应重新生成机器快照再逐项对齐。
 > - **解释层**：本文件即为每张表的业务字典（purpose/owner/used_by/lifecycle/relationships/source_status），未知项明确标 `unknown`，不编造。
-> - **历史层**：`change-log.md`（待 P0 后随手起）+ 复用现有治理记录（需求/决策/执行/PR），只做索引链接，不复制第二份事实。
+> - **历史层**：`change-log.md` 已于 2026-10-20 建立，目前记录数据库治理文档基线；继续复用需求/决策/执行/PR 等现有治理记录，只做索引链接，不复制第二份事实。
 >
 > **表数统计以最新机器快照为准，不手写总数**。本文表字典沿用 2026-10-20 的 23 表业务口径；2026-10-23 另一次表清单观察到 25 张（含两张 `sb1_0_test_*` 测试表）。在重新生成 `schema_dump` 并逐表核对前，不把两种结果直接判定为数据库漂移或误建表。
 
