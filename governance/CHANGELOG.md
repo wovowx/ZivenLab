@@ -10,7 +10,7 @@
 - `roadmap.md` 增加当前活跃主线：阶段 0 架构盘点已完成，按资产整理计划依次校正文档真相源、评估已证实依赖断链、核对职责重叠、补验证基线；旧聊天室/Wake Bridge 路线标为历史待办，不再覆盖当前主线。
 - `governance/README.md` 与 `资产全景.md` 修正过期目录示意和治理文件计数，改为指向实时目录及真相源导航表；`真相源导航表.md` 补齐 roadmap、CHANGELOG、治理入口和数据库总览/Schema 规范/域文档导航。
 - 实时 `skills` 注册表确认 `memory` 工具仍启用且公开 `action=suggest` 与 `action=move`；由于无按 action 的使用统计，搜索历史/建议暂按需兼容功能处理，不推断为可删除。静态检查发现 suggest 空态兜底因字符串拼接优先顺序失效；GPT 侧 Code Runner 当前不支持 JS handler，故登记测试缺口，不声称行为测试通过或已修复。另澄清独立 `memory_move` 别名未注册，但统一 `memory(action=move)` 仍是已登记入口。
-- 数据库治理文档校正：`change-log.md` 已存在，不再写成待建立；`database-overview.md` 与 `schema-policy.md` 明确区分可请求 schema dump 与尚未验证的自动落盘/CI 漂移检测，避免把目标机制写成已生效事实。
+- 数据库治理文档校正：`change-log.md` 已存在，不再写成待建立；2026-10-23 实际重跑 `supabase_schema action=schema_dump`，返回 25 张表（23 业务 + 2 测试），与文档分类口径相符。`database-overview.md` 与 `schema-policy.md` 明确区分可请求 schema dump 与尚未验证的自动落盘/CI 漂移检测；RLS、全部约束和测试表来源仍待核。
 - `/memory-universe` 未认证路由风险保留记录，但依据柳柳确认该页面未投入使用、属于半成品，调整为正式启用前阻断验收项；本轮不改代码、不停服务、不部署。
 - Pages 工作流仍只确认静态配置，是否实际部署、当前站点可见性与访问范围尚未核实；不据此擅自停用或修改发布流程。
 - 本批文档改动仅在 ZivenLab `dev`，已通过 GitHub 写入后回读校验；未合并、未推送 `main`。
