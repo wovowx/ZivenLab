@@ -9,7 +9,7 @@
 >
 > **表数统计以最新机器快照为准，不手写总数**。本文表字典沿用 2026-10-20 的 23 表业务口径；2026-10-23 另一次表清单观察到 25 张（含两张 `sb1_0_test_*` 测试表）。在重新生成 `schema_dump` 并逐表核对前，不把两种结果直接判定为数据库漂移或误建表。
 
-## 表字典（23 张业务表 × 域）
+## 表字典（2026-10-20 历史业务表字典；当前 25 张表清单待逐表重核）
 
 > 字段说明：`used_by` = 实际使用该表的 Worker 工具/路由/模块（**source_status=verified 表示已由代码检索核实；guess/unknown 表示待核**）；`owner` = 负责维护该表的模块/负责人（不是「谁最近碰过」）；`lifecycle` = active / paused / deprecated / pending-confirmation。
 
@@ -58,10 +58,15 @@
 | skills | platform | 全系统 | MCP 技能注册（68 个） | | verified |
 | tool_policies | platform | permission | 工具权限策略（github_push/merge 等审批） | | verified |
 | system_config | platform | 配置系统 | 系统 KV 配置（如 operit_tunnel_url/bearer_token） | | verified |
-| chat_webhook_audit | platform | webhook | webhook 投递审计 | →chat_agent_events | verified |
-| files | memory/platform | 记忆/媒体 | 上传文件元数据 | | assumed |
+| chat_webhook_audit | chatroom | webhook | webhook 投递审计（聊天室暂停范围） | →chat_agent_events | verified |
 
-> 备注：`knowledge` 表已在当前实际表清单中消失（overview v1 标记「待确认废弃」），以数据库实测为准，不再当作现存表描述；如需彻底归档/删除另行决策。
+### files 域（上传文件 · active，具体使用状态待核）
+
+| 表名 | owner | used_by | purpose | relationships | source_status |
+|---|---|---|---|---|---|
+| files | files/storage | `/upload` 与 `src/utils/storage.js` | 上传文件元数据；对象存储写入与元数据写入需一起验证 | 与 Supabase Storage 对象对应 | verified |
+
+> 备注：`knowledge` 不在当前实际表清单中，不再当作现存表描述；代码/文档是否仍有引用需单独核对。2026-10-23 表清单另外观察到 `sb1_0_test_memories`、`sb1_0_test_memory_events` 两张测试表，尚未核清创建来源与用途；本字典没有将其混入 2026-10-20 的 23 张业务表历史快照。
 
 ## P1 触发判据（什么时候进入 P1：change-log 完整化 + Supabase CLI 版本化迁移）
 
