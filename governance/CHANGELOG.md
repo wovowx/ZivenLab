@@ -7,7 +7,7 @@
 ## [docs-2026.10] - 2026-10-23
 
 ### 校正（跨宿主交接状态）
-- 回读现状架构时发现旧文档把 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 描述为可用交接入口，但本次 GitHub 读取返回 Not Found，且 dev 根目录目录清单未显示该文件。已同步修正现状架构、差距矩阵、roadmap 与驾驶舱：先恢复/验证交接文档，再交由 Operit 执行行为测试；没有将未执行的测试标成通过。
+- 回读现状架构时发现旧文档把 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 描述为可用交接入口，但本次 GitHub 读取返回 Not Found，且 dev 根目录目录清单未显示该文件。已同步修正现状架构、差距矩阵、roadmap 与驾驶舱。差距矩阵进一步固化 search_history/suggest 的逐场景 mock 执行契约与证据要求；交接入口恢复前不声称已交付 Operit 或测试通过。
 
 ### 新增（现状架构真相源）
 - 新增 `governance/现状架构.md`，记录仓库/服务全景、Worker/MCP 入口、记忆与数据库现状、宿主能力边界、已知差距、证据等级及新会话恢复顺序；明确区分源码事实、注册/数据事实、运行时证据与待验证项。
