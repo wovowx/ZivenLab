@@ -157,4 +157,14 @@ P2 ⬜
 
 ---
 
+## 下一项：GitHub 写入保护统一规则（需求已确认，2026-10-24）
+
+柳柳已确认硬规则：**所有非发布流程都不得直接修改 `main`**。本项进入架构整理主线的需求收敛阶段，但尚未进入代码实现。
+
+- 当前静态风险：`github_delete` 默认 `main`；`github_copy` 默认 `main`，warning 后仍继续写；`github_move` 默认 `dev` 但可指定 `main`；`github_sync_branch` 可 force 更新目标分支；`github_apply_patch` 在 handler 内另有 `dev` 默认与拒绝 `main` 检查。
+- 下一步：补全所有 GitHub 内容/分支写入口映射，区分统一发布门禁、handler 内检查与无保护入口；设计副作用前拒绝 `main` 的最小可逆方案，并保留获准版本化发布路径。
+- 验收：用 mock/fake-fetch 验证所有非发布写工具目标为 `main` 时在任何远端写请求前拒绝；非 `main` 正常路径保持原行为；正式发布流程不被误伤；保留仓库白名单、错误契约与验证逻辑。E1 静态检查和 E2 行为测试分别记录真实退出码、断言数与 SHA。
+- 边界：当前只做文档与只读盘点，不改 Worker 代码、注册表、数据库，不触碰真实仓库，不部署、不推 main。完成映射与最小方案后，再通过 `CROSS-HOST-BRIDGE.md` 交给 Operit 实施 dev 代码及 E1/E2。
+- 权威验收细则：`governance/架构差距矩阵.md` 的「GitHub 写入保护」小节。
+
 *Ziven×GPT #348→#540 共识，2026-09-04 11:28 首版 → 13:46 刷新。*
