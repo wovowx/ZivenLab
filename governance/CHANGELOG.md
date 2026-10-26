@@ -9,9 +9,10 @@
 ### 阶段 4：DDL necessity gate 最小修复（柳柳已授权）
 - `mcp-memory/dev/src/tools/database.js` 现在用共享的非空 `necessity` 检查保护 `create_table`、`drop_table`；`exec` 中识别常见 DDL/可执行语句关键词，在调用 `exec_sql` RPC 前拒绝缺少 necessity 的请求，并尝试列出现有表。
 - `src/modules/mcp_router.js` 中 `supabase_*` 前缀不再无条件视为已知工具，而是必须命中 skills 注册表；`tools/list` 为已注册 `supabase_db` 与 `supabase_schema` 都暴露可选 `necessity` 参数；`supabase_db` action enum 未扩大，`supabase_schema` 保留原有 action enum。
-- `tests/router_registry_contract_test.mjs` 新增隔离 Mock：未注册 `supabase_*` 前缀被拦；exec 中 ALTER/DROP/CREATE 等 DDL 缺 necessity 不到 RPC；create/drop handler 缺或空 necessity 拒绝；只读 `SELECT 1` 保持兼容；提供 necessity 的写入路径只命中 fake `exec_sql` mock；同时验证公开 schema 提示 necessity 且不开放 drop_table action。所有网络由 `globalThis.fetch` mock 接管。
+- `tests/router_registry_contract_test.mjs` 新增隔离 Mock：未注册 `supabase_*` 前缀被拦；exec 中 ALTER/DROP/CREATE 等 DDL 缺 necessity 不到 RPC；经 Router 的 `supabase_schema` create/drop 缺参时不触 RPC；create/drop handler 缺或空 necessity 拒绝；只读 `SELECT 1` 保持兼容；提供 necessity 的写入路径只命中 fake `exec_sql` mock；`tools/list` 同时验证 `supabase_db` 与 `supabase_schema` 的 necessity 提示，且不开放 `supabase_db.drop_table` action。所有网络由 `globalThis.fetch` mock 接管；静态计数现为 37 个 `check(...)` 调用点，尚未执行，NOT RE-RUN。
 - **验证状态：NOT RE-RUN**。本轮只写入源码和测试资产，没有实际运行 Node；不以静态审阅代替退出码证据。需要本地运行后记录 Node/npm、最终 SHA/工作树、`npm run check`、现有 webhook 回归与扩展后的 Router/DDL Mock 的真实退出码。
-- 未触达真实 Supabase RPC、未执行实际 DDL/数据库写入、未修改 DB/schema/skills 注册表或生产配置；未部署、未推/合并 main。独立 `supabase_schema` 工具入口、真实 RPC 权限、Pages 实际发布状态仍未验证。
+- `policy-index.md` 当前版本为 v2.2；`database/schema-policy.md` 为 v1.3，均区分 Worker dev 已有代码防护与最新测试未运行状态。GPT App 独立直连 `supabase_schema` 工具的外层 schema 仍未声明 necessity，其是否经过 Worker Router 待核。
+- 未触达真实 Supabase RPC、未执行实际 DDL/数据库写入、未修改 DB/schema/skills 注册表或生产配置；未部署、未推/合并 main。真实 RPC 权限、Pages 实际发布状态仍未验证。
 
 ---
 
