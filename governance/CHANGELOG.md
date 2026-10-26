@@ -11,6 +11,7 @@
 - Operit 在本地修复版本报告：`npm run check` exit 0；`node tests/webhook_idempotency_test.mjs` exit 0（104/104）；`node tests/router_registry_contract_test.mjs` exit 0（16/16）。GPT 已回读核对远端 dev 源码和测试脚本，但未独立重跑 Node 命令。
 - `tests/router_registry_contract_test.mjs` 已由 GPT 通过 GitHub 工具同步至 `mcp-memory/dev` 并回读核验；全部网络请求采用 `globalThis.fetch` mock，不访问真实 Supabase 或 MCP endpoint。
 - **后续证据校正**：Operit 原始回报称新 Mock 16/16；GPT 对当前远端测试文件静态计数发现 15 个 `check(...)` 调用点。保留原始回报，但不能认定 16/16 严格对应当前远端文件字节内容；当前远端文件精确版本尚未重跑。GPT 当前不能执行该仓库的 Node 脚本；为遵守 Operit API token 成本约束，不因单一计数差异立即要求重跑，若之后需要本地运行则与其他必要验证合并成一次任务。
+- **静态事实校正**：旧盘点曾把 `memory_unified.js` 的 suggest 空态判断记为字符串拼接与 `||` 优先级缺陷；当前 dev 源码已使用条件表达式处理空结果，且既有 `tests/webhook_idempotency_test.mjs` 包含空数组、正常列表、404 JSON 错误对象、500 JSON 错误对象四项输出断言。因此该旧静态缺陷不再作为当前问题；剩余测试缺口集中在底层 `search.js` 的 `recordSearchKeyword`、prefix/limit 及网络/JSON/写请求失败行为。
 - `main` 未改、Worker 未部署，E3 真实 endpoint 未运行，回滚演练未执行。该事项不代表阶段 4 整体完成；其余职责/兼容差距继续按矩阵追踪。
 
 ### 整体架构目标定案（2026-10-26，目标与阶段进度早期快照）
