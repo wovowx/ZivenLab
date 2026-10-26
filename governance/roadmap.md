@@ -13,8 +13,8 @@
 
 ### 最近完成：第一阶段——现状基线与权威来源对齐（2026-10-26）
 
-- 已完成一次跨仓库只读复核：`wovowx/mcp-memory` main/dev 在 v6.35.0 发布后同步；main HEAD 为 `71f6a03ebc81`，Cloudflare deployment `c78ab839`，`verify_main=true` 返回 `VERIFIED`。
-- `wovowx/ZivenLab` 在本轮治理文档编辑前 main/dev identical；现在只在 dev 更新治理文档，不改 main。编辑完成后必须重新 compare，不能继续引用编辑前的 identical 结论。
+- `wovowx/mcp-memory`：main HEAD `71f6a03ebc81`，Cloudflare deployment `c78ab839`，`verify_main=true` 返回 `VERIFIED`。当前 main...dev ahead 3 / behind 0，只有 `README.md` 与 `CROSS-HOST-BRIDGE.md` 两项文档变更，未改 Worker 源码。
+- `wovowx/ZivenLab`：当前 main...dev ahead 18 / behind 0，7 个变更文件全部在 `governance/`，均为文档；本轮未改 main、生产源码、数据库或部署。
 - 已确认权威来源分工：目标蓝图=`governance/整体架构.md`；当前实现地图=`governance/现状架构.md`；差距与验收=`governance/架构差距矩阵.md`；导航=`governance/真相源导航表.md`；行动路线=本文件；资产索引=`governance/资产全景.md`；当前工作状态唯一权威是云端 `⚙️/当前工作检查点`，身份根是 `🧬/我是谁`。
 - 已确认 `wovowx/mcp-memory/CROSS-HOST-BRIDGE.md` 位于仓库根目录且可读；旧文档里“Not Found/待重建”的说法已过时。该文件有大量历史记录和重复的过期状态块，不能把旧交接自动视作当前授权。
 - mcp-memory 的根 README 曾把不存在的根级 `docs/`、`skills/` 写作仓库目录；本轮已在 dev 修正，改为描述实际 `src/skills/` 与治理文档所在的 ZivenLab 仓库。
