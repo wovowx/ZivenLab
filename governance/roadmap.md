@@ -80,7 +80,7 @@
 工作：分层执行静态检查、行为回归、跨宿主冷启动和真实 MCP/HTTP endpoint 验证；复核共享能力是否重复建设、扩展是否依赖无关模块改动、兼容路径是否有证据；核对 Pages 发布范围与隐私风险；整理未关闭差距和回滚说明。
 验收：测试证据可复核；复用性、扩展瓶颈、兼容风险及未验证项有明确状态；发布候选范围清楚。推 main 前须报告版本/范围/验证/回滚并得到柳柳明确同意；回滚未演练不得写成已演练。
 
-**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count 误计与 DDL necessity gate 最小修复均已写入 `mcp-memory/dev`；DDL 版本的隔离 Mock 曾由 Operit 在精确 SHA `2833a94e08c23b45a0598256a486463ee5d4cf6e` 通过37/37。之后又修复 `create_patch_proposal` 的公开必填 schema 与专用路由提前 return 导致的 usage_count 漏记，并把对应隔离 Mock 扩展到42个 `check(...)` 调用点。**这42项最新版本尚未重跑（NOT RE-RUN）**；桥接文档末尾已安排一次性隔离验证任务，不能沿用旧37/37作为42项版本的通过证据。真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main；接下来按矩阵继续文档/职责收敛与验证。
+**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count 误计与 DDL necessity gate 最小修复均已写入 `mcp-memory/dev`；DDL 版本的隔离 Mock 曾由 Operit 在精确 SHA `2833a94e08c23b45a0598256a486463ee5d4cf6e` 通过37/37。之后又修复 `create_patch_proposal` 的公开必填 schema 与专用路由提前 return 导致的 usage_count 漏记；并把通用 DDL 关键词 gate 补入 `IMPORT`、`SECURITY`，新增 `IMPORT FOREIGN SCHEMA` 与 `SECURITY LABEL` 两条隔离拒绝断言。当前 Mock 共44个 `check(...)` 调用点。**这44项合并后的最新版本尚未重跑（NOT RE-RUN）**；桥接文档末尾已更新为一次性隔离验证任务，不能沿用旧37/37作为最新版的通过证据。真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main；接下来按矩阵继续文档/职责收敛与验证。
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
