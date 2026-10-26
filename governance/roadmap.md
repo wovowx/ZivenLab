@@ -65,6 +65,8 @@
 
 本阶段还通过只读 `supabase_schema(action=schema_dump)` 重新观察到25张表（23业务表+2测试表），并校准 `database-overview.md` v2.2、`memory.md` v1.1、`记忆两表设计.md` v1.4 与检索测试集 v1.4：把 memory_events 追加式触发器/幂等唯一约束标为历史执行记录、现状待核；把检索测试状态明确为部分历史用例已运行、未全量自动化。本轮没有写数据库、改 schema 或触发器。阶段4整体职责收敛尚未完成，后续继续按差距矩阵推进。
 另复核 `policy-index.md` 与 `schema-policy.md`：`permission_guard.js` 未被 `index.js` / MCP Router 导入，不能把它描述为不可绕过的 request-path 硬门禁。数据库 DDL 保护也存在潜在绕行：`database.js` 的 `create_table` 分支检查 `necessity`，但 `drop_table`/通用 `exec` 分支不检查；Router 允许任意 `supabase_*` 前缀，且缺 schema 时兼容放行，因此未注册前缀可能到达无专属 schema 的 DDL handler。外露 `supabase_schema` 工具签名也没有 `necessity` 参数。实际 RPC 是否执行成功未测；没有调用 DDL。已将此记录为 P1，停止所有相关 DDL 操作，需先取得柳柳授权才能做 Worker 最小修复。
+
+本轮继续静态核对 Pages / memory-universe：`.github/workflows/pages.yml` 在 push main 时将整个仓库根目录作为 Pages artifact；`memory-universe.html` 源文件内嵌 12 条个人记忆样例，Worker 路由直接读取 main 分支该文件并在路由内不做认证。Pages 是否实际启用、匿名外部访问和网络层保护未验证。按既定边界，功能继续暂停；不访问生产端点、不修改发布配置、不删样例或部署。
 工作：修正断链和过期说明；先查调用方、动态引用、注册/schema、权限和契约，再决定复用、整合、保留或标记旧实现；公共逻辑优先归于清晰的共享位置；确有扩展瓶颈时才按真实需求调整边界，并做回归。
 验收：每项结构调整说明复用收益、职责变化、兼容影响、验证与回滚路径；不为整洁重构，不强行合并，不擅删工具/记忆，不擅改 DB/schema。
 
