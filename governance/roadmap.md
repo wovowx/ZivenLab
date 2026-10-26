@@ -79,7 +79,7 @@
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
-- `search_history/suggest` 行为、迁移事件审计、工具注册/schema/handler 一致性、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。usage_count 误计已在 dev 修复，隔离 Mock 文件已进入 dev；Operit 报告 16/16，随后已补入一条 registered-handler failure 断言，当前远端脚本静态计数为16；与 Operit原始16/16回报数字相符，但新版本尚未重跑，状态仍为NOT RE-RUN。真实 E3 endpoint 未执行，不将 Mock 报告等同于线上验证。
+- `search_history` 底层记录/建议查询失败路径（`recordSearchKeyword`、prefix/limit、网络/JSON/写请求失败）、迁移事件审计、工具注册/schema/handler 一致性、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。现有 suggest 输出断言已经覆盖空数组、正常列表、404/500 JSON 错误对象；不再把旧的 suggest 空态静态问题当作当前缺陷。usage_count 误计已在 dev 修复，隔离 Mock 文件已进入 dev；Operit 报告 16/16，随后已补入一条 registered-handler failure 断言，当前远端脚本静态计数为16；与 Operit原始16/16回报数字相符，但新版本尚未重跑，状态仍为NOT RE-RUN。真实 E3 endpoint 未执行，不将 Mock 报告等同于线上验证。
 - `v6.35.0` 已发布并部署 VERIFIED；该版本是可靠性基线，不代表整体架构升级完成。下一次 main 发布须先说明版本、范围和证据，并取得柳柳明确同意。
 - 本路线图控制当前行动顺序；历史 P0/P1/P2 清单仅为历史路线/待办参考，不自动成为活跃任务。
 ---
