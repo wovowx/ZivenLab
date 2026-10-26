@@ -13,6 +13,7 @@
 - 隔离 Mock 测试当前远端静态有 16 个 `check(...)` 调用点；最后一条 registered-handler failure 断言尚未重跑，因此精确版本仍为 NOT RE-RUN。Operit 原始 16/16 报告保留但不替代对最新版文件的实际执行证据。
 - 真相源导航表更新至 v1.8，资产盘点计划更新至 v2.9，`policy-index.md` 更新至 v2.1，`schema-policy.md` 更新至 v1.1；治理驾驶舱继续作为摘要，云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态源。
 - **运行时生效边界校正**：`policy-index.md` 不再声称 Permission Guard 已是不可绕过的硬门禁，因为当前 `src/index.js` 与 `mcp_router.js` 未导入该模块。数据库 DDL 闸门经更细的 Router/handler 静态审查发现为部分实现：`database.js` 的 `create_table` 分支要求 `necessity`，但 `drop_table` 与通用 `exec` 分支不检查；Router 对任意 `supabase_*` 前缀视为已知，schema 缺失又兼容放行，存在未注册前缀绕过专属 schema 的可能路径。外露 `supabase_schema` 签名没有 `necessity` 参数。实际 Supabase RPC 是否执行成功仍未测试；本轮未调用任何 DDL。`schema-policy.md` 已将这一状况标记为 P1，并保留“先授权再改 Worker”的硬停点。
+- **Pages / memory-universe 证据补全**：静态读取 `.github/workflows/pages.yml` 确认其在 push `main` 时触发并上传整个仓库根目录（`path: .`）为 Pages artifact；`src/public/memory-universe.html` 内嵌 12 条个人记忆样例，`src/index.js` 的 `/memory-universe` 路由直接读取 main 分支页面且路由内无认证。实际 Pages 是否启用、网络层保护及匿名外部可达性仍未验证；该功能按柳柳既定暂停边界保留，本轮没有改发布配置或访问生产端点。
 - 所有修改仅在 dev；无数据库写入/schema 改动、无部署、未推/合并 main；E3 与回滚演练未运行。
 
 ---
