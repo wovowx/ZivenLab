@@ -10,6 +10,7 @@
 - 经柳柳明确授权，在 `mcp-memory/dev/src/modules/mcp_router.js` 的 `toolOk` 失败判定中新增 `handler type not implemented` 前缀排除，修复没有可执行 handler 的 Skill 调用被误计为成功的问题。
 - Operit 在本地修复版本报告：`npm run check` exit 0；`node tests/webhook_idempotency_test.mjs` exit 0（104/104）；`node tests/router_registry_contract_test.mjs` exit 0（16/16）。GPT 已回读核对远端 dev 源码和测试脚本，但未独立重跑 Node 命令。
 - `tests/router_registry_contract_test.mjs` 已由 GPT 通过 GitHub 工具同步至 `mcp-memory/dev` 并回读核验；全部网络请求采用 `globalThis.fetch` mock，不访问真实 Supabase 或 MCP endpoint。
+- **后续证据校正**：Operit 原始回报称新 Mock 16/16；GPT 对当前远端测试文件静态计数发现 15 个 `check(...)` 调用点。保留原始回报，但不能认定 16/16 严格对应当前远端文件字节内容；当前远端文件精确版本尚未重跑。GPT 当前不能执行该仓库的 Node 脚本；为遵守 Operit API token 成本约束，不因单一计数差异立即要求重跑，若之后需要本地运行则与其他必要验证合并成一次任务。
 - `main` 未改、Worker 未部署，E3 真实 endpoint 未运行，回滚演练未执行。该事项不代表阶段 4 整体完成；其余职责/兼容差距继续按矩阵追踪。
 
 ### 整体架构目标定案（2026-10-26，目标与阶段进度早期快照）
