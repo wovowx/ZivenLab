@@ -9,7 +9,7 @@
 ### 整体架构目标定案（2026-10-26）
 - 定案：六阶段整体架构升级以「像一本好书」为目标，代码复用、职责清晰、面向真实需求的可扩展性与回归保护是贯穿全程的硬性原则，不新增第七阶段。
 - 明确五类工程检查：先复用再新增；职责相近才合并；沿现有清晰边界扩展且不预建万能框架；先核依赖再做最小可逆调整；以真实检查和回归证据保护既有行为。
-- 阶段 2 于 2026-10-26 完成：复用 `真相源导航表.md` v1.4 建立 10 章总目录，由 `governance/README.md` 提供唯一入口。阶段 3 于 2026-10-26 完成静态实现地图：核对 `index.js`、MCP Router、共享工具模块、技能注册表与 Supabase 表清单；发现并登记 69 行 skills 注册记录（66 enabled、3 disabled）、14 行缺 handler_config.handler、memory_* 未注册别名与 schema/路由口径不一致、category/data 旧 handler 候选、permission_guard 未接入 request path 等差距。真实 MCP endpoint、权限行为与运行回归未在本轮测试。当前下一阶段为阶段 4「文档与职责收敛」。只更新 dev 治理文档，未改生产代码、数据库 schema、部署或 main。
+- 阶段 2 于 2026-10-26 完成：复用 `真相源导航表.md` v1.4 建立 10 章总目录，由 `governance/README.md` 提供唯一入口。阶段 3 于 2026-10-26 完成静态实现地图：核对 `index.js`、MCP Router、共享工具模块、技能注册表与 Supabase 表清单；发现并登记 69 行 skills 注册记录（66 enabled、3 disabled）、14 行缺 handler_config.handler、memory_* 未注册别名与 schema/路由口径不一致、category/data 旧 handler 候选、permission_guard 未接入 request path 等差距。真实 MCP endpoint、权限行为与运行回归未在本轮测试。阶段 4「文档与职责收敛」已进入文档口径同步与隔离 Mock 验证准备；Operit 的 E1/E2 与新测试尚未执行。只更新 dev 治理文档，未改生产代码、数据库 schema、部署或 main。
 
 ### 阶段 4 文档口径收敛进展（2026-10-26）
 - 将 `governance/真相源导航表.md` 升至 v1.5，同步阶段 3 的 Router/注册表快照与旧 handler 候选；进一步明确 `memory_*` 缺少注册 schema 时由当前兼容策略放行，因此是“列表不可见但可能可调用且无专属参数校验”，实际 endpoint 行为仍待测。
