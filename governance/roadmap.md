@@ -61,10 +61,10 @@
 
 ### 阶段 4｜文档与职责收敛 — 🟡 进行中（usage_count 最小缺陷已修复；其余收敛继续）
 目标：以最小、可逆的改动收敛存量职责；减少重复建设，同时不损害既有行为与兼容性。
-进展（2026-10-26）：阶段 3 后已同步现状架构与差距矩阵；导航表已更新至 v1.8，并纳入阶段 4 usage_count 最小修复、Router schema/打点例外、数据库证据边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项。隔离测试已在 `mcp-memory/dev/tests/router_registry_contract_test.mjs`；Operit 原始报告为 E1 `npm run check` exit 0、E2 webhook 104/104、新 Mock 16/16。GPT 后续补入一条 registered-handler failure 断言，当前远端静态有16个 `check(...)` 调用点，但该精确版本尚未重跑（NOT RE-RUN）；GPT 未独立执行 Node 命令。真实 E3 未运行；未部署、不推/合并 main。
+进展（2026-10-26）：阶段 3 后已同步现状架构与差距矩阵；导航表当前为 v1.8；阶段 4 已纳入 usage_count 修复、Router schema/打点例外与数据库治理证据边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项。隔离测试已在 `mcp-memory/dev/tests/router_registry_contract_test.mjs`；Operit 原始报告为 E1 `npm run check` exit 0、E2 webhook 104/104、新 Mock 16/16。GPT 后续补入一条 registered-handler failure 断言，当前远端静态有16个 `check(...)` 调用点，但该精确版本尚未重跑（NOT RE-RUN）；GPT 未独立执行 Node 命令。真实 E3 未运行；未部署、不推/合并 main。
 
 本阶段还通过只读 `supabase_schema(action=schema_dump)` 重新观察到25张表（23业务表+2测试表），并校准 `database-overview.md` v2.2、`memory.md` v1.1、`记忆两表设计.md` v1.4 与检索测试集 v1.4：把 memory_events 追加式触发器/幂等唯一约束标为历史执行记录、现状待核；把检索测试状态明确为部分历史用例已运行、未全量自动化。本轮没有写数据库、改 schema 或触发器。阶段4整体职责收敛尚未完成，后续继续按差距矩阵推进。
-另复核 `policy-index.md` 与 `schema-policy.md`：`permission_guard.js` 未被 `index.js` / MCP Router 导入，不能把它描述为不可绕过的 request-path 硬门禁。数据库 DDL 保护也存在潜在绕行：`database.js` 的 `create_table` 分支检查 `necessity`，但 `drop_table`/通用 `exec` 分支不检查；Router 允许任意 `supabase_*` 前缀，且缺 schema 时兼容放行，因此未注册前缀可能到达无专属 schema 的 DDL handler。外露 `supabase_schema` 工具签名也没有 `necessity` 参数。实际 RPC 是否执行成功未测；没有调用 DDL。已将此记录为 P1，停止所有相关 DDL 操作，需先取得柳柳授权才能做 Worker 最小修复。
+另复核 `policy-index.md` 与 `schema-policy.md`：`permission_guard.js` 未被 `index.js` / MCP Router 导入，不能把它描述为不可绕过的 request-path 硬门禁。经柳柳授权，Worker dev 已做最小 DDL gate 修复：`database.js` 统一检查 create_table/drop_table 的非空 necessity，并对通用 exec 中常见 DDL/可执行语句关键词在 RPC 前要求 necessity；Router 的 `supabase_*` 前缀必须命中 skills 注册表，tools/list 为 registered `supabase_db` 暴露 necessity 字段且未扩大 action enum。隔离 Mock 已补覆盖，但最新版本尚未通过 Node 重跑（NOT RE-RUN）；真实 RPC/endpoint 未测，任何真实 DDL 继续禁止。本轮没有数据库写入、部署或 main 合并。
 
 本轮继续静态核对 Pages / memory-universe：`.github/workflows/pages.yml` 在 push main 时将整个仓库根目录作为 Pages artifact；`memory-universe.html` 源文件内嵌 12 条个人记忆样例，Worker 路由直接读取 main 分支该文件并在路由内不做认证。Pages 是否实际启用、匿名外部访问和网络层保护未验证。按既定边界，功能继续暂停；不访问生产端点、不修改发布配置、不删样例或部署。
 工作：修正断链和过期说明；先查调用方、动态引用、注册/schema、权限和契约，再决定复用、整合、保留或标记旧实现；公共逻辑优先归于清晰的共享位置；确有扩展瓶颈时才按真实需求调整边界，并做回归。
