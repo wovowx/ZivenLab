@@ -26,7 +26,7 @@
 3. 驾驶舱、路线图、现状地图、差距矩阵、导航表互相一致。
 4. 本阶段不改生产源码、数据库 schema、用户记忆内容，不删资产，不部署、不推 main。
 
-**当前停点：阶段 1–3 已完成；阶段 4「文档与职责收敛」进行中（2026-10-26）。** 已同步导航、实现地图与差距矩阵的静态路由/注册表口径；隔离 Mock/E1/E2 已执行：基线 SHA 096c638，E1 exit 0、现有 E2 104/104、新测试 13/13；发现 handler type not implemented 的调用仍增加 usage_count。修复尚未授权，E3 未执行，新增测试文件未进入远端 dev。真实 endpoint、权限行为与生产回归仍独立标记为未验证。未开展 Worker 源码重构或新功能开发。
+**当前停点：阶段 1–3 已完成；阶段 4「文档与职责收敛」继续进行（2026-10-26）。** usage_count 误计已按柳柳授权完成最小修复并提交到 `mcp-memory/dev/src/modules/mcp_router.js`；隔离回归测试 `tests/router_registry_contract_test.mjs` 也已同步到远端 dev。Operit 在本地同一修复/测试版本报告：`npm run check` exit 0、既有 webhook 测试 104/104、新 Mock 16/16。GPT 已回读核对 dev 源码和测试文件，但没有独立重跑 Node 命令。真实 E3、权限行为与生产端点仍未验证；未部署、未推/合并 main。阶段 4 不因这一处修复完成而整体结束，后续继续按差距矩阵收敛职责与文档。
 
 ## 「一本好书式架构」总计划：共 6 个阶段
 
@@ -59,9 +59,9 @@
 工作：追踪入口→Router→schema/注册→handler→utils/modules→数据存储；区分源码存在、已注册、可路由、实际调用、已测试；核对公共函数/模块、同职责重复实现、强耦合点、硬编码分支与扩展瓶颈；分类在役/共享/兼容/旧实现候选/暂停/未知。
 验收与结果：已在 `governance/现状架构.md` 增补 Worker→MCP Router→注册表/handler→共享模块→Supabase 的主调用链、工具路由与公共模块关系；只读核对当前 skills 注册表 69 行（66 启用、3 禁用），标出 14 行缺 handler 配置；记录 memory 兼容别名 schema 不一致、category/data 旧 handler 候选、权限守卫未接入 request path、search_history 缺表及 endpoint 未验证边界。对应风险进入 `governance/架构差距矩阵.md`。满足静态实现地图验收；不将静态证据误写成真实 endpoint 或行为测试通过。
 
-### 阶段 4｜文档与职责收敛 — 🟡 进行中（静态文档口径已同步；行为回归待证据）
+### 阶段 4｜文档与职责收敛 — 🟡 进行中（usage_count 最小缺陷已修复；其余收敛继续）
 目标：以最小、可逆的改动收敛存量职责；减少重复建设，同时不损害既有行为与兼容性。
-进展（2026-10-26）：阶段 3 后已同步 `真相源导航表.md` v1.5、`现状架构.md` 与 `架构差距矩阵.md`。Operit 已回填只读验证：基线 SHA `096c6383079930cf1a01752c49b1653d0b08bfcb`；`npm run check` exit 0；现有 `tests/webhook_idempotency_test.mjs` 为 104 通过/0 失败；新增隔离 Mock 为 13 通过/0 失败。发现 `handler type not implemented: text` 的失败结果仍会触发 `usage_count` PATCH，拟议一行最小修复是将该前缀排除在 toolOk 之外。新增测试文件尚在 Operit 本地 untracked 状态、未进入远端 dev；E3 未运行。由于本轮交接明确要求“发现问题先回报，不自行修源码”，目前仅登记缺陷并等待柳柳授权，不修改 Worker 行为/注册表/数据库。
+进展（2026-10-26）：阶段 3 后已同步 `真相源导航表.md` v1.5、`现状架构.md` 与 `架构差距矩阵.md`。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项，避免无可执行 handler 的 Skill 被误计为成功；`tests/router_registry_contract_test.mjs` 已写入远端 `mcp-memory/dev`。Operit 在本地修复版本报告三项命令均 exit 0：`npm run check`、`node tests/webhook_idempotency_test.mjs`（104/104）、`node tests/router_registry_contract_test.mjs`（16/16）。GPT 已回读核对远端源码与测试脚本，但未独立重跑 Node 命令。真实 E3 未运行；未部署、不推/合并 main。阶段 4 的整体职责收敛尚未完成，后续按差距矩阵继续处理，并保持数据库/schema、注册表和生产配置边界不变。
 工作：修正断链和过期说明；先查调用方、动态引用、注册/schema、权限和契约，再决定复用、整合、保留或标记旧实现；公共逻辑优先归于清晰的共享位置；确有扩展瓶颈时才按真实需求调整边界，并做回归。
 验收：每项结构调整说明复用收益、职责变化、兼容影响、验证与回滚路径；不为整洁重构，不强行合并，不擅删工具/记忆，不擅改 DB/schema。
 
@@ -75,11 +75,11 @@
 工作：分层执行静态检查、行为回归、跨宿主冷启动和真实 MCP/HTTP endpoint 验证；复核共享能力是否重复建设、扩展是否依赖无关模块改动、兼容路径是否有证据；核对 Pages 发布范围与隐私风险；整理未关闭差距和回滚说明。
 验收：测试证据可复核；复用性、扩展瓶颈、兼容风险及未验证项有明确状态；发布候选范围清楚。推 main 前须报告版本/范围/验证/回滚并得到柳柳明确同意；回滚未演练不得写成已演练。
 
-**当前停点：阶段 1–3 已完成；阶段 4 的文档口径同步与隔离 Mock/E1/E2 验证已完成，当前等待对误计 usage_count 缺陷的处理授权。** 现有 E1/E2 为隔离测试证据；E3 真实 endpoint 未运行，测试文件尚未提交到远端 dev。
+**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count 误计的最小修复已在 `mcp-memory/dev`，对应隔离 Mock 测试已在远端 dev；Operit 报告 E1 exit 0、既有 E2 104/104、新 Mock 16/16。此为隔离本地 Node 测试证据，不代表真实 E3 endpoint 或线上行为已验证。当前未部署、未推/合并 main；接下来按矩阵继续文档/职责收敛与验证。
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
-- `search_history/suggest` 行为、迁移事件审计、工具注册/schema/handler 一致性、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。路由契约隔离 Mock/E1/E2 已执行并通过，但真实 E3 endpoint 未执行；发现的 usage_count 误计问题尚未修复，不能标为已解决。
+- `search_history/suggest` 行为、迁移事件审计、工具注册/schema/handler 一致性、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。usage_count 误计已在 dev 修复并加入隔离 Mock 回归（Operit 报告 16/16）；真实 E3 endpoint 未执行，不将 Mock 结果等同于线上验证。
 - `v6.35.0` 已发布并部署 VERIFIED；该版本是可靠性基线，不代表整体架构升级完成。下一次 main 发布须先说明版本、范围和证据，并取得柳柳明确同意。
 - 本路线图控制当前行动顺序；历史 P0/P1/P2 清单仅为历史路线/待办参考，不自动成为活跃任务。
 ---
