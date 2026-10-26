@@ -61,7 +61,7 @@
 
 ### 阶段 4｜文档与职责收敛 — 🟡 进行中（usage_count 最小缺陷已修复；其余收敛继续）
 目标：以最小、可逆的改动收敛存量职责；减少重复建设，同时不损害既有行为与兼容性。
-进展（2026-10-26）：阶段 3 后已同步 `真相源导航表.md` v1.5、`现状架构.md` 与 `架构差距矩阵.md`。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项，避免无可执行 handler 的 Skill 被误计为成功；`tests/router_registry_contract_test.mjs` 已写入远端 `mcp-memory/dev`。Operit 在本地修复版本报告三项命令均 exit 0：`npm run check`、`node tests/webhook_idempotency_test.mjs`（104/104）、`node tests/router_registry_contract_test.mjs`（16/16）。GPT 已回读核对远端源码与测试脚本，但未独立重跑 Node 命令。真实 E3 未运行；未部署、不推/合并 main。阶段 4 的整体职责收敛尚未完成，后续按差距矩阵继续处理，并保持数据库/schema、注册表和生产配置边界不变。
+进展（2026-10-26）：阶段 3 后已同步 `现状架构.md` 与 `架构差距矩阵.md`；`真相源导航表.md` 当前版本已迭代至 v1.6，并纳入阶段 4 usage_count 最小修复和验证边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项，避免无可执行 handler 的 Skill 被误计为成功；`tests/router_registry_contract_test.mjs` 已写入远端 `mcp-memory/dev`。Operit 在本地修复版本报告三项命令均 exit 0：`npm run check`、`node tests/webhook_idempotency_test.mjs`（104/104）、`node tests/router_registry_contract_test.mjs`（16/16）。GPT 已回读核对远端源码与测试脚本，但未独立重跑 Node 命令。真实 E3 未运行；未部署、不推/合并 main。阶段 4 的整体职责收敛尚未完成，后续按差距矩阵继续处理，并保持数据库/schema、注册表和生产配置边界不变。
 工作：修正断链和过期说明；先查调用方、动态引用、注册/schema、权限和契约，再决定复用、整合、保留或标记旧实现；公共逻辑优先归于清晰的共享位置；确有扩展瓶颈时才按真实需求调整边界，并做回归。
 验收：每项结构调整说明复用收益、职责变化、兼容影响、验证与回滚路径；不为整洁重构，不强行合并，不擅删工具/记忆，不擅改 DB/schema。
 
