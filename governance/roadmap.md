@@ -13,7 +13,7 @@
 
 ### 最近完成：第一阶段——现状基线与权威来源对齐（2026-10-26）
 
-- `wovowx/mcp-memory`：main HEAD `71f6a03ebc81`，Cloudflare deployment `c78ab839`，`verify_main=true` 返回 `VERIFIED`。当前 dev 比 main 多出的内容仅为 `README.md` 与 `CROSS-HOST-BRIDGE.md` 两项文档修正；未改 Worker 源码。发布前必须重新 compare，不以本路线图中的提交数代替即时检查。
+- `wovowx/mcp-memory`：已发布基线 main HEAD `71f6a03ebc81`，Cloudflare deployment `c78ab839`，先前 `verify_main=true` 返回 `VERIFIED`。第一阶段基线校准时，dev 相对 main 仅有 `README.md` 与 `CROSS-HOST-BRIDGE.md` 文档差异；阶段 4 获授权后，当前 dev 又新增 `src/modules/mcp_router.js` 的 usage_count 最小修复和 `tests/router_registry_contract_test.mjs` 隔离回归资产。当前未发布差异为 4 个文件（上述两份文档、源码修复、测试文件），仅在 dev，未部署/未合并 main。发布前必须重新 compare，不以本路线图中的提交数代替即时检查。
 - `wovowx/ZivenLab`：dev 相对 main 的未发布差异均位于 `governance/`，包括 CHANGELOG、roadmap、当前项目状态、架构差距矩阵、现状架构、真相源导航表和资产整理计划；均为文档修改，未改生产源码、数据库或部署。提交数会随每次文档提交变化，发布前重新 compare。
 - 已确认权威来源分工：目标蓝图=`governance/整体架构.md`；当前实现地图=`governance/现状架构.md`；差距与验收=`governance/架构差距矩阵.md`；导航=`governance/真相源导航表.md`；行动路线=本文件；资产索引=`governance/资产全景.md`；当前工作状态唯一权威是云端 `⚙️/当前工作检查点`，身份根是 `🧬/我是谁`。
 - 已确认 `wovowx/mcp-memory/CROSS-HOST-BRIDGE.md` 位于仓库根目录且可读；旧文档里“Not Found/待重建”的说法已过时。该文件有大量历史记录和重复的过期状态块，不能把旧交接自动视作当前授权。
