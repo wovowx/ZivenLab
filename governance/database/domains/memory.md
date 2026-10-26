@@ -2,6 +2,8 @@
 
 > 记忆系统：Agent 的长期记忆 + 文件存储。
 > 语义：记忆是 key-value + 分类的语义条目，文件是媒体/文档的元数据表。
+>
+> **现状边界（2026-10-26）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前 schema 快照以 `governance/database/database-overview.md` v2.2 的 2026-10-26 机器结果为准；该结果确认列/FK片段，但不列出触发器、RLS 或全部约束。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
 
 ## 表清单
 
@@ -28,7 +30,7 @@
 **坑**：不同来源的记忆 key 格式不同（事件/实体/日常…）；分类用于归档。
 
 ## memory_events（事件账本）
-**用途**：记录 memories 每次 create/update/revoke/restore 事件。追加式账本，`memory_events 禁止 UPDATE/DELETE`（触发器，2026-10-17 实装）。支持追溯、审计、回滚。
+**设计用途**：记录 memories 生命周期事件（例如 create/update/revoke/restore），支持追溯与审计。历史记录称 `memory_events 禁止 UPDATE/DELETE` 的触发器于 2026-10-17 实装；但 2026-10-26 的 schema_dump 仅返回列/FK，不包含触发器目录，因此当前数据库是否仍实际强制追加式约束尚未复核，不把这条历史记载当成已验证硬门禁。代码侧也尚未证明 create、软删除、rename、move 全部形成完整事件链。
 
 | 列 | 类型 | 含义 |
 |---|---|---|
@@ -36,7 +38,7 @@
 | memory_id | uuid | 关联记忆 |
 | event_type | text | create/update/revoke/restore |
 | actor | text | user/agent/system |
-| idempotency_key | text 唯一 | 防重复入账 |
+| idempotency_key | text | 设计用途为防重复入账；当前唯一约束尚未从完整约束/索引目录复核 |
 | version | int | 对应变更后记忆版本 |
 | old_value / new_value | jsonb | 变更前后 |
 | reason | text | 变更原因 |
@@ -72,5 +74,6 @@
 ✅ 已确认不存在（2026-10-17 实测，schema cache 404）。已从总表移除。
 
 ## 变更记录
-- 2026-10-17：v2 新增 memory_events 语义；memories 升级加版本/状态/追溯字段；knowledge 确认已移除
+- 2026-10-17：v2 新增 memory_events 设计语义；memories 升级加版本/状态/追溯字段；knowledge 确认已移除。
+- 2026-10-26：根据最新 schema_dump 更新现状边界说明。触发器、唯一约束与全生命周期事件覆盖仍需额外目录/代码证据核实，未改数据库结构。
 - 2026-09-09：v1（2026-09-09 实测）
