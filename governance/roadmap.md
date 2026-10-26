@@ -61,7 +61,9 @@
 
 ### 阶段 4｜文档与职责收敛 — 🟡 进行中（usage_count 最小缺陷已修复；其余收敛继续）
 目标：以最小、可逆的改动收敛存量职责；减少重复建设，同时不损害既有行为与兼容性。
-进展（2026-10-26）：阶段 3 后已同步 `现状架构.md` 与 `架构差距矩阵.md`；`真相源导航表.md` 当前版本已迭代至 v1.6，并纳入阶段 4 usage_count 最小修复和验证边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项，避免无可执行 handler 的 Skill 被误计为成功；`tests/router_registry_contract_test.mjs` 已写入远端 `mcp-memory/dev`。Operit 在本地修复版本报告三项命令均 exit 0：`npm run check`、`node tests/webhook_idempotency_test.mjs`（104/104）、`node tests/router_registry_contract_test.mjs`（报告 16/16）。GPT 已回读核对远端源码与测试脚本，但未独立重跑 Node 命令；静态复核发现当前远端测试文件只有 15 个 `check(...)` 调用点，报告与文件计数尚未对齐。原始执行报告保留，但当前远端文件的精确版本回归证据待对齐。真实 E3 未运行；未部署、不推/合并 main。阶段 4 的整体职责收敛尚未完成，后续按差距矩阵继续处理，并保持数据库/schema、注册表和生产配置边界不变。
+进展（2026-10-26）：阶段 3 后已同步现状架构与差距矩阵；导航表已更新至 v1.7，并纳入阶段 4 usage_count 最小修复、Router schema/打点例外、数据库证据边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项。隔离测试已在 `mcp-memory/dev/tests/router_registry_contract_test.mjs`；Operit 原始报告为 E1 `npm run check` exit 0、E2 webhook 104/104、新 Mock 16/16。GPT 后续补入一条 registered-handler failure 断言，当前远端静态有16个 `check(...)` 调用点，但该精确版本尚未重跑（NOT RE-RUN）；GPT 未独立执行 Node 命令。真实 E3 未运行；未部署、不推/合并 main。
+
+本阶段还通过只读 `supabase_schema(action=schema_dump)` 重新观察到25张表（23业务表+2测试表），并校准 `database-overview.md` v2.2、`memory.md` v1.1、`记忆两表设计.md` v1.4 与检索测试集 v1.4：把 memory_events 追加式触发器/幂等唯一约束标为历史执行记录、现状待核；把检索测试状态明确为部分历史用例已运行、未全量自动化。本轮没有写数据库、改 schema 或触发器。阶段4整体职责收敛尚未完成，后续继续按差距矩阵推进。
 工作：修正断链和过期说明；先查调用方、动态引用、注册/schema、权限和契约，再决定复用、整合、保留或标记旧实现；公共逻辑优先归于清晰的共享位置；确有扩展瓶颈时才按真实需求调整边界，并做回归。
 验收：每项结构调整说明复用收益、职责变化、兼容影响、验证与回滚路径；不为整洁重构，不强行合并，不擅删工具/记忆，不擅改 DB/schema。
 
