@@ -1,4 +1,4 @@
-# Policy Index（规范索引）· v2.2 · 2026-10-26
+# Policy Index（规范索引）· v2.3 · 2026-10-26
 
 > **用途**：所有 Agent（Ziven/GPT/未来）行为的「规范在哪、什么时候用、怎么加载」——统一入口，避免规范躺在文档里没人看。
 > **原则（GPT #791）**：Source of Truth 存全文，各入口只放引用，不复制全文（防漂移）。
@@ -33,7 +33,7 @@
 | **Deploy Closure 部署自动闭环** | deploy skill#6（部署自动闭环验证） | deploy 场景（merge 后） | 部署时读 deploy skill；merge 工具返回提示 |
 | **Permission Guard（执行接入待核）** | 代码 `src/modules/permission_guard.js` | 设计上覆盖 write/merge（github_push/github_merge） | 该模块当前未被 `src/index.js` / `src/modules/mcp_router.js` 导入；不能表述为当前 MCP request path 中不可绕过的硬门禁。运行时接入与拒绝/放行回归状态见 `governance/架构差距矩阵.md` |
 | **Release Guard** | 代码 src/modules/release_guard.js | push/merge 到 main | 代码硬约束（版本化强制） |
-| **Database Guard**（Table Change Guard） | `governance/database/schema-policy.md` | 加表/改表/DDL 执行前 | Worker `mcp-memory/dev` 已加入 create/drop/exec 的 necessity gate、`supabase_*` 注册表校验，以及 `supabase_db` 与 `supabase_schema` 的公开 necessity 参数提示；最新隔离 Mock 尚未运行（NOT RE-RUN），不能称已验收或上线。独立可见 `supabase_schema` 工具签名仍无 `necessity`，需要另行核对；真实 DDL 始终须柳柳明确授权 |
+| **Database Guard**（Table Change Guard） | `governance/database/schema-policy.md` | 加表/改表/DDL 执行前 | Worker `mcp-memory/dev` 已加入 create/drop/exec 的 necessity gate、`supabase_*` 注册表校验，以及 `supabase_db` 与 `supabase_schema` 的公开 necessity 参数提示；Operit 在 SHA `2833a94e08c23b45a0598256a486463ee5d4cf6e` 的隔离 worktree 中通过 `npm run check`、webhook 104/104、Router Mock 37/37。此证据仅覆盖隔离 mock，不代表线上部署或真实 RPC 权限。独立可见 `supabase_schema` 工具签名仍无 `necessity`，其路径仍需另行核对；真实 DDL 始终须柳柳明确授权 |
 | **协作协议 v4.2** | governance/协作协议.md | 所有协作讨论/决策/执行 | 角色卡 Runtime 规则 |
 | **协作准则·痛点清单与规划 v1.0** | governance/协作准则·痛点清单与规划.md | 治理方向/31条痛点盘点/能力-凭据-方法清单查询（不东存西存） | 文档阅读（治理/遗留问题/能力方法） |
 | **C 类缺口机制 v1.1** | governance/C类缺口机制.md | 优化建议库/复盘链条/新框审视（缺口 12/13/14）机制落地 | 遇建议归档/复盘沉淀/治理文档更新审视时读全文 |
