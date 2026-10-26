@@ -11,7 +11,8 @@
 - `database-overview.md` 更新为 v2.2；`domains/memory.md` 更新为 v1.1；`记忆两表设计.md` 更新为 v1.4；`记忆检索质量测试集.md` 更新为 v1.4。将 `memory_events` 追加式触发器、`idempotency_key` 唯一约束的 2026-10-17 历史执行/验证记录与当前 enforcement 分开陈述；检索质量测试集状态改为历史用例部分执行，未声称已全量测试。
 - Router 静态复核补充发现：实时 `create_patch_proposal` 注册项 `input_schema=null`、metadata handler 为 `database`，但 Router 通过早期专门分支处理并直接 return；公开 tools/list schema 因此为 `{}`，且该路径绕过通用 usage_count 计数。差距已登记于现状架构和差距矩阵，未修改运行时代码或数据库。
 - 隔离 Mock 测试当前远端静态有 16 个 `check(...)` 调用点；最后一条 registered-handler failure 断言尚未重跑，因此精确版本仍为 NOT RE-RUN。Operit 原始 16/16 报告保留但不替代对最新版文件的实际执行证据。
-- 真相源导航表更新至 v1.7，资产盘点计划更新至 v2.8；治理驾驶舱继续作为摘要，云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态源。
+- 真相源导航表更新至 v1.8，资产盘点计划更新至 v2.9，`policy-index.md` 更新至 v2.1，`schema-policy.md` 更新至 v1.1；治理驾驶舱继续作为摘要，云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态源。
+- **运行时生效边界校正**：`policy-index.md` 不再声称 Permission Guard 已是不可绕过的硬门禁，因为当前 `src/index.js` 与 `mcp_router.js` 未导入该模块；`schema-policy.md` 将 necessity 标记为治理要求且工具化门禁待验证，因为当前可见 `supabase_schema` 工具签名未暴露该参数，也没有缺参拒绝行为证据。
 - 所有修改仅在 dev；无数据库写入/schema 改动、无部署、未推/合并 main；E3 与回滚演练未运行。
 
 ---
