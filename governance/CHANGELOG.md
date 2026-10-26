@@ -4,6 +4,18 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.3] - 2026-10-26（dev 草稿，未发布）
+
+### 阶段 4 补充：数据库证据边界与运行契约校准
+- 只读调用 `supabase_schema(action=schema_dump)` 于 2026-10-26 返回 25 张表（23 业务表 + 2 测试表），输出包含列和部分外键，但不包含触发器、RLS 或全部约束目录；没有执行数据库写入或 schema 变更。
+- `database-overview.md` 更新为 v2.2；`domains/memory.md` 更新为 v1.1；`记忆两表设计.md` 更新为 v1.4；`记忆检索质量测试集.md` 更新为 v1.4。将 `memory_events` 追加式触发器、`idempotency_key` 唯一约束的 2026-10-17 历史执行/验证记录与当前 enforcement 分开陈述；检索质量测试集状态改为历史用例部分执行，未声称已全量测试。
+- Router 静态复核补充发现：实时 `create_patch_proposal` 注册项 `input_schema=null`、metadata handler 为 `database`，但 Router 通过早期专门分支处理并直接 return；公开 tools/list schema 因此为 `{}`，且该路径绕过通用 usage_count 计数。差距已登记于现状架构和差距矩阵，未修改运行时代码或数据库。
+- 隔离 Mock 测试当前远端静态有 16 个 `check(...)` 调用点；最后一条 registered-handler failure 断言尚未重跑，因此精确版本仍为 NOT RE-RUN。Operit 原始 16/16 报告保留但不替代对最新版文件的实际执行证据。
+- 真相源导航表更新至 v1.7，资产盘点计划更新至 v2.8；治理驾驶舱继续作为摘要，云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态源。
+- 所有修改仅在 dev；无数据库写入/schema 改动、无部署、未推/合并 main；E3 与回滚演练未运行。
+
+---
+
 ## [docs-2026.10.2] - 2026-10-26（dev 草稿，未发布）
 
 ### 阶段 4：usage_count 最小修复与 Mock 回归资产同步（2026-10-26）
