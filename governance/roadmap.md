@@ -61,9 +61,10 @@
 
 ### 阶段 4｜文档与职责收敛 — 🟡 进行中（usage_count 最小缺陷已修复；其余收敛继续）
 目标：以最小、可逆的改动收敛存量职责；减少重复建设，同时不损害既有行为与兼容性。
-进展（2026-10-26）：阶段 3 后已同步现状架构与差距矩阵；导航表已更新至 v1.7，并纳入阶段 4 usage_count 最小修复、Router schema/打点例外、数据库证据边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项。隔离测试已在 `mcp-memory/dev/tests/router_registry_contract_test.mjs`；Operit 原始报告为 E1 `npm run check` exit 0、E2 webhook 104/104、新 Mock 16/16。GPT 后续补入一条 registered-handler failure 断言，当前远端静态有16个 `check(...)` 调用点，但该精确版本尚未重跑（NOT RE-RUN）；GPT 未独立执行 Node 命令。真实 E3 未运行；未部署、不推/合并 main。
+进展（2026-10-26）：阶段 3 后已同步现状架构与差距矩阵；导航表已更新至 v1.8，并纳入阶段 4 usage_count 最小修复、Router schema/打点例外、数据库证据边界。经柳柳明确授权，`src/modules/mcp_router.js` 的 `toolOk` 失败前缀已新增 `handler type not implemented` 排除项。隔离测试已在 `mcp-memory/dev/tests/router_registry_contract_test.mjs`；Operit 原始报告为 E1 `npm run check` exit 0、E2 webhook 104/104、新 Mock 16/16。GPT 后续补入一条 registered-handler failure 断言，当前远端静态有16个 `check(...)` 调用点，但该精确版本尚未重跑（NOT RE-RUN）；GPT 未独立执行 Node 命令。真实 E3 未运行；未部署、不推/合并 main。
 
 本阶段还通过只读 `supabase_schema(action=schema_dump)` 重新观察到25张表（23业务表+2测试表），并校准 `database-overview.md` v2.2、`memory.md` v1.1、`记忆两表设计.md` v1.4 与检索测试集 v1.4：把 memory_events 追加式触发器/幂等唯一约束标为历史执行记录、现状待核；把检索测试状态明确为部分历史用例已运行、未全量自动化。本轮没有写数据库、改 schema 或触发器。阶段4整体职责收敛尚未完成，后续继续按差距矩阵推进。
+另复核 `policy-index.md` 与 `schema-policy.md`：`permission_guard.js` 未被 `index.js` / MCP Router 导入，不能把它描述为不可绕过的 request-path 硬门禁；当前可见 `supabase_schema` 工具接口未提供 `necessity` 参数，也没有缺参拒绝的运行时回归证据，因此数据库结构变更闸门仍是治理要求，工具化拦截未验证。两处文档已校正；没有改生产代码或数据库。
 工作：修正断链和过期说明；先查调用方、动态引用、注册/schema、权限和契约，再决定复用、整合、保留或标记旧实现；公共逻辑优先归于清晰的共享位置；确有扩展瓶颈时才按真实需求调整边界，并做回归。
 验收：每项结构调整说明复用收益、职责变化、兼容影响、验证与回滚路径；不为整洁重构，不强行合并，不擅删工具/记忆，不擅改 DB/schema。
 
