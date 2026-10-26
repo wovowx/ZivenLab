@@ -6,6 +6,12 @@
 
 ## [docs-2026.10.2] - 2026-10-26（dev 草稿，未发布）
 
+### 阶段 4：usage_count 最小修复与 Mock 回归资产同步（2026-10-26）
+- 经柳柳明确授权，在 `mcp-memory/dev/src/modules/mcp_router.js` 的 `toolOk` 失败判定中新增 `handler type not implemented` 前缀排除，修复没有可执行 handler 的 Skill 调用被误计为成功的问题。
+- Operit 在本地修复版本报告：`npm run check` exit 0；`node tests/webhook_idempotency_test.mjs` exit 0（104/104）；`node tests/router_registry_contract_test.mjs` exit 0（16/16）。GPT 已回读核对远端 dev 源码和测试脚本，但未独立重跑 Node 命令。
+- `tests/router_registry_contract_test.mjs` 已由 GPT 通过 GitHub 工具同步至 `mcp-memory/dev` 并回读核验；全部网络请求采用 `globalThis.fetch` mock，不访问真实 Supabase 或 MCP endpoint。
+- `main` 未改、Worker 未部署，E3 真实 endpoint 未运行，回滚演练未执行。该事项不代表阶段 4 整体完成；其余职责/兼容差距继续按矩阵追踪。
+
 ### 整体架构目标定案（2026-10-26）
 - 定案：六阶段整体架构升级以「像一本好书」为目标，代码复用、职责清晰、面向真实需求的可扩展性与回归保护是贯穿全程的硬性原则，不新增第七阶段。
 - 明确五类工程检查：先复用再新增；职责相近才合并；沿现有清晰边界扩展且不预建万能框架；先核依赖再做最小可逆调整；以真实检查和回归证据保护既有行为。
