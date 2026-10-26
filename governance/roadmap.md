@@ -14,7 +14,7 @@
 ### 最近完成：第一阶段——现状基线与权威来源对齐（2026-10-26）
 
 - `wovowx/mcp-memory`：已发布基线 main HEAD `71f6a03ebc81`，Cloudflare deployment `c78ab839`，先前 `verify_main=true` 返回 `VERIFIED`。第一阶段基线校准时，dev 相对 main 仅有 `README.md` 与 `CROSS-HOST-BRIDGE.md` 文档差异；阶段 4 获授权后，当前 dev 又新增 `src/modules/mcp_router.js` 的 usage_count 最小修复和 `tests/router_registry_contract_test.mjs` 隔离回归资产。当前未发布差异为 4 个文件（上述两份文档、源码修复、测试文件），仅在 dev，未部署/未合并 main。发布前必须重新 compare，不以本路线图中的提交数代替即时检查。
-- `wovowx/ZivenLab`：dev 相对 main 的未发布差异均位于 `governance/`，包括原有治理入口/路线/差距文档与本轮更新的数据库语义文档（`database-overview.md`、`domains/memory.md`、`记忆两表设计.md`、`记忆检索质量测试集.md`），当前共 12 个 `governance/` Markdown 文件；均为文档修改，未改生产源码、数据库或部署。提交数会随每次文档提交变化，发布前重新 compare。
+- `wovowx/ZivenLab`：dev 相对 main 的未发布差异均位于 `governance/`，包括原有治理入口/路线/差距文档与本轮更新的数据库语义文档（`database-overview.md`、`domains/memory.md`、`记忆两表设计.md`、`记忆检索质量测试集.md`），当前共 14 个 `governance/` Markdown 文件（其中包含本轮校正的 `policy-index.md` 与 `database/schema-policy.md`）；均为文档修改，未改生产源码、数据库或部署。提交数会随每次文档提交变化，发布前重新 compare。
 - 已确认权威来源分工：目标蓝图=`governance/整体架构.md`；当前实现地图=`governance/现状架构.md`；差距与验收=`governance/架构差距矩阵.md`；导航=`governance/真相源导航表.md`；行动路线=本文件；资产索引=`governance/资产全景.md`；当前工作状态唯一权威是云端 `⚙️/当前工作检查点`，身份根是 `🧬/我是谁`。
 - 已确认 `wovowx/mcp-memory/CROSS-HOST-BRIDGE.md` 位于仓库根目录且可读；旧文档里“Not Found/待重建”的说法已过时。该文件有大量历史记录和重复的过期状态块，不能把旧交接自动视作当前授权。
 - mcp-memory 的根 README 曾把不存在的根级 `docs/`、`skills/` 写作仓库目录；本轮已在 dev 修正，改为描述实际 `src/skills/` 与治理文档所在的 ZivenLab 仓库。
