@@ -26,7 +26,7 @@
 3. 驾驶舱、路线图、现状地图、差距矩阵、导航表互相一致。
 4. 本阶段不改生产源码、数据库 schema、用户记忆内容，不删资产，不部署、不推 main。
 
-**当前停点：阶段 1–3 已完成；阶段 4「文档与职责收敛」继续进行（2026-10-26）。** usage_count 误计已按柳柳授权完成最小修复并提交到 `mcp-memory/dev/src/modules/mcp_router.js`；隔离回归测试 `tests/router_registry_contract_test.mjs` 也已同步到远端 dev。Operit 在本地同一修复/测试版本报告：`npm run check` exit 0、既有 webhook 测试 104/104、新 Mock 16/16。GPT 已回读核对 dev 源码和测试文件，但没有独立重跑 Node 命令。后续静态计数发现当前远端 `tests/router_registry_contract_test.mjs` 只有 15 个 `check(...)` 调用点，与 Operit 报告的 16/16 存在一项脚本内容/计数对齐差异；原始回报保留，但不能直接认定 16/16 精确对应当前远端文件。当前文件的可复核运行证据标为待对齐，不为确认数字重复消耗 Operit token。真实 E3、权限行为与生产端点仍未验证；未部署、未推/合并 main。阶段 4 不因这一处修复完成而整体结束，后续继续按差距矩阵收敛职责与文档。
+**当前停点：阶段 1–3 已完成；阶段 4「文档与职责收敛」继续进行（2026-10-26）。** usage_count 误计已按柳柳授权完成最小修复并提交到 `mcp-memory/dev/src/modules/mcp_router.js`；隔离回归测试 `tests/router_registry_contract_test.mjs` 也已同步到远端 dev。Operit 在本地同一修复/测试版本报告：`npm run check` exit 0、既有 webhook 测试 104/104、新 Mock 16/16。GPT 已回读核对 dev 源码和测试文件，但没有独立重跑 Node 命令。后续静态计数发现当前远端 `tests/router_registry_contract_test.mjs` 只有 15 个 `check(...)` 调用点，与 Operit 报告的 16/16 存在一项脚本内容/计数对齐差异；原始回报保留，但不能直接认定 16/16 精确对应当前远端文件。当前文件的可复核运行证据标为待对齐，不为确认数字重复消耗 Operit token。另一次源码核对纠正了旧的 suggest 空态判断：当前 `memory_unified.js` 已使用条件表达式处理空结果，既有 `webhook_idempotency_test.mjs` 含空数组/正常列表/404/500 四项输出测试；待补的是底层 `search.js` 的 `recordSearchKeyword` 行为、prefix/limit 与网络/JSON/写请求失败路径，详见差距矩阵。真实 E3、权限行为与生产端点仍未验证；未部署、未推/合并 main。阶段 4 不因这一处修复完成而整体结束，后续继续按差距矩阵收敛职责与文档。
 
 ## 「一本好书式架构」总计划：共 6 个阶段
 
