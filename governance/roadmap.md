@@ -26,7 +26,7 @@
 3. 驾驶舱、路线图、现状地图、差距矩阵、导航表互相一致。
 4. 本阶段不改生产源码、数据库 schema、用户记忆内容，不删资产，不部署、不推 main。
 
-**当前停点：阶段 1–3 已完成；阶段 4「文档与职责收敛」继续进行（2026-10-26）。** usage_count 误计已按柳柳授权完成最小修复并提交到 `mcp-memory/dev/src/modules/mcp_router.js`；隔离回归测试 `tests/router_registry_contract_test.mjs` 也已同步到远端 dev。Operit 在本地同一修复/测试版本报告：`npm run check` exit 0、既有 webhook 测试 104/104、新 Mock 16/16。GPT 已回读核对 dev 源码和测试文件，但没有独立重跑 Node 命令。后续静态计数发现当前远端 `tests/router_registry_contract_test.mjs` 只有 15 个 `check(...)` 调用点，与 Operit 报告的 16/16 存在一项脚本内容/计数对齐差异；原始回报保留，但不能直接认定 16/16 精确对应当前远端文件。当前文件的可复核运行证据标为待对齐，不为确认数字重复消耗 Operit token。另一次源码核对纠正了旧的 suggest 空态判断：当前 `memory_unified.js` 已使用条件表达式处理空结果，既有 `webhook_idempotency_test.mjs` 含空数组/正常列表/404/500 四项输出测试；待补的是底层 `search.js` 的 `recordSearchKeyword` 行为、prefix/limit 与网络/JSON/写请求失败路径，详见差距矩阵。真实 E3、权限行为与生产端点仍未验证；未部署、未推/合并 main。阶段 4 不因这一处修复完成而整体结束，后续继续按差距矩阵收敛职责与文档。
+**当前停点：阶段 1–3 已完成；阶段 4「文档与职责收敛」继续进行（2026-10-26）。** usage_count 误计已按柳柳授权完成最小修复并提交到 `mcp-memory/dev/src/modules/mcp_router.js`；隔离回归测试 `tests/router_registry_contract_test.mjs` 也已同步到远端 dev。Operit 在本地同一修复/测试版本报告：`npm run check` exit 0、既有 webhook 测试 104/104、新 Mock 16/16。GPT 已回读核对 dev 源码和测试文件，但没有独立重跑 Node 命令。后续静态计数曾发现当前远端 `tests/router_registry_contract_test.mjs` 有 15 个 `check(...)` 调用点。GPT 随后在已授权测试文件范围内补入一条已注册 `memory_remember` handler 的失败不计 usage 断言；当前远端静态计数已为 16，与 Operit 原始报告的 16/16 在断言数上对齐。但补入断言后的精确远端文件尚未运行，状态仍为 NOT RE-RUN；不凭计数一致宣称通过，也不为单独核对数字重复消耗 Operit token。另一次源码核对纠正了旧的 suggest 空态判断：当前 `memory_unified.js` 已使用条件表达式处理空结果，既有 `webhook_idempotency_test.mjs` 含空数组/正常列表/404/500 四项输出测试；待补的是底层 `search.js` 的 `recordSearchKeyword` 行为、prefix/limit 与网络/JSON/写请求失败路径，详见差距矩阵。真实 E3、权限行为与生产端点仍未验证；未部署、未推/合并 main。阶段 4 不因这一处修复完成而整体结束，后续继续按差距矩阵收敛职责与文档。
 
 ## 「一本好书式架构」总计划：共 6 个阶段
 
@@ -75,11 +75,11 @@
 工作：分层执行静态检查、行为回归、跨宿主冷启动和真实 MCP/HTTP endpoint 验证；复核共享能力是否重复建设、扩展是否依赖无关模块改动、兼容路径是否有证据；核对 Pages 发布范围与隐私风险；整理未关闭差距和回滚说明。
 验收：测试证据可复核；复用性、扩展瓶颈、兼容风险及未验证项有明确状态；发布候选范围清楚。推 main 前须报告版本/范围/验证/回滚并得到柳柳明确同意；回滚未演练不得写成已演练。
 
-**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count 误计的最小修复已在 `mcp-memory/dev`，隔离 Mock 测试文件也已同步到远端 dev。Operit 报告本地 E1 exit 0、既有 E2 104/104、新 Mock 16/16；但 GPT 静态计数当前远端测试文件只有 15 个 `check(...)` 调用点，因此精确脚本版本与 16/16 输出尚未对齐。保留 Operit 原始报告，不把它包装成当前远端文件已复现通过；真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main；接下来按矩阵继续文档/职责收敛与验证。
+**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count 误计的最小修复已在 `mcp-memory/dev`，隔离 Mock 测试文件也已同步到远端 dev。Operit 报告本地 E1 exit 0、既有 E2 104/104、新 Mock 16/16；GPT 后来在授权范围内补入直接的 registered-handler failure 断言，当前远端文件已有 16 个 `check(...)` 调用点，与 Operit 原始报告的16/16在计数上对齐；但补入断言后的精确文件尚未重跑，仍标 NOT RE-RUN。保留 Operit 原始报告，不把它包装成当前远端文件已复现通过；真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main；接下来按矩阵继续文档/职责收敛与验证。
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
-- `search_history/suggest` 行为、迁移事件审计、工具注册/schema/handler 一致性、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。usage_count 误计已在 dev 修复，隔离 Mock 文件已进入 dev；Operit 报告 16/16，但当前远端脚本静态计数只有 15 个断言调用点，精确执行证据待对齐。真实 E3 endpoint 未执行，不将 Mock 报告等同于线上验证。
+- `search_history/suggest` 行为、迁移事件审计、工具注册/schema/handler 一致性、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。usage_count 误计已在 dev 修复，隔离 Mock 文件已进入 dev；Operit 报告 16/16，随后已补入一条 registered-handler failure 断言，当前远端脚本静态计数为16；与 Operit原始16/16回报数字相符，但新版本尚未重跑，状态仍为NOT RE-RUN。真实 E3 endpoint 未执行，不将 Mock 报告等同于线上验证。
 - `v6.35.0` 已发布并部署 VERIFIED；该版本是可靠性基线，不代表整体架构升级完成。下一次 main 发布须先说明版本、范围和证据，并取得柳柳明确同意。
 - 本路线图控制当前行动顺序；历史 P0/P1/P2 清单仅为历史路线/待办参考，不自动成为活跃任务。
 ---
