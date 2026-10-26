@@ -22,7 +22,7 @@
 要加表/改表
   ↓ ① 打开 database-overview.md 过现有表
   ↓ ② 写 necessity（为什么不能复用现有表）
-  ↓ ③ 验证 DDL 入口 necessity gate（Worker dev 已实现最小修复；隔离回归尚待运行；独立 supabase_schema 工具路径仍待核）
+  ↓ ③ 验证 DDL 入口 necessity gate（Worker dev 最小修复已由隔离 Mock 37/37 回归；独立 GPT App supabase_schema 工具路径、真实 endpoint/RPC 权限仍待核）
   ↓ ④ 经明确授权后建表/改表
   ↓ ⑤ 目标自动化：生成 schema snapshot + diff（当前闭环未验证）
   ↓ ⑥ 更新 overview + domain 文档
