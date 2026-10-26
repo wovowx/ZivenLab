@@ -13,6 +13,7 @@
 - **后续证据校正**：Operit 原始回报称新 Mock 16/16；GPT 对当前远端测试文件静态计数最初发现 15 个 `check(...)` 调用点；随后在已授权范围内补入一条已注册 `memory_remember` handler 的失败不计 usage 断言，当前远端文件静态计数为 16，与 Operit 原始 16/16 回报在数量上对齐。但补入断言后的精确远端文件尚未重新运行，仍为 NOT RE-RUN；GPT 当前不能执行该仓库的 Node 脚本。为遵守 Operit API token 成本约束，不因单一计数差异立即要求重跑；若之后确需本地运行，则与其他必要验证合并成一次任务。
 - **静态事实校正**：旧盘点曾把 `memory_unified.js` 的 suggest 空态判断记为字符串拼接与 `||` 优先级缺陷；当前 dev 源码已使用条件表达式处理空结果，且既有 `tests/webhook_idempotency_test.mjs` 包含空数组、正常列表、404 JSON 错误对象、500 JSON 错误对象四项输出断言。因此该旧静态缺陷不再作为当前问题；剩余测试缺口集中在底层 `search.js` 的 `recordSearchKeyword`、prefix/limit 及网络/JSON/写请求失败行为。
 - **真相源边界校正**：治理入口和导航表进一步区分 `governance/当前项目状态.md`（项目治理驾驶舱摘要）与云端 `⚙️/当前工作检查点`（唯一权威当前工作状态和下一步），避免多处维护平行“当前状态”。 README 负责指路，roadmap 负责行动顺序，现状架构/差距矩阵分别记录实现地图与未完成事项。
+- **Router 注册/分派契约补充**：阶段 4 静态复核发现，`create_patch_proposal` 虽在当前 `skills` 注册记录中声明 `handler_config.handler=database`，但 `mcp_router.js` 有提前执行的专门分支，实际调用 `handleCreatePatchProposal`，不会走通用 handlerMap。连同 `supabase_db` 等前缀特例，说明注册 metadata 与命名分派规则必须整体审阅；这只是已确认的源码/注册差异，不据此推断线上调用失败，也未扩大到其他源码修改。
 - `main` 未改、Worker 未部署，E3 真实 endpoint 未运行，回滚演练未执行。该事项不代表阶段 4 整体完成；其余职责/兼容差距继续按矩阵追踪。
 
 ### 整体架构目标定案（2026-10-26，目标与阶段进度早期快照）
