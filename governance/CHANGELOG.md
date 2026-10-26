@@ -6,6 +6,10 @@
 
 ## [docs-2026.10.4] - 2026-10-26（dev 草稿，未发布）
 
+### 阶段 4 补充：create_patch_proposal schema / usage_count 收敛（dev，待回归）
+- 静态审计确认 `create_patch_proposal` 注册项仍为 `input_schema=null`，且 Router 专用分支原先提前 return，绕过通用 `toolOk/autoIncrementUsage`。已在 `mcp_router.js` 定义共享 schema（required: `target_file`、`change_summary`、`reason`），同时用于 tools/list 与 dispatchGuard；专用 handler 改为执行后进入统一成功判定与 usage 打点。
+- `tests/router_registry_contract_test.mjs` 增加隔离覆盖：公开必填 schema、缺参在 Router 层拒绝、缺参不写 proposal/不计 usage、成功只写 fake REST、成功恰好计一次 usage。静态 `check(...)` 调用点由37扩展至42；本次修改后最新版本尚未 Node 重跑（NOT RE-RUN）。
+
 ### 阶段 4：DDL necessity gate 最小修复（柳柳已授权）
 - `mcp-memory/dev/src/tools/database.js` 现在用共享的非空 `necessity` 检查保护 `create_table`、`drop_table`；`exec` 中识别常见 DDL/可执行语句关键词，在调用 `exec_sql` RPC 前拒绝缺少 necessity 的请求，并尝试列出现有表。
 - `src/modules/mcp_router.js` 中 `supabase_*` 前缀不再无条件视为已知工具，而是必须命中 skills 注册表；`tools/list` 为已注册 `supabase_db` 与 `supabase_schema` 都暴露可选 `necessity` 参数；`supabase_db` action enum 未扩大，`supabase_schema` 保留原有 action enum。
