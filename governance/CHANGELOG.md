@@ -4,6 +4,12 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.10] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：cf_proxy 路由与 schema 静态证据校正
+- 沿 `dispatchGuard` → `isKnownTool` → `handlerMap` → `tools/call` 追踪后确认：skills 注册表无 `cf_proxy` 记录，Router 未导入 `CF_PROXY_TOOL_DEF`，因此注册表不会将它放入 `tools/list`；但 handlerMap 将其作为已知 handler，tools/call 具有直接分派分支，schema 缺失时 dispatchGuard 按兼容策略放行。代码路径因此可由已知名称直接调用，外部宿主 UI 是否允许手动调用仍未知。
+- `CF_PROXY_TOOL_DEF` 声明 required endpoint，但该定义未接入 Router，故不参与参数校验；空 arguments 会进入 handler 的环境变量名列表模式。仅修正静态证据，不调用 cf_proxy 或 Cloudflare endpoint，不改代理能力、注册表、数据库、聊天室、部署或 main。
+
 ## [docs-2026.10.9] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：AI handler 职责边界只读审计
