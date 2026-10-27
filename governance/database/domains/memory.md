@@ -32,7 +32,7 @@
 ## memory_events（事件账本）
 **设计用途**：记录 memories 生命周期事件（例如 create/update/revoke/rename/move），支持追溯与审计。历史记录称 `memory_events 禁止 UPDATE/DELETE` 的触发器于 2026-10-17 实装；但 2026-10-26 的 schema_dump 仅返回列/FK，不包含触发器目录，因此当前数据库是否仍实际强制追加式约束尚未复核，不把这条历史记载当成已验证硬门禁。
 
-**2026-10-27 当前 Worker 源码静态证据（不是数据库/endpoint 运行证据）**：`putMemory` 仅在更新已存在记忆时，先写一条 `event_type=update`（含 `memory_id/version/old_value/actor/reason`），再 PATCH 当前值；该事件 body 未包含 `new_value`。新记忆 insert 分支没有 create event。`deleteMemory` 将记忆软删除并回查，但不写 revoke/delete event。`rename` 与 `move` 是先向目标 key 调用 `putMemory`（新目标走 INSERT，无 create event），再软删除源记录（无 delete event）；未记录 source→target 关联或 rename/move reason。`forget` 同样只软删除。另 `history` 先调用只查 active 记录的 `getMemoryByKey`，因此已软删除的旧 key 不能通过此 action 查询事件历史。上述缺口均来自源码路径审阅，未写数据库、未做 E3；触发器/RLS/唯一约束当前生效状态仍待单独证实。
+**2026-10-27 当前 Worker 源码静态证据（不是数据库/endpoint 运行证据）**：`putMemory` 仅在更新已存在记忆时，先写一条 `event_type=update`（含 `memory_id/version/old_value/actor/reason`），再 PATCH 当前值；该事件 body 未包含 `new_value`；并且记录的 `version` 为更新前的 `oldVersion`，而本表历史设计文字把它解释为变更后版本，两者语义不一致。新记忆 insert 分支没有 create event。`deleteMemory` 将记忆软删除并回查，但不写 revoke/delete event。`rename` 与 `move` 是先向目标 key 调用 `putMemory`（新目标走 INSERT，无 create event），再软删除源记录（无 delete event）；未记录 source→target 关联或 rename/move reason。`forget` 同样只软删除。另 `history` 先调用只查 active 记录的 `getMemoryByKey`，因此已软删除的旧 key 不能通过此 action 查询事件历史。上述缺口均来自源码路径审阅，未写数据库、未做 E3；触发器/RLS/唯一约束当前生效状态仍待单独证实。
 
 | 列 | 类型 | 含义 |
 |---|---|---|
@@ -41,7 +41,7 @@
 | event_type | text | create/update/revoke/restore |
 | actor | text | user/agent/system |
 | idempotency_key | text | 设计用途为防重复入账；当前唯一约束尚未从完整约束/索引目录复核 |
-| version | int | 对应变更后记忆版本 |
+| version | int | 设计稿曾定义为对应变更后版本；当前 `putMemory` 的 update event 在 PATCH 前写入 `oldVersion`（变更前版本），语义与设计稿不一致，需在生命周期事件定案时明确为 source_version 或 resulting_version |
 | old_value / new_value | jsonb | 变更前后 |
 | reason | text | 变更原因 |
 | source_ref | text | 来源引用 |
