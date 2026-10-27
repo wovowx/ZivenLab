@@ -1,9 +1,9 @@
-# 数据库总览（Database Overview）· v2.3 · 2026-10-27
+# 数据库总览（Database Overview）· v2.4 · 2026-10-27
 
 > **数据源唯一**：所有表都在 Supabase（`shxfosnnaoxzscrhvkat.supabase.co`），承载 mcp-memory Worker。不搞多库、不另起数据源。
 >
 > **维护闭环（2026-10-20 与 GPT 讨论收敛，柳柳拍板 P0 落地）**：分三层建立持续可核验的闭环，而不是一次写厚文档——
-> - **现状层**：2026-10-27 再次只读调用 `supabase_schema action=schema_dump format=json`，机器响应仍返回25张表（23业务表 + `sb1_0_test_memories`、`sb1_0_test_memory_events` 两张测试表）。新快照确认 memories 当前 OpenAPI 列集含 version/status/supersedes_id/source_ref/valid_from/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 含 event_type、actor、idempotency_key、version、old_value/new_value（两者为 jsonb）、reason、source_ref，并报告 memory_id→memories.id 的外键。工具快照不提供唯一约束定义、ON DELETE 行为、触发器/RLS/GRANT/函数执行权限，所以这些仍待真实 catalog 只读核验。快照只存在于工具响应，未把整份机器输出手工复制入本文；自动落盘/CI 漂移检测闭环也未核实。2026-10-20 的23表数字是历史业务表字典快照，不再表示当前总表数。
+> - **现状层**：2026-10-27 再次只读调用 `supabase_schema action=schema_dump format=json`，机器响应仍返回25张表（23业务表 + `sb1_0_test_memories`、`sb1_0_test_memory_events` 两张测试表）。新快照确认 memories 当前 OpenAPI 列集含 version/status/supersedes_id/source_ref/valid_from/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 含 event_type、actor、idempotency_key、version、old_value/new_value（两者为 jsonb）、reason、source_ref，并报告 memory_id→memories.id 的外键。工具快照不提供唯一约束定义、ON DELETE 行为、触发器/RLS/GRANT/函数执行权限，所以这些仍待真实 catalog 只读核验。已进一步尝试经 `supabase_db` REST query 读取 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes`，均得到 HTTP 404/PGRST205（关系未在当前 public PostgREST schema cache 暴露）；`schema_dump` 源码只读取 `/rest/v1/` OpenAPI `definitions`。已检查的 `mcp-memory/dev/migrations` 目录只有聊天室 `claimed_at` 迁移，未见记忆账本触发器/函数的 migration 证据，但不能据此断言数据库里没有。当前可见 MCP 没有独立只读 catalog 工具，须通过另外获准的只读 DB 通道才能完成约束/权限事实核验。快照只存在于工具响应，未把整份机器输出手工复制入本文；自动落盘/CI 漂移检测闭环也未核实。2026-10-20 的23表数字是历史业务表字典快照，不再表示当前总表数。
 > - **解释层**：本文件即为每张表的业务字典（purpose/owner/used_by/lifecycle/relationships/source_status），未知项明确标 `unknown`，不编造。
 > - **历史层**：`change-log.md` 已于 2026-10-20 建立，目前记录数据库治理文档基线；继续复用需求/决策/执行/PR 等现有治理记录，只做索引链接，不复制第二份事实。
 >
