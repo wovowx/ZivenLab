@@ -4,18 +4,18 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
-## [docs-2026.10.4] - 2026-10-26（dev 草稿，未发布）
+## [docs-2026.10.5] - 2026-10-27（dev 草稿，未发布）
 
-### 阶段 4 补充：create_patch_proposal schema / usage_count 收敛（dev，待回归）
+### 阶段 4 补充：create_patch_proposal schema / usage_count 收敛（dev，隔离回归已通过）
 - 静态审计确认 `create_patch_proposal` 注册项仍为 `input_schema=null`，且 Router 专用分支原先提前 return，绕过通用 `toolOk/autoIncrementUsage`。已在 `mcp_router.js` 定义共享 schema（required: `target_file`、`change_summary`、`reason`），同时用于 tools/list 与 dispatchGuard；专用 handler 改为执行后进入统一成功判定与 usage 打点。
-- `tests/router_registry_contract_test.mjs` 增加隔离覆盖：公开必填 schema、缺参在 Router 层拒绝、缺参不写 proposal/不计 usage、成功只写 fake REST、成功恰好计一次 usage；随后补入 `IMPORT FOREIGN SCHEMA` 与 `SECURITY LABEL` 缺 necessity 的拒绝测试。静态 `check(...)` 调用点现为44；create_patch_proposal 与 DDL 关键词补强合并后的最新版本尚未 Node 重跑（NOT RE-RUN）。
+- `tests/router_registry_contract_test.mjs` 增加隔离覆盖：公开必填 schema、缺参在 Router 层拒绝、缺参不写 proposal/不计 usage、成功只写 fake REST、成功恰好计一次 usage；随后补入 `IMPORT FOREIGN SCHEMA` 与 `SECURITY LABEL` 缺 necessity 的拒绝测试。静态 `check(...)` 调用点现为44。Operit 于2026-10-27 08:36 SGT 在 detached 临时 worktree `/tmp/ops-ev2` 对精确 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 真实运行：`npm run check` exit 0、`node tests/webhook_idempotency_test.mjs` exit 0（104/104）、`node tests/router_registry_contract_test.mjs` exit 0（44/44，stderr 空）。worktree clean，原工作树 `/tmp/mcpmem-check` 未动。
 
 ### 阶段 4：DDL necessity gate 最小修复（柳柳已授权）
 - `mcp-memory/dev/src/tools/database.js` 现在用共享的非空 `necessity` 检查保护 `create_table`、`drop_table`；`exec` 中识别常见 DDL/可执行语句关键词，在调用 `exec_sql` RPC 前拒绝缺少 necessity 的请求，并尝试列出现有表。
 - `src/modules/mcp_router.js` 中 `supabase_*` 前缀不再无条件视为已知工具，而是必须命中 skills 注册表；`tools/list` 为已注册 `supabase_db` 与 `supabase_schema` 都暴露可选 `necessity` 参数；`supabase_db` action enum 未扩大，`supabase_schema` 保留原有 action enum。
 - `tests/router_registry_contract_test.mjs` 新增隔离 Mock：未注册 `supabase_*` 前缀被拦；exec 中 ALTER/DROP/CREATE 等 DDL 缺 necessity 不到 RPC；经 Router 的 `supabase_schema` create/drop 缺参时不触 RPC；create/drop handler 缺或空 necessity 拒绝；只读 `SELECT 1` 保持兼容；提供 necessity 的写入路径只命中 fake `exec_sql` mock；`tools/list` 同时验证 `supabase_db` 与 `supabase_schema` 的 necessity 提示，且不开放 `supabase_db.drop_table` action。所有网络由 `globalThis.fetch` mock 接管；静态计数现为 37 个 `check(...)` 调用点。Operit 于2026-10-26 21:12 SGT 在 detached 临时 worktree 对精确 SHA `2833a94e08c23b45a0598256a486463ee5d4cf6e` 真实运行并通过37/37。
-- **验证证据（Operit 本地真实运行）**：Node v24.18.0 / npm 11.16.0；detached worktree `/tmp/ops-ev`，HEAD `2833a94e08c23b45a0598256a486463ee5d4cf6e`，worktree clean，原工作树 `/tmp/mcpmem-check` 未动。`npm run check` exit 0；`node tests/webhook_idempotency_test.mjs` exit 0（104/104）；`node tests/router_registry_contract_test.mjs` exit 0（37/37，stderr 空）。
-- `policy-index.md` 当前版本为 v2.2；`database/schema-policy.md` 为 v1.3，均区分 Worker dev 代码防护、隔离 Mock 已通过与真实 endpoint/RPC 尚未验证的状态。GPT App 独立直连 `supabase_schema` 工具的外层 schema 仍未声明 necessity，其是否经过 Worker Router待核。
+- **前一轮 DDL gate 验证**：Node v24.18.0 / npm 11.16.0；detached worktree `/tmp/ops-ev`，HEAD `2833a94e08c23b45a0598256a486463ee5d4cf6e`，`npm run check` exit 0，webhook 104/104，Router Mock 37/37。该记录保留为历史基线；当前验收以本条 44/44 的后续版本为准。
+- `policy-index.md` 当前版本为 v2.2；`database/schema-policy.md` 为 v1.3。Worker dev 的隔离回归已通过，但真实 endpoint/RPC 和 GPT App 独立工具入口仍未验证。GPT App 独立直连 `supabase_schema` 工具的外层 schema 仍未声明 necessity，其是否经过 Worker Router待核。
 - **剩余安全边界**：本批 necessity gate 是非空理由与常见 DDL 关键词门槛，不是 SQL parser 或批准状态的运行时验证。`create_table` 的 table/columns 和 `drop_table` 的 table 仍拼入 SQL 字符串，参数注入/多语句防护尚未审查。本轮仅把该项登记到差距矩阵与 schema-policy，未扩展源码修改；是否另立最小修复批次须先界定安全范围，且不得用真实数据库进行测试。
 - 未触达真实 Supabase RPC、未执行实际 DDL/数据库写入、未修改 DB/schema/skills 注册表或生产配置；未部署、未推/合并 main。真实 RPC 权限、Pages 实际发布状态仍未验证。
 
