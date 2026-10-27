@@ -6,7 +6,7 @@
 
 ## [docs-2026.10.6] - 2026-10-27（dev 草稿，未发布）
 
-### 阶段 4：search_history 辅助路径防退化（dev，等待新增测试运行）
+### 阶段 4：search_history 辅助路径防退化（dev，本地隔离测试20/20；完整仓库回归暂缓）
 - 静态核查 `src/utils/search.js` 发现：`recordSearchKeyword` 未检查 GET 的 HTTP 状态，GET 404/500 后可能被当作空历史继续 POST；`getSearchSuggestions` 未检查非 2xx，可能把错误状态下的数组当作建议。此前已知 `search_history` 表未出现在 schema 快照，因此不建表、不改数据库。
 - 已在 dev 做最小修复：`recordSearchKeyword` 只在 GET `resp.ok` 且 JSON 是数组时继续 PATCH/POST；`getSearchSuggestions` 在非 2xx 或非数组 JSON 时返回空列表，网络/JSON异常仍被隔离。空值/非字符串关键词也直接忽略。
 - 新增 `tests/search_history_contract_test.mjs`，静态共20个 `check(...)` 调用点，全部使用 `globalThis.fetch` mock。覆盖空白/空值关键词、规范化与 GET→PATCH/POST、404/500不续写、网络/JSON失败、写请求非2xx、建议 prefix/limit/错误响应。该测试和源码修复是最后一次 44/44 验证之后新增。GPT 随后在本地 Node v22.16.0 对基于当前 dev GitHub readback 重建的隔离副本运行：20/20、exit 0；source/test 两文件字节大小分别与 GitHub readback 的 2672/6518 bytes 相符。这不是完整 Git worktree/SHA 运行，仅作逻辑初步验证。
