@@ -4,6 +4,13 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.13] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：Patch Engine apply 闭环静态审计
+- `github_apply_patch` 的公开描述/schema 声称目标分支必须为 dev，但实现仅拒绝精确 `main`，没有强制只写 dev。
+- GitHub 文件 PUT 成功后，代码 PATCH `patch_proposals.status='applied'`，但未检查状态 PATCH 的 HTTP 结果或返回行数，之后仍报告完整成功。若状态更新失败，proposal 可能仍为 approved，重复调用可能再次应用 patch。
+- `patch_engine.js` 的 `selfTest()` 只有3项且不在 `npm run check` 中运行；当前 tests 目录没有独立 Patch Engine 回归。此项只读登记，未调用 GitHub/Supabase endpoint、未应用 proposal、未改源码/数据库。最小修复与测试建议已记入差距矩阵 v3.0，正式改码须另行授权。
+
 ## [docs-2026.10.12] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：release_guard 仓库边界静态审计
