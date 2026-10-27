@@ -7,6 +7,7 @@
 ## [docs-2026.10.19] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段4收尾、阶段5方案A定案与阶段6准入边界
+- 最新换框初始化 message 已显式标记 `SB-FRAME-1.0`，将授权/暂停边界放在副作用步骤前；暂停聊天室/唤醒/巡检链时跳过相关工具、工作流清理/调度与改名，不宣称完整换框已通过，并要求首轮回应列出身份/主线/下一步、实时 stats 与来源、失败/跳过/未知项。该契约已静态回读确认，仍无真实新框行为测试。
 - 阶段4按其范围完成：当前实现/注册/输入契约/兼容候选均已分类，公共重复函数做了最小收敛，遗留运行时、数据库、权限、Pages 隐私风险仍保留为独立差距，不宣称已修复。
 - mcp-memory/dev 精确 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的隔离回归已由 Operit 全绿：check exit 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15；Node v24.18.0/npm 11.16.0，stderr 空。全程 mock/本地；E3 NOT RUN、未部署、main 未变。
 - 阶段5只读审计确认 memory stats/身份根/当前检查点可读；旧 boot/navigation 精确 key 未命中但 memory search 找到内容，已在 Session Bootstrap 与换平台手册中补 search fallback。Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具，本轮未调用。
