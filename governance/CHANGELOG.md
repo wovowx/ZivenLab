@@ -4,6 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.8] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：现状证据与文档一致性收敛
+- 只读比较 `wovowx/mcp-memory` main...dev，当前差异为7个文件（README、CROSS-HOST-BRIDGE、mcp_router、database、search、两份测试）；最新完整隔离回归精确 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的 `npm run check` exit 0、webhook104/104、Router+DDL parser69/69、search_history20/20，stderr空、detached worktree clean。测试全程 fetch mock，不代表真实 DB/RPC/DDL 或 MCP endpoint 验收。未部署、未推/合并 main。
+- 将 `supabase_schema.schema_dump` 的实现限制核实为读取 PostgREST OpenAPI `definitions`；系统目录关系 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 经 query 不在公开 schema cache（PGRST205）；exec_sql 拒绝 catalog-only SELECT（P0001）。当前可见 MCP 没有独立只读 catalog 入口；不能据此断言真实 DB 无触发器。
+- 按当前 Worker `src/` JavaScript、`scripts/`、现有 `tests/` 做直接符号扫描，除 `permission_guard.js` 自身定义之外，未发现 `checkCapabilityAccess` / `tool_policies` 等引用。当前 Worker MCP 主调用链未见通用 permission guard 接入；GPT App 独立工具、宿主插件/远端动态配置与 DB 内机制仍 UNKNOWN，未修改权限运行行为。
+- 记录版本面并不一致：MCP `serverInfo.version=6.5.0`、`package.json=6.3.4`、CHANGELOG 最新 release 标记 `v6.35.0`、源码注释还出现 `v6.48.0`。先定义各字段的 build/package/release 语义，不为数字相同而改代码。
+- 同步导航表 v2.4、policy-index v2.5、架构差距矩阵 v2.5、现状架构、roadmap 与驾驶舱 version45；修正旧的 create_patch_proposal / search_history “测试尚未执行”状态。记忆生命周期设计仍是 proposal，不实施 DB/schema/function/trigger/permission 写入；继续保留真实 trigger/RLS/GRANT/约束为 UNKNOWN。
+
 ## [docs-2026.10.7] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：MCP serverInfo 版本契约差异（只读登记）
