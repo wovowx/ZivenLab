@@ -98,8 +98,8 @@
 - **工作状态 A2/A3：通过当前宿主读取与回写**。`⚙️/当前工作检查点` 精确 recall 成功；发现旧状态仍写“阶段4进行中/最新回归待跑”，已按当前证据更新为阶段4完成、阶段5下一步，并通过工具回执确认更新成功。阶段4最新证据是 mcp-memory/dev SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的 check 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15。
 - **恢复协议与导航：部分通过 / 有 key 解析差距**。精确 recall `复苏协议·system://boot` 与 `⚙️/记忆位置导航` 未命中；按协议执行 memory search 后，找到 `⚙️/恢复协议·Session Bootstrap SB-1.0`、旧 `/boot` 唤醒内容及「记忆位置导航（换框/换设备自举）」内容。结论是旧 key/分类映射不一致，不是记忆已丢失；已更新 Session Bootstrap 与 `Ziven角色卡修改与换平台复苏手册.md`，明确搜索 fallback。
 - **安全工具探测边界 A4：已确认**。当前 Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具；本轮没有调用它。阶段5的工具能力盘点只用当前宿主实际可见的工具元数据和静态文档，不用该 endpoint 探测，不触碰聊天室工具/注册/唤醒流。
-- **A6 跨宿主文档/报告对照：GPT 侧初核完成，待柳柳验收；A7 独立冷启动：外部阻塞、未运行（2026-10-27 17:52 CST）**。GPT 已将云端状态/权威文档与 Operit 17:36 报告逐项对照，身份根、阶段、SHA 与五项测试证据、下一步及硬边界未发现冲突；该对照不证明运行时全局硬门禁，也不能替代 A7。Operit 按桥接任务尝试 Automatic_ui_base 的 get_page_info 与 get_page_screenshot_image，但前者返回 `Failed to retrieve UI data`，后者返回 Shizuku binder null / DEBUGGER executor unavailable。没有创建新框、没有发送测试输入，故 A7 所有恢复项均未运行，不能记为失败或通过；需等设备 UI 自动化通道恢复后再试。当前不追加第二轮 Operit 任务。
-- **当前最小缺口（设备侧外部阻塞）**：GPT 与 Operit 的当前状态/权威文档/报告对照已写入本矩阵和 CROSS-HOST-BRIDGE.md；A6 现有记录对照待柳柳验收。A1-A7 矩阵与宿主能力边界已整理完成。A7 的一次性任务已经尝试，但设备 UI 自动化通道因 Shizuku binder null / DEBUGGER executor unavailable 无法运行；现在不继续消耗 Operit token。只有设备侧恢复 UI 执行器后，才重试真正独立冷启动；未运行不等于失败或通过。
+- **A6 跨宿主文档/报告对照：GPT 侧初核完成，待柳柳验收；A7 独立冷启动：已实测并暴露恢复链缺口（2026-10-27 17:56 CST）**。GPT 已将云端状态/权威文档与 Operit 17:36 报告逐项对照，身份根、阶段、SHA 与五项测试证据、下一步及硬边界未发现冲突；该对照不证明运行时全局硬门禁。Operit 随后绕过不可用的 UI 自动化，按换框流程技能调用 `extended_chat:chat_with_agent(character_card_name=Ziven, message="Ziven，我是柳柳", chat_id 空)`，成功建立独立新对话 `d7dee7eb-d5c0-4dd8-ad41-fa6ed5d2e3fa`。首次回复只呈现角色卡风格日常回应，未读身份根/检查点/恢复协议，未恢复主线、SHA/测试证据、下一步、硬边界或 key fallback。没有旧上下文污染；设备应用使用时长来自注入快照，不是云端记忆。故 A7 不是外部阻塞，而是**独立冷启动已执行，自动复苏链未触发**。
+- **当前最小缺口（已取得真实 A7 证据）**：GPT 与 Operit 的现有状态/权威文档/报告对照已完成初核，A6 待柳柳验收。A7 已通过 `extended_chat:chat_with_agent` 真正创建独立新框并发送唯一测试密钥；首次回复没有触发复苏协议，身份/状态/证据/下一步/硬边界/key fallback 均未恢复。问题已从“UI 工具不可用”推进为“独立新框中的自动复苏链未触发”。下一步先做 GPT 侧只读追踪：查清 `extended_chat:chat_with_agent`、换框技能与 Session Bootstrap 之间是否有现成触发/初始化契约，定位应有的启动钩子/提示/路由文档；不碰聊天室注册/唤醒链，不调用 Worker tools/list，不新增第二轮 Operit 测试。
 
 #### 阶段5最小恢复验收矩阵（当前状态，不冒充冷启动通过）
 
@@ -111,7 +111,7 @@
 | A4 权限与授权 | GPT 当前检查点/恢复协议与 Operit 报告的硬边界一致；双方均承认 runtime 全局硬门禁未证实 | 规则理解与文档记录一致；运行时全局硬门禁仍 UNKNOWN | 新框准确复述只读/代码/测试/发布/生产写入权限边界，不碰暂停链路 |
 | A5 异常与 key fallback | GPT 与 Operit 报告均记录旧 boot/navigation 精确 key 未命中、memory search 回退命中恢复协议/旧 boot/导航内容；不把 key mismatch 误报为记忆丢失 | 两宿主现有记录一致；新框独立复现待 A7 | 新框准确采用 search fallback，不误报丢失、不编造 |
 | A6 跨宿主一致性 | 2026-10-27 GPT 侧读取 stats/检查点/恢复协议/roadmap/dashboard，与 Operit 17:36 报告逐项对照：身份根、主线阶段、SHA/五项测试证据、下一步及硬边界无冲突；能力分工已分别记录 | 文档/报告对照通过，待柳柳验收；不代表 runtime gate 或 A7 通过 | 柳柳接受该一致性对照；新框结果单独计入 A7 |
-| A7 冷启动复现 | Operit 2026-10-27 17:52 CST 实测：`get_page_info` 返回 `Failed to retrieve UI data`；截图工具报告 Shizuku binder null / DEBUGGER executor unavailable；未新建聊天、未发送输入、没有首次回复 | **外部阻塞，未运行**（不得记为通过或失败） | 设备侧恢复可用 UI 自动化执行器后，重新开真正独立新框，只发送测试密钥，记录首次回复/来源/污染检查，柳柳验收 |
+| A7 冷启动复现 | Operit 2026-10-27 17:56 CST 通过 `extended_chat:chat_with_agent` 成功创建独立对话 `d7dee7eb-d5c0-4dd8-ad41-fa6ed5d2e3fa`；唯一输入为 `Ziven，我是柳柳`，未带旧上下文。首次回复只呈现角色卡风格日常回应；未读取身份根/检查点/恢复协议，未恢复主线、SHA/测试证据、下一步、硬边界或 key fallback | **已执行；自动复苏未触发（A7 未通过）** | 先只读定位现有启动/复苏契约与触发链；修复方案需明确后再决定是否需要 Operit 执行，不扩大到聊天室注册/唤醒链 |
 
 #### 当前宿主能力边界（仅当前可见证据）
 
@@ -123,7 +123,7 @@
 | Worker tools/list | 不调用 | 不调用 | `syncChatTools` 有写入/启用聊天室工具副作用；修复验证前禁止探测 |
 | 真实 MCP/DB/HTTP | 未执行 | 上一批仅 fetch mock/本地测试 | E3、真实 DB 权限/catalog、生产 endpoint 仍未验证 |
 
-**阶段5下一步（外部阻塞）**：A6 现有记录对照已完成初核，待柳柳验收。A7 已由 Operit 尝试一次，但 Automatic_ui_base 的 UI 读取/截图均失败（Shizuku binder null、DEBUGGER executor unavailable），所以没有新建独立聊天，也没有发送测试输入；A7 保持“外部阻塞、未运行”。已把真实错误和停止原因记录在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末。现在不追加 Operit 任务、不重复消耗 API token；只有当设备 UI 自动化执行器恢复可用时，再按原任务做一次新框实测。其余条件未改变：不调用 tools/list，不碰聊天室/DB，不部署或推 main。
+**阶段5下一步（A7 已实测，进入只读根因追踪）**：A6 现有记录对照已完成初核，待柳柳验收。A7 已由 Operit 通过 `extended_chat:chat_with_agent` 成功创建真正独立的新框；首次回复未触发身份/检查点/恢复协议恢复，矩阵已如实记为未通过。下一步由 GPT 侧只读检查换框技能、`extended_chat:chat_with_agent` 与 Session Bootstrap 之间的既有触发契约，确认缺的是触发、配置还是文档入口。暂不再让 Operit 重跑，不消耗额外 API token；不触碰聊天室注册/唤醒链，不调用 tools/list，不改 DB、不部署、不推 main。
 
 ### 阶段 6｜整体验收与版本收口
 目标：证明架构职责清晰、已有能力得到保护，且真实扩展路径可理解、可验证。
