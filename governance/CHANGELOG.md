@@ -4,6 +4,14 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.15] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：Patch Engine apply 闭环最小实现
+- `src/modules/patch_engine.js` 新增集中式目标策略：默认只允许 `dev`，`main` / `refs/heads/main` 永久拒绝，其他分支通过 `PATCH_ENGINE_ALLOWED_BRANCHES` 显式授权；目标仓库必须精确命中 `GITHUB_REPO` 或 `GITHUB_ALLOWED_REPOS`。
+- `github_apply_patch` 现在先做目标策略校验；读取并验证 patch 后用 `status=eq.approved` 条件 PATCH 原子认领为 `applying`，只有返回匹配行才继续写 GitHub；成功写入后要求 `applying→applied` 的状态 PATCH 同时满足 HTTP 成功与返回行确认。
+- GitHub 写入结果或状态更新结果不确定时不谎报成功；状态确认失败返回 `PARTIAL SUCCESS` 并要求先核对，避免直接重复应用。新增 Patch Engine 隔离 Mock 场景，并提供 `npm run test:contracts`。
+- 当前仅源码/测试/治理文档写入 `dev`；E1 `npm run check` 与 E2 `npm run test:contracts` 尚待 Operit 在 detached worktree 对最新 SHA 实跑。未执行真实 proposal、未访问真实 GitHub/Supabase endpoint、未改数据库 schema/真实数据/聊天室工具、未部署、不推/合并 main。
+
 ## [docs-2026.10.14] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：Patch Engine 分支授权策略收敛
