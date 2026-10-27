@@ -4,6 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.16] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：GitHub 路径与 Patch Engine 输入边界收敛
+- 在 `src/utils/helpers.js` 增加共享 `validateRepoRelativePath()`，统一验证并按 path segment 编码 GitHub 内容路径；github_push/read/list/delete/edit/copy/move 与 Patch Engine 共用此契约。
+- `github_push` 的 `content_url` 现在必须来自当前 `SUPABASE_URL` 对应的 HTTPS origin，必须位于 public-files 路径，禁止 URL credentials 并拒绝重定向，避免从其它 Supabase project 或重定向目标读取内容。
+- Patch Engine now rejects proposal.target 与 patch.file 的路径不一致、危险路径、非整数行号、重叠范围、无操作 patch、多行 insert entries 与不匹配的 delete_content；分支策略拒绝 main 大小写变体和嵌套 refs/heads aliases。
+- `release_guard.js` 改为只识别 canonical repository policy，移除 suffix fallback 与无 owner alias；main 大小写变体一致拒绝。受聊天室暂停范围约束，未改 `mcp_router.js`，前置白名单前的潜在只读 API 请求风险继续留存。
+- **验证状态：最新代码/测试 E1/E2 NOT RUN，等待 Operit 对最新 `origin/dev` detached worktree 一次性执行；此前 Patch Engine 82/82 只对应旧 SHA，不覆盖本条新增改动。** 所有改动仅在 dev；未操作真实 GitHub/Supabase endpoint 或 proposal，未改 DB/schema/权限/注册表、未删除数据、未触碰聊天室、未部署、不推/合并 main。
+
 ## [docs-2026.10.15] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：Patch Engine apply 闭环最小实现
