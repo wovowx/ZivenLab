@@ -84,11 +84,11 @@
 工作：分层执行静态检查、行为回归、跨宿主冷启动和真实 MCP/HTTP endpoint 验证；复核共享能力是否重复建设、扩展是否依赖无关模块改动、兼容路径是否有证据；核对 Pages 发布范围与隐私风险；整理未关闭差距和回滚说明。
 验收：测试证据可复核；复用性、扩展瓶颈、兼容风险及未验证项有明确状态；发布候选范围清楚。推 main 前须报告版本/范围/验证/回滚并得到柳柳明确同意；回滚未演练不得写成已演练。
 
-**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count、DDL necessity gate 与 create_patch_proposal schema/usage_count 修复均在 `mcp-memory/dev`，合并后的44项 Router Mock 已由 Operit 在 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 真实运行通过（44/44）；同一 SHA 的 `npm run check` exit 0、webhook 104/104。随后新增 search_history 守门与20项 Mock；GPT 在本地 Node v22.16.0 对从 GitHub readback 重建的隔离副本跑出20/20、exit 0，但这不是完整仓库 worktree/SHA 回归；search.js 修改后的 E1/E2/Router44尚未重新运行。考虑到仅新增一项小型辅助模块测试且已通过本地逻辑验证，为节省 Operit API token，桥接回归任务暂缓；后续若再改代码，再合并完整回归。静态审计还标记记忆生命周期事件缺口、serverInfo/package版本语义差异、data/category未注册legacy候选，均按差距矩阵继续；真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main。
+**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** mcp-memory/dev 的受限 DDL 解析器与 search_history 守门改动已在精确 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 完成一次性整套隔离回归：`npm run check` exit 0、webhook 104/104、Router+DDL parser 69/69、search_history 20/20，全部 exit 0。Operit 使用 Node v24.18.0/npm 11.16.0，在 detached `/tmp/ops-ev3` 执行；stderr 空、worktree clean、原工作树未动，diff 恰为5个预期文件。全程 fetch mock，无真实 endpoint/RPC/DDL/DB写入、无 schema/registry/config 变更；未部署、E3未执行、main未改。阶段4其余差距包括记忆生命周期事件语义与一致性、permission_guard 是否接入实际写路径、serverInfo/package 版本语义、data/category 外部调用契约、Pages 发布面/隐私核查等，继续按差距矩阵逐项收敛。
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
-- `search_history` 辅助路径现在有最小非2xx/形状守门，并新增20项隔离 Mock；GPT-local readback 重建副本20/20，但完整仓库 E1/E2/Router44 尚未在 search.js 修改后重跑，按 token 成本暂缓单独委派。记忆生命周期事件审计已确认 create/soft-delete/rename/move 事件与 source→target 关联缺口、update event 缺 new_value 且 version 语义冲突；详见 P1 数据安全。`create_patch_proposal` 的专用 schema/usage_count 修复与 DDL gate 最新44/44已由 Operit 在 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 回归通过。`serverInfo.version` 与 `package.json` 版本不同，语义待定义；`data.js` / `category.js` 无当前 skills 注册命中，作为 legacy 候选保留。权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在矩阵。真实 E3 endpoint 未执行，不将隔离 Mock 等同于线上验证。
+- 已完成 `search_history` 最小非2xx/响应形状守门，并新增20项隔离 Mock；本项已包含在最新 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的完整仓库回归（E1 exit 0、webhook104/104、Router69/69、search_history20/20）。记忆生命周期审计确认 create/soft-delete/rename/move 事件与 source→target 关联缺口、update event 缺 new_value 且 version 语义冲突；详见 P1 数据安全，相关设计尚待定案。`serverInfo.version` 与 `package.json` 版本来源/语义待定义；`data.js` / `category.js` 无当前 skills 注册命中，作为 legacy 候选保留。permission_guard 实际写路径接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍在矩阵。真实 E3 endpoint 未执行，不将隔离 Mock 等同于线上验证。
 - `v6.35.0` 已发布并部署 VERIFIED；该版本是可靠性基线，不代表整体架构升级完成。下一次 main 发布须先说明版本、范围和证据，并取得柳柳明确同意。
 - 本路线图控制当前行动顺序；历史 P0/P1/P2 清单仅为历史路线/待办参考，不自动成为活跃任务。
 ---
