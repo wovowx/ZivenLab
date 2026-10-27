@@ -7,7 +7,7 @@
 ## [docs-2026.10.8] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：现状证据与文档一致性收敛
-- 再次校正治理导航的版本漂移：差距矩阵 v2.5、database-overview v2.4、schema-policy v1.8、domains/memory.md v1.6 与各自实际文档头部一致；将 roadmap 中早期生命周期盘点及旧测试批次明确标为历史快照，避免旧版本/旧测试状态覆盖最新 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的完整回归证据。所有改动仅限 ZivenLab/dev 文档，未改 mcp-memory 代码、聊天室工具、数据库或 main。
+- 再次校正治理导航的版本漂移：差距矩阵 v2.5、database-overview v2.4、schema-policy v1.8、domains/memory.md v1.6、资产整理计划 v3.4 与各自实际文档头部一致；将 roadmap 与资产计划中的早期生命周期盘点及旧测试批次明确标为历史快照，按当前 memory_unified.js 回读纠正 rename/move 控制流描述，避免旧版本/旧测试状态覆盖最新 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的完整回归证据。所有改动仅限 ZivenLab/dev 文档，未改 mcp-memory 代码、聊天室工具、数据库或 main。
 - 非聊天室工具契约审计：`cf_proxy` 有 handlerMap/直接分派路径，但当前 skills 精确注册查询为空，Router 未导入 `CF_PROXY_TOOL_DEF`；实际宿主可见性与缺 schema 时参数校验仍未知。只登记，不修改代理能力或注册表。
 - 只读比较 `wovowx/mcp-memory` main...dev，当前差异为7个文件（README、CROSS-HOST-BRIDGE、mcp_router、database、search、两份测试）；最新完整隔离回归精确 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的 `npm run check` exit 0、webhook104/104、Router+DDL parser69/69、search_history20/20，stderr空、detached worktree clean。测试全程 fetch mock，不代表真实 DB/RPC/DDL 或 MCP endpoint 验收。未部署、未推/合并 main。
 - 将 `supabase_schema.schema_dump` 的实现限制核实为读取 PostgREST OpenAPI `definitions`；系统目录关系 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 经 query 不在公开 schema cache（PGRST205）；exec_sql 拒绝 catalog-only SELECT（P0001）。当前可见 MCP 没有独立只读 catalog 入口；不能据此断言真实 DB 无触发器。
