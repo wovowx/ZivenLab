@@ -4,6 +4,13 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.12] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：release_guard 仓库边界静态审计
+- `mcp_router.js` 的 `githubReleaseGuard()` 在 `handleGitHubTool()` 执行 `GITHUB_ALLOWED_REPOS` 白名单校验前调用；rebase 合并路径会先根据 `safeArgs.repo` 查询 GitHub PR/commit 信息。未获允许的目标仓库可能因此先触发只读 API 请求，再由 handler 拒绝后续操作。
+- `release_guard.js` 的 `detectRepoType()` 在精确匹配失败后使用后缀匹配，会把 `other-owner/mcp-memory` / `other-owner/zivenlab` 误分类为已知仓库类型。当前未证明可以绕过 handler 的最终写操作白名单，故按防御纵深风险登记，不夸大为已发生发布绕过。
+- 最小修复建议：在发布守卫进行任何 API 查询前校验仓库白名单；release policy 仅匹配规范化后的明确仓库名/显式别名；补充 unknown-owner 后缀误分类与拒绝路径零 fetch 测试。当前未执行 API/运行时测试、未改源码或配置。
+
 ## [docs-2026.10.11] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：工具 schema 与 handler 必填契约静态审计
