@@ -1,4 +1,4 @@
-# Memory 域数据模型 · v1.1 · 2026-10-26（历史设计边界复核）
+# Memory 域数据模型 · v1.2 · 2026-10-27（生命周期事件代码覆盖静态复核）
 
 > 记忆系统：Agent 的长期记忆 + 文件存储。
 > 语义：记忆是 key-value + 分类的语义条目，文件是媒体/文档的元数据表。
@@ -30,7 +30,9 @@
 **坑**：不同来源的记忆 key 格式不同（事件/实体/日常…）；分类用于归档。
 
 ## memory_events（事件账本）
-**设计用途**：记录 memories 生命周期事件（例如 create/update/revoke/restore），支持追溯与审计。历史记录称 `memory_events 禁止 UPDATE/DELETE` 的触发器于 2026-10-17 实装；但 2026-10-26 的 schema_dump 仅返回列/FK，不包含触发器目录，因此当前数据库是否仍实际强制追加式约束尚未复核，不把这条历史记载当成已验证硬门禁。代码侧也尚未证明 create、软删除、rename、move 全部形成完整事件链。
+**设计用途**：记录 memories 生命周期事件（例如 create/update/revoke/rename/move），支持追溯与审计。历史记录称 `memory_events 禁止 UPDATE/DELETE` 的触发器于 2026-10-17 实装；但 2026-10-26 的 schema_dump 仅返回列/FK，不包含触发器目录，因此当前数据库是否仍实际强制追加式约束尚未复核，不把这条历史记载当成已验证硬门禁。
+
+**2026-10-27 当前 Worker 源码静态证据（不是数据库/endpoint 运行证据）**：`putMemory` 仅在更新已存在记忆时，先写一条 `event_type=update`（含 `memory_id/version/old_value/actor/reason`），再 PATCH 当前值；该事件 body 未包含 `new_value`。新记忆 insert 分支没有 create event。`deleteMemory` 将记忆软删除并回查，但不写 revoke/delete event。`rename` 与 `move` 是先向目标 key 调用 `putMemory`（新目标走 INSERT，无 create event），再软删除源记录（无 delete event）；未记录 source→target 关联或 rename/move reason。`forget` 同样只软删除。另 `history` 先调用只查 active 记录的 `getMemoryByKey`，因此已软删除的旧 key 不能通过此 action 查询事件历史。上述缺口均来自源码路径审阅，未写数据库、未做 E3；触发器/RLS/唯一约束当前生效状态仍待单独证实。
 
 | 列 | 类型 | 含义 |
 |---|---|---|
@@ -76,4 +78,5 @@
 ## 变更记录
 - 2026-10-17：v2 新增 memory_events 设计语义；memories 升级加版本/状态/追溯字段；knowledge 确认已移除。
 - 2026-10-26：根据最新 schema_dump 更新现状边界说明。触发器、唯一约束与全生命周期事件覆盖仍需额外目录/代码证据核实，未改数据库结构。
+- 2026-10-27：v1.2 基于当前 `memory_unified.js` 对 create/update/rename/forget/move/delete/history 路径做静态生命周期事件覆盖审计，确认只有现有记录 update 具备部分事件写入；新增 create、软删除与迁移关系事件缺失，update 事件未写 `new_value`，已同步差距矩阵。没有修改 Worker 源码、数据库 schema 或记忆数据。
 - 2026-09-09：v1（2026-09-09 实测）
