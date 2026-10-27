@@ -4,7 +4,10 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
-## [docs-2026.10.6] - 2026-10-27（dev 草稿，未发布）
+## [docs-2026.10.7] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：MCP serverInfo 版本契约差异（只读登记）
+- 静态读取当前 `mcp-memory/dev`：`src/modules/mcp_router.js` 的 MCP `initialize` 响应硬编码 `serverInfo.version='6.5.0'`，同分支 `package.json` 为 `6.3.4`。该字段究竟代表 MCP server build、Worker release 还是 package version 没有明确契约。未为凑一致而改版本号；已登记到架构差距矩阵，后续先定义权威语义再决定单一来源。本轮未调用 initialize endpoint、未改 Worker 源码、未部署。
 
 ### 阶段 4：search_history 辅助路径防退化（dev，本地隔离测试20/20；完整仓库回归暂缓）
 - 静态核查 `src/utils/search.js` 发现：`recordSearchKeyword` 未检查 GET 的 HTTP 状态，GET 404/500 后可能被当作空历史继续 POST；`getSearchSuggestions` 未检查非 2xx，可能把错误状态下的数组当作建议。此前已知 `search_history` 表未出现在 schema 快照，因此不建表、不改数据库。
