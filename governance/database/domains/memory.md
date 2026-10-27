@@ -3,7 +3,7 @@
 > 记忆系统：Agent 的长期记忆 + 文件存储。
 > 语义：记忆是 key-value + 分类的语义条目，文件是媒体/文档的元数据表。
 >
-> **现状边界（2026-10-27）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前公开 OpenAPI 列快照已在 2026-10-27 重新读取并写入 `governance/database/database-overview.md` v2.3：memories 当前列集中包含 version/status/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 有 jsonb old_value/new_value 列及 memory_id 外键。此快照不提供触发器、RLS、GRANT、外键 ON DELETE 行为、唯一约束和函数权限。进一步尝试经 `supabase_db` REST query 读取 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 均返回 HTTP404/PGRST205（未在当前 public PostgREST schema cache 暴露）；经 `exec_sql` 做 catalog-only SELECT 也被 P0001 拒绝。已检查的 `mcp-memory/dev/migrations` 当前只有聊天室 `claimed_at` 迁移，未发现 memory_events trigger/function migration；这仅说明当前检查范围缺少这类源码/迁移证据，不能据此断言真实数据库里不存在触发器。当前可见 MCP 没有独立只读 catalog 查询工具。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
+> **现状边界（2026-10-27）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前公开 OpenAPI 列快照已在 2026-10-27 重新读取并写入 `governance/database/database-overview.md` v2.4：memories 当前列集中包含 version/status/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 有 jsonb old_value/new_value 列及 memory_id 外键。此快照不提供触发器、RLS、GRANT、外键 ON DELETE 行为、唯一约束和函数权限。进一步尝试经 `supabase_db` REST query 读取 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 均返回 HTTP404/PGRST205（未在当前 public PostgREST schema cache 暴露）；经 `exec_sql` 做 catalog-only SELECT 也被 P0001 拒绝。已检查的 `mcp-memory/dev/migrations` 当前只有聊天室 `claimed_at` 迁移，未发现 memory_events trigger/function migration；这仅说明当前检查范围缺少这类源码/迁移证据，不能据此断言真实数据库里不存在触发器。当前可见 MCP 没有独立只读 catalog 查询工具。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
 
 ## 表清单
 
