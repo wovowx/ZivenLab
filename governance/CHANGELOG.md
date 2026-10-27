@@ -16,7 +16,7 @@
 - `npm run check`、webhook 104项与 Router 44项的最后一次全仓真实通过证据属于 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c`，早于 search.js 修改。GPT 已在本地 Node v22.16.0 对基于当前 dev readback 重建的 search.js/测试文件运行新测试并通过20/20；因为这不是完整 repo worktree/SHA 测试，保留该限制，但为节省柳柳的 Operit API token，暂不单独委派。若后续还有更多代码改动需要全仓回归，再合并成一次批次。未建 `search_history` 表、未调用 DDL、未写数据库；未部署、未推/合并 main。
 
 ### 阶段 4：记忆生命周期事件覆盖静态审计（只读，无代码/DB变更）
-- 静态追踪 `src/tools/memory_unified.js` 的 create/update/rename/forget/move/delete/history 后确认：只有已存在记录的 update 分支写部分 `memory_events`（event_type=update、memory_id、version、old_value、actor、reason），并且先写 event 再 PATCH 当前记忆；该事件 body 未包含 `new_value`。
+- 静态追踪 `src/tools/memory_unified.js` 的 create/update/rename/forget/move/delete/history 后确认：只有已存在记录的 update 分支写部分 `memory_events`（event_type=update、memory_id、version、old_value、actor、reason），并且先写 event 再 PATCH 当前记忆；该事件 body 未包含 `new_value`，写入的 version 是旧版本，与历史设计说明矛盾。两步为独立 REST 请求而非同一事务，若 event POST 成功但 memories PATCH 失败，会留下对应未生效更新的事件；当前没有补偿/失败事件机制。
 - 新记忆 INSERT 不写 create event；软删除与回查不写 revoke/delete event；rename/move 目标新建走 INSERT，源记录软删除，均没有 rename/move/delete 事件或 source→target 关系；forget 同样只软删除。history action 先经仅查 active 记录的 `getMemoryByKey`，因此软删除记录无法按 key 查询历史事件。
 - 已把结论写入 `governance/database/domains/memory.md` v1.2 与 `governance/架构差距矩阵.md` P1 数据安全：下一步需要先定义事件语义、version/source-target关联、失败态，再写隔离测试；本轮没有修改 Worker、触发器、schema、记忆或生产数据。
 
