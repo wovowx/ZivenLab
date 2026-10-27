@@ -12,6 +12,11 @@
 - 新增 `tests/search_history_contract_test.mjs`，静态共20个 `check(...)` 调用点，全部使用 `globalThis.fetch` mock。覆盖空白/空值关键词、规范化与 GET→PATCH/POST、404/500不续写、网络/JSON失败、写请求非2xx、建议 prefix/limit/错误响应。该测试和源码修复是最后一次 44/44 验证之后新增。GPT 随后在本地 Node v22.16.0 对基于当前 dev GitHub readback 重建的隔离副本运行：20/20、exit 0；source/test 两文件字节大小分别与 GitHub readback 的 2672/6518 bytes 相符。这不是完整 Git worktree/SHA 运行，仅作逻辑初步验证。
 - `npm run check`、webhook 104项与 Router 44项的最后一次全仓真实通过证据属于 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c`，早于 search.js 修改。GPT 已在本地 Node v22.16.0 对基于当前 dev readback 重建的 search.js/测试文件运行新测试并通过20/20；因为这不是完整 repo worktree/SHA 测试，保留该限制，但为节省柳柳的 Operit API token，暂不单独委派。若后续还有更多代码改动需要全仓回归，再合并成一次批次。未建 `search_history` 表、未调用 DDL、未写数据库；未部署、未推/合并 main。
 
+### 阶段 4：记忆生命周期事件覆盖静态审计（只读，无代码/DB变更）
+- 静态追踪 `src/tools/memory_unified.js` 的 create/update/rename/forget/move/delete/history 后确认：只有已存在记录的 update 分支写部分 `memory_events`（event_type=update、memory_id、version、old_value、actor、reason），并且先写 event 再 PATCH 当前记忆；该事件 body 未包含 `new_value`。
+- 新记忆 INSERT 不写 create event；软删除与回查不写 revoke/delete event；rename/move 目标新建走 INSERT，源记录软删除，均没有 rename/move/delete 事件或 source→target 关系；forget 同样只软删除。history action 先经仅查 active 记录的 `getMemoryByKey`，因此软删除记录无法按 key 查询历史事件。
+- 已把结论写入 `governance/database/domains/memory.md` v1.2 与 `governance/架构差距矩阵.md` P1 数据安全：下一步需要先定义事件语义、version/source-target关联、失败态，再写隔离测试；本轮没有修改 Worker、触发器、schema、记忆或生产数据。
+
 ### 阶段 4 补充：create_patch_proposal schema / usage_count 收敛（dev，隔离回归已通过）
 - 静态审计确认 `create_patch_proposal` 注册项仍为 `input_schema=null`，且 Router 专用分支原先提前 return，绕过通用 `toolOk/autoIncrementUsage`。已在 `mcp_router.js` 定义共享 schema（required: `target_file`、`change_summary`、`reason`），同时用于 tools/list 与 dispatchGuard；专用 handler 改为执行后进入统一成功判定与 usage 打点。
 - `tests/router_registry_contract_test.mjs` 增加隔离覆盖：公开必填 schema、缺参在 Router 层拒绝、缺参不写 proposal/不计 usage、成功只写 fake REST、成功恰好计一次 usage；随后补入 `IMPORT FOREIGN SCHEMA` 与 `SECURITY LABEL` 缺 necessity 的拒绝测试。静态 `check(...)` 调用点现为44。Operit 于2026-10-27 08:36 SGT 在 detached 临时 worktree `/tmp/ops-ev2` 对精确 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 真实运行：`npm run check` exit 0、`node tests/webhook_idempotency_test.mjs` exit 0（104/104）、`node tests/router_registry_contract_test.mjs` exit 0（44/44，stderr 空）。worktree clean，原工作树 `/tmp/mcpmem-check` 未动。
