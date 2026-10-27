@@ -10,7 +10,7 @@
 - 阶段4按其范围完成：当前实现/注册/输入契约/兼容候选均已分类，公共重复函数做了最小收敛，遗留运行时、数据库、权限、Pages 隐私风险仍保留为独立差距，不宣称已修复。
 - mcp-memory/dev 精确 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的隔离回归已由 Operit 全绿：check exit 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15；Node v24.18.0/npm 11.16.0，stderr 空。全程 mock/本地；E3 NOT RUN、未部署、main 未变。
 - 阶段5只读审计确认 memory stats/身份根/当前检查点可读；旧 boot/navigation 精确 key 未命中但 memory search 找到内容，已在 Session Bootstrap 与换平台手册中补 search fallback。Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具，本轮未调用。
-- 已建立 A1-A7 最小验收矩阵与 GPT App/Operit 能力边界；A6跨宿主一致性与A7独立冷启动仍未运行。一次性只读验收任务已放在 mcp-memory/dev/CROSS-HOST-BRIDGE.md 文末，待 Operit 回填。所有更改仅 dev 文档/云端检查点；无聊天室工具/注册/唤醒改动，无 DB/schema/权限写入，无部署/main push。
+- 阶段5后续证据已更新本条早期快照：A6 现有状态/权威文档/Operit 报告对照已完成初核，待柳柳验收；A7 已于 2026-10-27 17:56 CST 在独立新框实测，裸密钥词未触发云端恢复。柳柳随后批准方案 A：正式换框必须发送完整、版本化初始化指令，并以可核验恢复结果验收；换框 Skill 已加入 SB-FRAME-1.0 契约。完整初始化路径仍 UNKNOWN，因为当前不得触碰聊天室相关工具，本轮未执行真实路径验证。当前边界：不调用 chat_with_agent / tools/list、不改聊天室工具/注册/唤醒链，不改 DB/schema/权限，不部署、不推/合并 main。
 
 ## [docs-2026.10.17] - 2026-10-27（dev 草稿，未发布）
 
