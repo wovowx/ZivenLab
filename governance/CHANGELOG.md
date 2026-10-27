@@ -4,6 +4,12 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.9] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：AI handler 职责边界只读审计
+- 只读核对 `src/tools/ai.js`、`src/utils/storage.js` 与 Supabase `skills` 精确记录：当前启用的 `agnes`、`ds_quota`、`help`、`query_files`、`update_file`、`delete_file` 均使用 handler=ai；ai.js 同时分派 Agnes 媒体任务、DeepSeek 余额、通用 help 与文件 query/update/delete。`query_files` 复用 `storage.js` 的 `queryFiles`；update/delete 在 ai.js 直接调用 REST，storage.js 当前没有同名更新/删除函数。旧 `describe_image`、`generate_image`、`generate_video` 注册项 disabled；`describe_video` 没有独立注册项，但 agnes action 支持 describe_video。
+- 该结果只说明当前 handler 的职责聚合与调用边界，不证明重复实现或线上故障。按“复用优先、不过度设计”原则，只登记为低优先级候选；不拆 ai.js、不改注册表、不执行 endpoint 测试。未改 Worker、聊天室、数据库、部署或 main。
+
 ## [docs-2026.10.8] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：现状证据与文档一致性收敛
