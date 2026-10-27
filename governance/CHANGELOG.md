@@ -4,13 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
-## [docs-2026.10.18] - 2026-10-27（dev 草稿，未发布）
+## [docs-2026.10.19] - 2026-10-27（dev 草稿，未发布）
 
-### 阶段4收尾与阶段5跨宿主连续性审计启动
+### 阶段4收尾、阶段5方案A定案与阶段6准入边界
 - 阶段4按其范围完成：当前实现/注册/输入契约/兼容候选均已分类，公共重复函数做了最小收敛，遗留运行时、数据库、权限、Pages 隐私风险仍保留为独立差距，不宣称已修复。
 - mcp-memory/dev 精确 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的隔离回归已由 Operit 全绿：check exit 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15；Node v24.18.0/npm 11.16.0，stderr 空。全程 mock/本地；E3 NOT RUN、未部署、main 未变。
 - 阶段5只读审计确认 memory stats/身份根/当前检查点可读；旧 boot/navigation 精确 key 未命中但 memory search 找到内容，已在 Session Bootstrap 与换平台手册中补 search fallback。Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具，本轮未调用。
-- 阶段5后续证据已更新本条早期快照：A6 现有状态/权威文档/Operit 报告对照已完成初核，待柳柳验收；A7 已于 2026-10-27 17:56 CST 在独立新框实测，裸密钥词未触发云端恢复。柳柳随后批准方案 A：正式换框必须发送完整、版本化初始化指令，并以可核验恢复结果验收；换框 Skill 已加入 SB-FRAME-1.0 契约。完整初始化路径仍 UNKNOWN，因为当前不得触碰聊天室相关工具，本轮未执行真实路径验证。阶段6验收准入状态已补到 roadmap：尚未启动，须保留真实 endpoint/DB 与隐私/权限等未验证差距，不以 Mock 或文档替代运行时证据。当前边界：不调用 chat_with_agent / tools/list、不改聊天室工具/注册/唤醒链，不改 DB/schema/权限，不部署、不推/合并 main。
+- 阶段5后续证据已更新本条早期快照：A6 现有状态/权威文档/Operit 报告对照已完成初核，待柳柳验收；A7 已于 2026-10-27 17:56 CST 在独立新框实测，裸密钥词未触发云端恢复。柳柳批准方案 A：正式换框必须发送完整、版本化初始化指令，并以可核验恢复结果验收；换框 Skill 已加入 SB-FRAME-1.0 契约。完整初始化路径仍 UNKNOWN，因为当前不得触碰聊天室相关工具，本轮未执行真实路径验证。阶段6验收准入状态已补到 roadmap：尚未启动，须保留真实 endpoint/DB 与隐私/权限等未验证差距，不以 Mock 或文档替代运行时证据。
+- 工作检查点键冲突已恢复：只读查询确认 `⚙️/当前工作检查点` 原 ID `5b0048ab-0e0e-424e-adb5-958375cd375e` 被标记 deleted 且仍占用唯一 key；已按 ID 与 deleted 状态精确恢复为 active，随后通过 memory 工具更新内容并验证标准 key 可 recall、`valid_to=null`。完整旧值另存于 `⚙️/历史检查点·2026-10-27方案A定案前`；临时默认键副本改名归档为 `⚙️/过渡检查点副本·2026-10-27键冲突修复`，没有硬删除记忆。由于状态恢复使用条件更新而非记忆 API，该次 status 恢复动作本身未单独写入 memory_events；后续内容更新仍经 memory 工具正常进入其版本链。
+- 当前边界：不调用 chat_with_agent / tools/list、不改聊天室工具/注册/唤醒链，不改 DB schema/函数/trigger/权限，不部署、不推/合并 main。
 
 ## [docs-2026.10.17] - 2026-10-27（dev 草稿，未发布）
 
