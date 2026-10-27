@@ -4,6 +4,13 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.17] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：写入响应确认与文件移动保护
+- Patch Engine 在 GitHub PUT 返回 2xx 后仍要求可验证的 `content.sha`；若响应没有 SHA，或返回的 `content.path` 与已批准目标不一致，保留 proposal `applying` 并返回 `PARTIAL/UNKNOWN`，不误标为 `applied`，避免无法核对写入身份时继续自动推进状态。
+- `github_move` 除了校验 source/target 路径和 tree API 返回的每个条目外，还拒绝同仓库、同分支、同路径的移动，避免目标覆盖唯一源文件后又把源删除。
+- `validateRepoRelativePath()` 拒绝首尾空白与空白路径段；隔离 Mock 覆盖新增边界。**这些改动的 E1/E2 尚待 Operit 对最新 `origin/dev` 一次性验证；历史通过结果不覆盖本批。** 仅 dev；无真实 endpoint、proposal、DB/RPC/DDL；未改 schema/registry/聊天室，不部署、不推或合并 main。
+
 ## [docs-2026.10.16] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：GitHub 路径与 Patch Engine 输入边界收敛
