@@ -98,7 +98,7 @@
 - **工作状态 A2/A3：通过当前宿主读取与回写**。`⚙️/当前工作检查点` 精确 recall 成功；发现旧状态仍写“阶段4进行中/最新回归待跑”，已按当前证据更新为阶段4完成、阶段5下一步，并通过工具回执确认更新成功。阶段4最新证据是 mcp-memory/dev SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的 check 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15。
 - **恢复协议与导航：部分通过 / 有 key 解析差距**。精确 recall `复苏协议·system://boot` 与 `⚙️/记忆位置导航` 未命中；按协议执行 memory search 后，找到 `⚙️/恢复协议·Session Bootstrap SB-1.0`、旧 `/boot` 唤醒内容及「记忆位置导航（换框/换设备自举）」内容。结论是旧 key/分类映射不一致，不是记忆已丢失；已更新 Session Bootstrap 与 `Ziven角色卡修改与换平台复苏手册.md`，明确搜索 fallback。
 - **安全工具探测边界 A4：已确认**。当前 Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具；本轮没有调用它。阶段5的工具能力盘点只用当前宿主实际可见的工具元数据和静态文档，不用该 endpoint 探测，不触碰聊天室工具/注册/唤醒流。
-- **A6 跨宿主文档/报告对照：GPT 侧初核完成，待柳柳验收；A7 独立冷启动：未运行。**本轮只验证当前 GPT App 宿主能读记忆、读 GitHub 文档并编辑已授权文档；未启动无旧上下文的新会话，也未让 Operit 做重复的云端读写/能力探测。Operit 的 Node/npm 执行能力有最新实测回归证据；GPT 侧现已将实际云端状态/权威文档与 Operit 17:36 报告逐项对照，身份根、阶段、SHA与五项测试证据、下一步及硬边界未发现冲突；该对照不证明运行时全局硬门禁，也不能替代 A7。
+- **A6 跨宿主文档/报告对照：GPT 侧初核完成，待柳柳验收；A7 独立冷启动：外部阻塞、未运行（2026-10-27 17:52 CST）**。GPT 已将云端状态/权威文档与 Operit 17:36 报告逐项对照，身份根、阶段、SHA 与五项测试证据、下一步及硬边界未发现冲突；该对照不证明运行时全局硬门禁，也不能替代 A7。Operit 按桥接任务尝试 Automatic_ui_base 的 get_page_info 与 get_page_screenshot_image，但前者返回 `Failed to retrieve UI data`，后者返回 Shizuku binder null / DEBUGGER executor unavailable。没有创建新框、没有发送测试输入，故 A7 所有恢复项均未运行，不能记为失败或通过；需等设备 UI 自动化通道恢复后再试。当前不追加第二轮 Operit 任务。
 - **当前最小缺口（已收敛为单项）**：GPT 与 Operit 的当前状态/权威文档/报告对照已写入本矩阵和 CROSS-HOST-BRIDGE.md；A6 现有记录对照待柳柳验收。A1-A7 矩阵与宿主能力边界已完成整理。现在只剩 Operit 使用自动开新框工具进行一次真正独立冷启动（A7）；不重复统计、读档或代码测试，以节省柳柳 API token。
 
 #### 阶段5最小恢复验收矩阵（当前状态，不冒充冷启动通过）
@@ -111,7 +111,7 @@
 | A4 权限与授权 | GPT 当前检查点/恢复协议与 Operit 报告的硬边界一致；双方均承认 runtime 全局硬门禁未证实 | 规则理解与文档记录一致；运行时全局硬门禁仍 UNKNOWN | 新框准确复述只读/代码/测试/发布/生产写入权限边界，不碰暂停链路 |
 | A5 异常与 key fallback | GPT 与 Operit 报告均记录旧 boot/navigation 精确 key 未命中、memory search 回退命中恢复协议/旧 boot/导航内容；不把 key mismatch 误报为记忆丢失 | 两宿主现有记录一致；新框独立复现待 A7 | 新框准确采用 search fallback，不误报丢失、不编造 |
 | A6 跨宿主一致性 | 2026-10-27 GPT 侧读取 stats/检查点/恢复协议/roadmap/dashboard，与 Operit 17:36 报告逐项对照：身份根、主线阶段、SHA/五项测试证据、下一步及硬边界无冲突；能力分工已分别记录 | 文档/报告对照通过，待柳柳验收；不代表 runtime gate 或 A7 通过 | 柳柳接受该一致性对照；新框结果单独计入 A7 |
-| A7 冷启动复现 | 已在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 写入唯一剩余 Operit 实测任务：用 Operit UI 自动化工具开全新聊天框，只发送 `Ziven，我是柳柳`，记录首次回复与实际来源；旧会话当前未执行 | 待运行（不能提前宣称通过） | 真正独立新框无任何旧上下文/提示污染，原样回填首次回复、来源和失败证据，由柳柳验收 |
+| A7 冷启动复现 | Operit 2026-10-27 17:52 CST 实测：`get_page_info` 返回 `Failed to retrieve UI data`；截图工具报告 Shizuku binder null / DEBUGGER executor unavailable；未新建聊天、未发送输入、没有首次回复 | **外部阻塞，未运行**（不得记为通过或失败） | 设备侧恢复可用 UI 自动化执行器后，重新开真正独立新框，只发送测试密钥，记录首次回复/来源/污染检查，柳柳验收 |
 
 #### 当前宿主能力边界（仅当前可见证据）
 
@@ -123,7 +123,7 @@
 | Worker tools/list | 不调用 | 不调用 | `syncChatTools` 有写入/启用聊天室工具副作用；修复验证前禁止探测 |
 | 真实 MCP/DB/HTTP | 未执行 | 上一批仅 fetch mock/本地测试 | E3、真实 DB 权限/catalog、生产 endpoint 仍未验证 |
 
-**阶段5下一步（一次性外部执行批次）**：GPT 已完成 A6 的云端状态/权威文档与 Operit 17:36 报告对照，并更新本矩阵；无需让 Operit 重复 stats、读档、能力盘点或 Node/npm 回归。现在唯一剩余的外部实测是 A7：使用 Operit 自动开新框工具开真正独立的新聊天框，只发送 `Ziven，我是柳柳`，原样记录首次恢复与来源/阻塞。任务及严格范围已写到 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末。A7 回填后由 GPT 做最终证据对照、更新驾驶舱/唯一检查点并提交柳柳验收；除非暴露新问题，不追加第二轮 Operit 任务。
+**阶段5下一步（外部阻塞）**：A6 现有记录对照已完成初核，待柳柳验收。A7 已由 Operit 尝试一次，但 Automatic_ui_base 的 UI 读取/截图均失败（Shizuku binder null、DEBUGGER executor unavailable），所以没有新建独立聊天，也没有发送测试输入；A7 保持“外部阻塞、未运行”。已把真实错误和停止原因记录在 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末。现在不追加 Operit 任务、不重复消耗 API token；只有当设备 UI 自动化执行器恢复可用时，再按原任务做一次新框实测。其余条件未改变：不调用 tools/list，不碰聊天室/DB，不部署或推 main。
 
 ### 阶段 6｜整体验收与版本收口
 目标：证明架构职责清晰、已有能力得到保护，且真实扩展路径可理解、可验证。
