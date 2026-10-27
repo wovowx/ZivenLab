@@ -99,7 +99,7 @@
 - **恢复协议与导航：部分通过 / 有 key 解析差距**。精确 recall `复苏协议·system://boot` 与 `⚙️/记忆位置导航` 未命中；按协议执行 memory search 后，找到 `⚙️/恢复协议·Session Bootstrap SB-1.0`、旧 `/boot` 唤醒内容及「记忆位置导航（换框/换设备自举）」内容。结论是旧 key/分类映射不一致，不是记忆已丢失；已更新 Session Bootstrap 与 `Ziven角色卡修改与换平台复苏手册.md`，明确搜索 fallback。
 - **安全工具探测边界 A4：已确认**。当前 Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具；本轮没有调用它。阶段5的工具能力盘点只用当前宿主实际可见的工具元数据和静态文档，不用该 endpoint 探测，不触碰聊天室工具/注册/唤醒流。
 - **A6 跨宿主文档/报告对照：GPT 侧初核完成，待柳柳验收；A7 独立冷启动：外部阻塞、未运行（2026-10-27 17:52 CST）**。GPT 已将云端状态/权威文档与 Operit 17:36 报告逐项对照，身份根、阶段、SHA 与五项测试证据、下一步及硬边界未发现冲突；该对照不证明运行时全局硬门禁，也不能替代 A7。Operit 按桥接任务尝试 Automatic_ui_base 的 get_page_info 与 get_page_screenshot_image，但前者返回 `Failed to retrieve UI data`，后者返回 Shizuku binder null / DEBUGGER executor unavailable。没有创建新框、没有发送测试输入，故 A7 所有恢复项均未运行，不能记为失败或通过；需等设备 UI 自动化通道恢复后再试。当前不追加第二轮 Operit 任务。
-- **当前最小缺口（已收敛为单项）**：GPT 与 Operit 的当前状态/权威文档/报告对照已写入本矩阵和 CROSS-HOST-BRIDGE.md；A6 现有记录对照待柳柳验收。A1-A7 矩阵与宿主能力边界已完成整理。现在只剩 Operit 使用自动开新框工具进行一次真正独立冷启动（A7）；不重复统计、读档或代码测试，以节省柳柳 API token。
+- **当前最小缺口（设备侧外部阻塞）**：GPT 与 Operit 的当前状态/权威文档/报告对照已写入本矩阵和 CROSS-HOST-BRIDGE.md；A6 现有记录对照待柳柳验收。A1-A7 矩阵与宿主能力边界已整理完成。A7 的一次性任务已经尝试，但设备 UI 自动化通道因 Shizuku binder null / DEBUGGER executor unavailable 无法运行；现在不继续消耗 Operit token。只有设备侧恢复 UI 执行器后，才重试真正独立冷启动；未运行不等于失败或通过。
 
 #### 阶段5最小恢复验收矩阵（当前状态，不冒充冷启动通过）
 
