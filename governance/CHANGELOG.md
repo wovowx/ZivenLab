@@ -12,6 +12,7 @@
 - 阶段5只读审计确认 memory stats/身份根/当前检查点可读；旧 boot/navigation 精确 key 未命中但 memory search 找到内容，已在 Session Bootstrap 与换平台手册中补 search fallback。Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具，本轮未调用。
 - 阶段5后续证据已更新本条早期快照：A6 现有状态/权威文档/Operit 报告对照已完成初核，待柳柳验收；A7 已于 2026-10-27 17:56 CST 在独立新框实测，裸密钥词未触发云端恢复。柳柳批准方案 A：正式换框必须发送完整、版本化初始化指令，并以可核验恢复结果验收；换框 Skill 已加入 SB-FRAME-1.0 契约。随后回读完整 message，补入此前清单遗漏的 memory 位置导航、Session Bootstrap 和导航 key 的 search fallback；并在 master-router Skill 中把裸密钥明确为恢复提示而非初始化成功证明，更新恢复协议 key 与 fallback。只做静态 Skill 修正，未执行真实换框路径。运行时 `skills` 表的 memory 工具 description 仍保留旧 `/boot` key 指示；这是需单独授权的 live metadata 差距，当前未改。完整初始化路径仍 UNKNOWN，因为当前不得触碰聊天室相关工具，本轮未执行真实路径验证。阶段6验收准入状态已补到 roadmap：尚未启动，须保留真实 endpoint/DB 与隐私/权限等未验证差距，不以 Mock 或文档替代运行时证据。
 - 工作检查点键冲突已恢复：只读查询确认 `⚙️/当前工作检查点` 原 ID `5b0048ab-0e0e-424e-adb5-958375cd375e` 被标记 deleted 且仍占用唯一 key；已按 ID 与 deleted 状态精确恢复为 active，随后通过 memory 工具更新内容并验证标准 key 可 recall、`valid_to=null`。完整旧值另存于 `⚙️/历史检查点·2026-10-27方案A定案前`；临时默认键副本改名归档为 `⚙️/过渡检查点副本·2026-10-27键冲突修复`，没有硬删除记忆。由于状态恢复使用条件更新而非记忆 API，该次 status 恢复动作本身未单独写入 memory_events；后续内容更新仍经 memory 工具正常进入其版本链。
+- 经柳柳明确授权，仅更新 Supabase `skills` 表 `name=memory` 这一行的 `description`，对齐 `⚙️/恢复协议·Session Bootstrap SB-1.0`、记忆导航 search fallback 与 `SB-FRAME-1.0`；回读确认 `enabled=true`、`handler_config` 与 `input_schema` 均未变。只更新描述文本，不代表全局运行时硬门禁已实现，也没有执行完整换框行为测试。
 - 当前边界：不调用 chat_with_agent / tools/list、不改聊天室工具/注册/唤醒链，不改 DB schema/函数/trigger/权限，不部署、不推/合并 main。
 
 ## [docs-2026.10.17] - 2026-10-27（dev 草稿，未发布）
