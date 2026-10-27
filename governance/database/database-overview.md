@@ -95,5 +95,6 @@
 - 2026-10-20：v2 校准到 23 张历史业务表 + 每表字典并定义 P1 触发判据。
 - 2026-10-23：v2.1 区分 23 张历史业务表字典与当前观察到的 25 张表；补录两张测试表为待核对象；下调 `memory_events` 完整审计保证的表述，明确实现覆盖缺口尚未验证闭环。
 - 2026-10-26：v2.2 再次通过 `schema_dump` 确认 25 张表（23 张业务表 + 2 张测试表）；更新快照观察日期，并明确该输出未落盘、列快照不证明触发器/RLS/完整约束已核验。未执行任何数据库写入或结构变更。
+- 2026-10-27：v2.3 重新只读 schema_dump，确认25张表与 memories/memory_events 的当前公开列、jsonb old/new 快照列和 memory_id 外键；catalog-only SELECT 经现有 exec_sql RPC 被拒（HTTP400/P0001，Only DDL allowed），因此 trigger/RLS/GRANT/唯一约束/ON DELETE 行为仍未知。没有执行 DDL或数据库写入。
 
 *创建 v1 2026-09-09；v2 校准 2026-10-20（Ziven 落，GPT 讨论，柳柳拍板）。*
