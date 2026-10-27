@@ -4,6 +4,13 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.11] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：工具 schema 与 handler 必填契约静态审计
+- 已确认 `cf_proxy` 无 skills 注册项且不由 `tools/list` 公布，但 Router 的 handlerMap/直接分派路径将它认作已知名称，缺 schema 时兼容放行；其 `CF_PROXY_TOOL_DEF.required=['endpoint']` 未接入 Router，空 arguments 可进入环境变量名列表模式。只读登记，不调用工具或 CF endpoint。
+- 对照已启用的 `delete_branch` 与 `increment_usage`：注册 schema 均未声明 required；delete_branch 实际要求 `name || branch`，但 schema 仅声明 name；increment_usage 实际要求 name。Router 不会从 handler 推断必填参数，缺参调用会进入 handler 后返回错误；当前静态证据未显示该缺参路径执行目标写入。
+- 仅同步文档，不改 Worker 源码、注册表、数据库、聊天室工具、部署或 main。
+
 ## [docs-2026.10.10] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：cf_proxy 路由与 schema 静态证据校正
