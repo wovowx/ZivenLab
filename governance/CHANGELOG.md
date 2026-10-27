@@ -4,7 +4,13 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
-## [docs-2026.10.5] - 2026-10-27（dev 草稿，未发布）
+## [docs-2026.10.6] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段 4：search_history 辅助路径防退化（dev，等待新增测试运行）
+- 静态核查 `src/utils/search.js` 发现：`recordSearchKeyword` 未检查 GET 的 HTTP 状态，GET 404/500 后可能被当作空历史继续 POST；`getSearchSuggestions` 未检查非 2xx，可能把错误状态下的数组当作建议。此前已知 `search_history` 表未出现在 schema 快照，因此不建表、不改数据库。
+- 已在 dev 做最小修复：`recordSearchKeyword` 只在 GET `resp.ok` 且 JSON 是数组时继续 PATCH/POST；`getSearchSuggestions` 在非 2xx 或非数组 JSON 时返回空列表，网络/JSON异常仍被隔离。空值/非字符串关键词也直接忽略。
+- 新增 `tests/search_history_contract_test.mjs`，静态共20个 `check(...)` 调用点，全部使用 `globalThis.fetch` mock。覆盖空白/空值关键词、规范化与 GET→PATCH/POST、404/500不续写、网络/JSON失败、写请求非2xx、建议 prefix/limit/错误响应。该测试和源码修复是最后一次 44/44 验证之后新增，**当前最新版尚未运行（NOT RE-RUN）**。
+- 下一次需要本地 Node 证据时，把 `npm run check`、既有 webhook 104项、Router 44项、新增 search_history 20项合并为一次 Operit 批次；避免重复消耗柳柳的 API token。未建 `search_history` 表、未调用 DDL、未写数据库；未部署、未推/合并 main。
 
 ### 阶段 4 补充：create_patch_proposal schema / usage_count 收敛（dev，隔离回归已通过）
 - 静态审计确认 `create_patch_proposal` 注册项仍为 `input_schema=null`，且 Router 专用分支原先提前 return，绕过通用 `toolOk/autoIncrementUsage`。已在 `mcp_router.js` 定义共享 schema（required: `target_file`、`change_summary`、`reason`），同时用于 tools/list 与 dispatchGuard；专用 handler 改为执行后进入统一成功判定与 usage 打点。
