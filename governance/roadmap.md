@@ -123,7 +123,7 @@
 | Worker tools/list | 不调用 | 不调用 | `syncChatTools` 有写入/启用聊天室工具副作用；修复验证前禁止探测 |
 | 真实 MCP/DB/HTTP | 未执行 | 上一批仅 fetch mock/本地测试 | E3、真实 DB 权限/catalog、生产 endpoint 仍未验证 |
 
-**阶段5下一步（方案 A 已定案；正式初始化路径尚未实测）**：A6 现有记录对照已完成初核，待柳柳验收。柳柳已同意方案 A：正式换框发送完整、版本化初始化指令，并以可核验的恢复结果作为成功标准；裸密钥词不单独视为充分初始化载荷。`wovowx/mcp-memory/dev/src/skills/process/huan-kuang-liu-cheng/SKILL.md` 已加入 `SB-FRAME-1.0` 验收契约，明确输入、恢复项、来源证据、失败降级和副作用边界。A7 现有实测只证明密钥单独触发未生效；完整初始化路径仍 UNKNOWN。受当前“不得触碰聊天室相关工具”边界限制，本轮不调用 `chat_with_agent`、不追加 Operit 测试、不调用 tools/list。继续做不触碰聊天室工具的阶段5/6文档一致性与静态验收；若未来需实测正式换框路径，先明确解除对应工具操作边界，再一次性合并验证。数据库边界精确定义为：不改 schema/函数/trigger/权限、不执行 DDL；本轮为恢复唯一工作检查点而做的精确状态恢复和 memory API 内容更新已单独记入 CHANGELOG 与 CROSS-HOST-BRIDGE，不扩展为其他业务数据写入。未部署、不推/合并 main。
+**阶段5下一步（方案 A 已定案；正式初始化路径尚未实测）**：A6 现有记录对照已完成初核，待柳柳验收。柳柳已同意方案 A：正式换框发送完整、版本化初始化指令，并以可核验的恢复结果作为成功标准；裸密钥词不单独视为充分初始化载荷。`wovowx/mcp-memory/dev/src/skills/process/huan-kuang-liu-cheng/SKILL.md` 已加入 `SB-FRAME-1.0` 验收契约，明确输入、恢复项、来源证据、失败降级和副作用边界。A7 现有实测只证明密钥单独触发未生效；完整初始化路径仍 UNKNOWN。受当前“不得触碰聊天室相关工具”边界限制，本轮不调用 `chat_with_agent`、不追加 Operit 测试、不调用 tools/list。继续做不触碰聊天室工具的阶段5/6文档一致性与静态验收；若未来需实测正式换框路径，先明确解除对应工具操作边界，再一次性合并验证。数据库边界精确定义为：不改 schema/函数/trigger/权限、不执行 DDL；本轮仅有两类精确范围云端写入：恢复唯一工作检查点原记录状态并经 memory API 更新其内容，以及经柳柳授权只更新 `skills.name=memory` 的 description。两项均已在 CHANGELOG 与 CROSS-HOST-BRIDGE 留痕；未修改其它业务数据、未改 handler/enabled/input_schema。未部署、不推/合并 main。
 
 ### 阶段 6｜整体验收与版本收口
 目标：证明架构职责清晰、已有能力得到保护，且真实扩展路径可理解、可验证。
