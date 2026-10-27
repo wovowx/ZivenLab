@@ -4,12 +4,20 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.18] - 2026-10-27（dev 草稿，未发布）
+
+### 阶段4收尾与阶段5跨宿主连续性审计启动
+- 阶段4按其范围完成：当前实现/注册/输入契约/兼容候选均已分类，公共重复函数做了最小收敛，遗留运行时、数据库、权限、Pages 隐私风险仍保留为独立差距，不宣称已修复。
+- mcp-memory/dev 精确 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的隔离回归已由 Operit 全绿：check exit 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15；Node v24.18.0/npm 11.16.0，stderr 空。全程 mock/本地；E3 NOT RUN、未部署、main 未变。
+- 阶段5只读审计确认 memory stats/身份根/当前检查点可读；旧 boot/navigation 精确 key 未命中但 memory search 找到内容，已在 Session Bootstrap 与换平台手册中补 search fallback。Worker `tools/list` 会触发 `syncChatTools`，可能写入并启用聊天室工具，本轮未调用。
+- 已建立 A1-A7 最小验收矩阵与 GPT App/Operit 能力边界；A6跨宿主一致性与A7独立冷启动仍未运行。一次性只读验收任务已放在 mcp-memory/dev/CROSS-HOST-BRIDGE.md 文末，待 Operit 回填。所有更改仅 dev 文档/云端检查点；无聊天室工具/注册/唤醒改动，无 DB/schema/权限写入，无部署/main push。
+
 ## [docs-2026.10.17] - 2026-10-27（dev 草稿，未发布）
 
 ### 阶段 4：写入响应确认与文件移动保护
 - Patch Engine 在 GitHub PUT 返回 2xx 后仍要求可验证的 `content.sha`；若响应没有 SHA，或返回的 `content.path` 与已批准目标不一致，保留 proposal `applying` 并返回 `PARTIAL/UNKNOWN`，不误标为 `applied`，避免无法核对写入身份时继续自动推进状态。
 - `github_move` 除了校验 source/target 路径和 tree API 返回的每个条目外，还拒绝同仓库、同分支、同路径的移动，避免目标覆盖唯一源文件后又把源删除。
-- `validateRepoRelativePath()` 拒绝首尾空白与空白路径段；隔离 Mock 覆盖新增边界。**这些改动的 E1/E2 尚待 Operit 对最新 `origin/dev` 一次性验证；历史通过结果不覆盖本批。** 仅 dev；无真实 endpoint、proposal、DB/RPC/DDL；未改 schema/registry/聊天室，不部署、不推或合并 main。
+- `validateRepoRelativePath()` 拒绝首尾空白与空白路径段；隔离 Mock 覆盖新增边界。**该历史状态已由 docs-2026.10.18 记录的最新精确 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 全量回归结果取代**：check exit 0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15。仅 dev；无真实 endpoint、proposal、DB/RPC/DDL；未改 schema/registry/聊天室，不部署、不推或合并 main。
 
 ## [docs-2026.10.16] - 2026-10-27（dev 草稿，未发布）
 
