@@ -67,7 +67,7 @@
 
 另外，静态审查 `src/utils/search.js` 后已在 dev 做最小守门修复：记录关键词时仅在 GET `resp.ok` 且返回数组时才继续 PATCH/POST；建议查询对非2xx与非数组响应返回空列表。新增隔离测试 `tests/search_history_contract_test.mjs`，静态20个断言，覆盖空/空白关键词、GET→PATCH/POST、非2xx不续写、网络/JSON失败、写入非2xx、prefix/limit和建议空态。**这些 search.js 源码与20项测试是 SHA `c4ef218...` 已通过的44项批次之后新增。**GPT 已用本地 Node v22.16.0 对根据当前 dev GitHub readback 重建的隔离副本运行 search_history 测试：20/20、exit 0，两文件字节大小与 readback 报告一致；这是测试文件/源码片段的本地验证，不是完整仓库 worktree/SHA 验证。随后 Operit 已在 detached worktree `/tmp/ops-ev3` 对完整仓库 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 一次性运行整套回归：`npm run check` exit 0、webhook 104/104、Router + DDL parser 69/69、search_history 20/20，stderr 空，worktree clean，原工作树未动。全程 fetch mock；无真实 DB/RPC/DDL或 endpoint 调用，没有部署或 main 变更。若后续改代码，再按实际范围重新安排合并回归。未建表、不删 suggest、不触达数据库、不部署、不推 main。
 
-阶段4职责边界增量（2026-10-27，只读）：已核对 `ai.js`、`storage.js` 与当前 skills 注册项。`ai.js` 目前承担 Agnes 图像/视频、DeepSeek 余额、help、文件 query/update/delete 多种入口；`query_files` 复用 storage.js，update/delete 仍在 ai.js 直接调用 REST。此为低优先级职责边界候选，不足以证明重复实现或要求拆分；不改代码/注册表，保留现有兼容。详见现状架构与差距矩阵 v2.7。
+阶段4职责边界增量（2026-10-27，只读）：已核对 `ai.js`、`storage.js` 与当前 skills 注册项。`ai.js` 目前承担 Agnes 图像/视频、DeepSeek 余额、help、文件 query/update/delete 多种入口；`query_files` 复用 storage.js，update/delete 仍在 ai.js 直接调用 REST。此为低优先级职责边界候选，不足以证明重复实现或要求拆分；不改代码/注册表，保留现有兼容。详见现状架构与差距矩阵 v2.8。
 
 阶段4入口契约增量（2026-10-27，只读）：进一步沿 `dispatchGuard` → `isKnownTool` → `handlerMap` → `tools/call` 分派追踪 `cf_proxy`。虽然 skills 注册表无记录、`CF_PROXY_TOOL_DEF` 未被 Router 导入，因此不会由注册表出现在 `tools/list`，但 handlerMap 直接将它认作已知名称；schema 缺失时 Router 按兼容策略放行，随后进入 `handleCfProxyTool`。因此代码路径可直接按名称调用，且 `CF_PROXY_TOOL_DEF.required=['endpoint']` 当前没有被 Router 强制执行；空 arguments 会进入其环境变量名列表模式。外部宿主是否允许手动调用仍未知。仅修正静态证据描述，不调用工具/CF endpoint，不改代码、注册表或配置。
 
