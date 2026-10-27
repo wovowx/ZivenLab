@@ -1,9 +1,9 @@
-# Memory 域数据模型 · v1.5 · 2026-10-27（生命周期、并发、写入口与 schema_dump 静态复核）
+# Memory 域数据模型 · v1.6 · 2026-10-27（生命周期、并发、写入口与 catalog 可观测性复核）
 
 > 记忆系统：Agent 的长期记忆 + 文件存储。
 > 语义：记忆是 key-value + 分类的语义条目，文件是媒体/文档的元数据表。
 >
-> **现状边界（2026-10-27）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前公开 OpenAPI 列快照已在 2026-10-27 重新读取并写入 `governance/database/database-overview.md` v2.3：memories 当前列集中包含 version/status/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 有 jsonb old_value/new_value 列及 memory_id 外键。此快照不提供触发器、RLS、GRANT、外键 ON DELETE 行为、唯一约束和函数权限。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
+> **现状边界（2026-10-27）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前公开 OpenAPI 列快照已在 2026-10-27 重新读取并写入 `governance/database/database-overview.md` v2.3：memories 当前列集中包含 version/status/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 有 jsonb old_value/new_value 列及 memory_id 外键。此快照不提供触发器、RLS、GRANT、外键 ON DELETE 行为、唯一约束和函数权限。进一步尝试经 `supabase_db` REST query 读取 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 均返回 HTTP404/PGRST205（未在当前 public PostgREST schema cache 暴露）；经 `exec_sql` 做 catalog-only SELECT 也被 P0001 拒绝。已检查的 `mcp-memory/dev/migrations` 当前只有聊天室 `claimed_at` 迁移，未发现 memory_events trigger/function migration；这仅说明当前检查范围缺少这类源码/迁移证据，不能据此断言真实数据库里不存在触发器。当前可见 MCP 没有独立只读 catalog 查询工具。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
 
 ## 表清单
 
@@ -82,4 +82,5 @@
 - 2026-10-27：v1.3 补充证据：更新 PATCH 只按 id 过滤，未按 oldVersion 做 compare-and-swap；并发更新可能覆盖并产生重复的 resulting version。此处仅为源码静态结论，不是并发行为测试。
 - 2026-10-27：v1.4 补全写入口审计：data.js import 复用 putMemory；category.js legacy move_category 与通用 supabase_db/exec 可能绕开 memory_unified 事件写入；当前 registry/实际 DB 权限决定其真实可达性仍需核实。已在记忆表设计 v1.5 形成事务一致性规格提案；无 Worker/DB/schema 写入。
 - 2026-10-27：v1.5 重新读取公开 OpenAPI schema_dump 并补充 database-overview v2.3：确认当前 memories 与 memory_events 列类型/FK片段，未确认 trigger/RLS/GRANT/唯一约束/删除行为；没有执行数据库写入或真实 SQL/DDL。
+- 2026-10-27：v1.6 排查现有只读查询通路：exec_sql 拒绝 catalog-only SELECT；PostgREST query 对 information_schema.triggers、pg_catalog.pg_trigger、pg_indexes 均返回 PGRST205；已检查的 migration 目录没有 memory_events trigger/function migration。没有数据库写入、DDL 或代码改动；需要另一个获准的只读数据库通道，才能证实真实 trigger/RLS/GRANT/约束状态。
 - 2026-09-09：v1（2026-09-09 实测）
