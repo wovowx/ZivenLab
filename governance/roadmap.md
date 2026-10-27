@@ -84,11 +84,11 @@
 工作：分层执行静态检查、行为回归、跨宿主冷启动和真实 MCP/HTTP endpoint 验证；复核共享能力是否重复建设、扩展是否依赖无关模块改动、兼容路径是否有证据；核对 Pages 发布范围与隐私风险；整理未关闭差距和回滚说明。
 验收：测试证据可复核；复用性、扩展瓶颈、兼容风险及未验证项有明确状态；发布候选范围清楚。推 main 前须报告版本/范围/验证/回滚并得到柳柳明确同意；回滚未演练不得写成已演练。
 
-**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count 误计与 DDL necessity gate 最小修复均已写入 `mcp-memory/dev`；DDL 版本的隔离 Mock 曾由 Operit 在精确 SHA `2833a94e08c23b45a0598256a486463ee5d4cf6e` 通过37/37。之后又修复 `create_patch_proposal` 的公开必填 schema 与专用路由提前 return 导致的 usage_count 漏记；并把通用 DDL 关键词 gate 补入 `IMPORT`、`SECURITY`，新增 `IMPORT FOREIGN SCHEMA` 与 `SECURITY LABEL` 两条隔离拒绝断言。当前 Mock 共44个 `check(...)` 调用点。**这44项合并后的最新版本尚未重跑（NOT RE-RUN）**；桥接文档末尾已更新为一次性隔离验证任务，不能沿用旧37/37作为最新版的通过证据。真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main；接下来按矩阵继续文档/职责收敛与验证。
+**当前停点：阶段 1–3 已完成；阶段 4 仍进行中。** usage_count、DDL necessity gate 与 create_patch_proposal schema/usage_count 修复均在 `mcp-memory/dev`，合并后的44项 Router Mock 已由 Operit 在 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 真实运行通过（44/44）；同一 SHA 的 `npm run check` exit 0、webhook 104/104。随后新增 search_history 守门与20项 Mock；GPT 在本地 Node v22.16.0 对从 GitHub readback 重建的隔离副本跑出20/20、exit 0，但这不是完整仓库 worktree/SHA 回归；search.js 修改后的 E1/E2/Router44尚未重新运行。考虑到仅新增一项小型辅助模块测试且已通过本地逻辑验证，为节省 Operit API token，桥接回归任务暂缓；后续若再改代码，再合并完整回归。静态审计还标记记忆生命周期事件缺口、serverInfo/package版本语义差异、data/category未注册legacy候选，均按差距矩阵继续；真实 E3 endpoint 与线上行为未验证。当前未部署、未推/合并 main。
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
-- `search_history` 底层记录/建议查询失败路径（`recordSearchKeyword`、prefix/limit、网络/JSON/写请求失败）、记忆迁移事件审计、工具注册/schema/handler 一致性（含 `create_patch_proposal` 的 schema 缺失与专门路由分支）、usage_count 计数覆盖、权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在差距矩阵。现有 suggest 输出断言已经覆盖空数组、正常列表、404/500 JSON 错误对象；不再把旧的 suggest 空态静态问题当作当前缺陷。usage_count 误计已在 dev 修复，隔离 Mock 文件已进入 dev；Operit 报告 16/16，随后已补入一条 registered-handler failure 断言，当前远端脚本静态计数为16；与 Operit原始16/16回报数字相符，但新版本尚未重跑，状态仍为NOT RE-RUN。真实 E3 endpoint 未执行，不将 Mock 报告等同于线上验证。
+- `search_history` 辅助路径现在有最小非2xx/形状守门，并新增20项隔离 Mock；GPT-local readback 重建副本20/20，但完整仓库 E1/E2/Router44 尚未在 search.js 修改后重跑，按 token 成本暂缓单独委派。记忆生命周期事件审计已确认 create/soft-delete/rename/move 事件与 source→target 关联缺口、update event 缺 new_value 且 version 语义冲突；详见 P1 数据安全。`create_patch_proposal` 的专用 schema/usage_count 修复与 DDL gate 最新44/44已由 Operit 在 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 回归通过。`serverInfo.version` 与 `package.json` 版本不同，语义待定义；`data.js` / `category.js` 无当前 skills 注册命中，作为 legacy 候选保留。权限守卫接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍保留在矩阵。真实 E3 endpoint 未执行，不将隔离 Mock 等同于线上验证。
 - `v6.35.0` 已发布并部署 VERIFIED；该版本是可靠性基线，不代表整体架构升级完成。下一次 main 发布须先说明版本、范围和证据，并取得柳柳明确同意。
 - 本路线图控制当前行动顺序；历史 P0/P1/P2 清单仅为历史路线/待办参考，不自动成为活跃任务。
 ---
