@@ -4,6 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.30] - 2026-10-28（dev 草稿，未发布）
+
+### Pages 保留决策与最小发布范围准备
+- 柳柳已明确决定保留 GitHub Pages。
+- `mcp-memory/dev/.github/workflows/pages.yml` 已准备为 main push 触发、最小权限、并发取消、`configure-pages@v5` 与 `upload-pages-artifact@v5` / `deploy-pages@v5`；runner 仅生成 `_site/index.html` 与 `_site/memory-universe.html` 并上传白名单目录，避免发布整个仓库。
+- `src/public/memory-universe.html` 中原硬编码个人记忆样例已换成合成演示数据并加 `noindex,nofollow`；没有改动任何真实云端/数据库记忆。
+- mcp-memory/dev 最新 HEAD `8306a42c10a0d686bfd79371367f203044fc1958` 的完整自动 E1/E2 run `40659261645` SUCCESS；Pages workflow 修改对应 run `40659233295` 也 SUCCESS。该 CI 仅验证主代码静态/Mock 回归，不代表 Pages 部署成功。
+- Pages settings 当前不可读，repo metadata `has_pages=false`，main 仍保留旧 workflow，未改 main、未部署。下一步是完成 dev 证据与发布/回滚清单；发布到 main 前须先向柳柳说明版本、范围、验证、风险与回滚并取得明确同意。
+
 ## [docs-2026.10.29] - 2026-10-28（dev 草稿，未发布）
 
 ### CI 自动回归闭环已修复并验证
