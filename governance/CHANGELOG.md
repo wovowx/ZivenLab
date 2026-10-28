@@ -9,6 +9,7 @@
 ### Pages workflow 持续故障范围扩大（只读审计）
 - 对 main 上最近两页 Actions runs 分页结果核对：最近连续 289 条 `Deploy to GitHub Pages` workflow run（2026-08-27 至 2026-10-26）全部 failure。抽查 2026-08-27 的 run `33092479438`、2026-09-10 的 run `34448495645` 以及 2026-10-25/26 的 runs `40163294520`、`40276421501`，均在 setup 阶段因依赖链使用已弃用的 `actions/upload-artifact@v3` 被自动终止，未进入部署步骤。
 - GitHub 官方迁移说明要求使用 `actions/upload-pages-artifact@v3` 与 `actions/deploy-pages@v4`：https://github.blog/changelog/2024-12-05-deprecation-notice-github-pages-actions-to-require-artifacts-actions-v4-on-github-com/ 。当前未改 workflow、未 rerun、未部署。
+- CI required-check 配置只读核查：`GET /repos/wovowx/mcp-memory/rulesets` 返回空数组；dev/main branch protection 查询均返回 403 `Resource not accessible by integration`。因此当前不能确认 GitHub 是否配置了 required status checks，记录为连接器权限可见性限制，不把“未读取到”误写成“未配置”。
 - 重要前置风险：现有 `pages.yml` 使用 `path: .`，会将整个仓库根目录打包；`src/public/memory-universe.html` 内含硬编码个人记忆样例。只读 GitHub repo metadata 返回 `private=false`、`has_pages=false`、`homepage=null`；main 根目录无 `CNAME`/`index.html`，Pages settings 专用 endpoint 当前连接器无法读取。证据指向 Pages 当前未启用或 workflow 已过时，但旧 URL 可访问性仍未证实。`mcp-memory/dev/README.md` 原“私有仓库”表述已更正，因为仓库当前是 public；公开仓库中已提交的记忆样例本身就能从源码读取。修复前需先确认 Pages 是否仍需要、明确最小发布目录并完成隐私审查，不能只升级 action 后直接恢复全仓库发布。
 - 同步驾驶舱 version92、差距矩阵 v4.4、导航表 v3.35、资产整理计划 v3.18、roadmap 与唯一桥接入口。只读核查和治理文档更新；未改源码/DB/schema/注册表/聊天室链路，不触发 workflow、不派 Operit、不部署、不推/合并 main。
 
