@@ -7,7 +7,7 @@
 ## [docs-2026.10.20] - 2026-10-28（dev 草稿，未发布）
 
 ### 阶段5文档一致性校准（只读证据对齐，不新增运行时结论）
-- 校正 `governance/真相源导航表.md` 至 v3.18：同步驾驶舱 version74，并更新 Schema Policy v1.9、资产整理计划 v3.13 的当前版本指针。
+- 校正 `governance/真相源导航表.md` 至 v3.19：同步驾驶舱 version75，并更新 Schema Policy v1.9、资产整理计划 v3.13 的当前版本指针。
 - `governance/database/schema-policy.md` 升至 v1.9：将 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的最新完整隔离回归与较早 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的历史回归分开表述；真实 RPC/endpoint/DB 权限/DDL 仍未验收。
 - `governance/资产盘点与整理升级计划.md` 升至 v3.13：修正 A6/A7 状态，A6 现有记录对照待柳柳验收；A7 裸密钥独立新框实测未触发恢复，完整 SB-FRAME-1.0 路径仍 UNKNOWN。
 - 本次仅改 ZivenLab/dev 治理文档；未改 mcp-memory 源码、记忆内容、数据库、注册表、聊天室工具或配置；未运行测试、未部署、不推/合并 main。
