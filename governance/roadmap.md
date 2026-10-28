@@ -11,6 +11,8 @@
 
 **当前唯一主线：把 Ziven 整体架构真正整理成「一本好书」——目录清楚、职责边界明确、权威来源唯一、实现与证据可追踪。** 代码复用、职责清晰和面向真实需求的可扩展性是贯穿全部阶段的硬性要求；不新增无关功能，不把零散修补当作整体升级。
 
+> **A6 状态校正（2026-10-28）**：GPT 侧已完成现有权威记录、桥接回填与阶段状态的静态一致性对照；这只能证明“当前可见记录未发现冲突”，不能算跨宿主行为验收，也不应要求柳柳替我们批准技术结论。A6 的运行时/冷启动验收尚未执行，保持 **NOT VERIFIED / 未验收**。阶段5继续静态审计；阶段6仍未启动。若完整行为验证涉及冻结的聊天室/唤醒工具或真实 endpoint，先遵守授权边界，不擅自调用。
+
 ### 最近完成：第一阶段——现状基线与权威来源对齐（2026-10-26）
 
 - `wovowx/mcp-memory`：已发布基线 main HEAD `71f6a03ebc81`、Cloudflare deployment `c78ab839`，先前 `verify_main=true` 返回 `VERIFIED`。阶段1基线只读 compare（2026-10-27）显示当时 dev 相对 main behind 0，12 个文件有差异；这是历史快照，后续文档/代码修改后不代表当前差异数量（ahead commit 数会随每次文档追加持续变化，因此不固定写入治理文档；发布前须重新 compare）：`CROSS-HOST-BRIDGE.md`、`README.md`、`package.json`、`src/modules/mcp_router.js`、`src/modules/patch_engine.js`、`src/modules/release_guard.js`、`src/tools/database.js`、`src/tools/github_v64.js`、`src/utils/helpers.js`、`src/utils/search.js`、新增 `tests/router_registry_contract_test.mjs`、新增 `tests/search_history_contract_test.mjs`。历史完整回归 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的 E1、webhook104/104、Router+DDL parser69/69、search_history20/20 均通过；后续 Patch Engine 基线 SHA `79492f8fbb6124c682c2d9fa04152cafe89715d4` 的 E1 与 contracts82/82 也通过。之后又新增 GitHub 路径守门、Patch Engine 输入校验和 release_guard 精确策略，**最新整套隔离回归已由 Operit 在 origin/dev SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 通过**：`npm run check` exit 0、webhook 104/104、`npm run test:contracts` 122/122、search_history 20/20、release_guard 15/15；Node v24.18.0/npm 11.16.0，detached `/tmp/ops-ev6` clean，原工作树未动，stderr 空。测试全程 mock/本地，不等于真实 MCP/DB/RPC/HTTP endpoint 验证。全部仍只在 dev，未部署/未推 main；发布前必须重新 compare。
