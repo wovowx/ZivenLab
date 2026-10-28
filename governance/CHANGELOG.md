@@ -12,6 +12,7 @@
 - `governance/资产盘点与整理升级计划.md` 升至 v3.13：修正 A6/A7 状态，A6 现有记录对照待柳柳验收；A7 裸密钥独立新框实测未触发恢复，完整 SB-FRAME-1.0 路径仍 UNKNOWN。
 - `governance/架构差距矩阵.md` 升至 v3.5：将 GitHub 路径、release_guard、Patch Engine 先前的 E1/E2 pending 状态校准至最新完整回归 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf`；旧 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 与 `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 保留为历史证据。真实 endpoint/DB/RPC 仍未验收。
 - `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末追加 2026-10-28 现役状态：当前无待 Operit 执行任务，历史交接块不自动构成授权。聊天室/唤醒链与 Worker `tools/list` 继续冻结。
+- 驾驶舱 version77 将旧第4节 M1.2/聊天室行动路线、第5节旧阻塞表标为历史快照，并把第10节错误的 v6.57.2 “当前基线”修正为已只读核验的 v6.35.0 部署基线（main HEAD `71f6a03ebc81`、deployment `c78ab839`、verify_main=VERIFIED）；版本字段语义仍列作未关闭差距。
 - 本次仅修改 ZivenLab/dev 治理文档与 mcp-memory/dev 跨宿主交接文档；未改 Worker 源码、记忆内容、数据库、注册表、聊天室工具或配置；未运行测试、未部署、不推/合并 main。
 
 ## [docs-2026.10.19] - 2026-10-27（dev 草稿，未发布）
