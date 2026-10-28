@@ -9,8 +9,8 @@
 ### CI 执行与结果读取能力盘点
 - 只读核对 `mcp-memory/dev/.github/workflows/learning-regression.yml` 与 `tests/learning/run_learning_tests.py`：现有 workflow 只在学习工件或 workflow 文件变更时触发，校验 `tests/learning/*.json` 的字段、ID 唯一性与状态格式，不运行 `npm run check` 或 Router/HTTP/DB 回归。
 - 当前 GPT 可用的 Ziven MCP 工具暴露 GitHub 文件、分支/PR及 Cloudflare 部署/构建日志操作，但未暴露 GitHub Actions workflow dispatch、run status/list 或 job log 读取能力。Cloudflare build logs 不是 GitHub Actions 测试结果。此次未触发 workflow、未运行测试，因此不宣称 CI 通过或失败。
-- 当前结果：代码测试执行与结果读取闭环在 GPT 宿主侧未证实。下一步只调查是否已有可复用、已授权的 GitHub Actions 只读入口；若没有，则记录为能力阻塞，不新增外部服务/权限、不派 Operit、不启动阶段6。
-- 同步指针：驾驶舱 version89、导航表 v3.33、差距矩阵 v4.1、资产整理计划 v3.16。未改源码、DB/schema、注册表或聊天室链路；未部署、不推/合并 main。
+- 当前结果：代码测试执行与结果读取闭环在 GPT 宿主侧未证实。已找到可用于 CI 调试的 GitHub 连接器，但尚未安装/连接；下一步连接器可用后只读核查 Actions run/status/log 能力。在连接前不假定权限/能力，不新增外部服务/权限、不派 Operit、不启动阶段6。
+- 同步指针：驾驶舱 version90、导航表 v3.34、差距矩阵 v4.2、资产整理计划 v3.17。未改源码、DB/schema、注册表或聊天室链路；未部署、不推/合并 main。
 
 ## [docs-2026.10.25] - 2026-10-28（dev 草稿，未发布）
 
