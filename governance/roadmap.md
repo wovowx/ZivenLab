@@ -129,7 +129,7 @@
 
 #### 阶段5文档一致性收敛（2026-10-28）
 
-- 已校准 `governance/真相源导航表.md` v3.19、`governance/database/schema-policy.md` v1.9、`governance/资产盘点与整理升级计划.md` v3.13、`governance/当前项目状态.md` version75 与 `CHANGELOG.md` 的当前版本指针。
+- 已校准 `governance/真相源导航表.md` v3.20、`governance/架构差距矩阵.md` v3.5、`governance/database/schema-policy.md` v1.9、`governance/资产盘点与整理升级计划.md` v3.13、`governance/当前项目状态.md` version76 与 `CHANGELOG.md` 的当前版本指针；`mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末已追加现役状态，明确当前无 Operit 执行任务。
 - 已将 schema-policy 中 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的回归明确标为历史证据，并指向最新已验证代码基线 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的五项隔离回归；未将文档修改冒充代码回归。
 - 已纠正资产整理计划的 A6/A7 当前状态：A6 对照待柳柳验收；A7 裸密钥独立新框测试未触发恢复；正式 SB-FRAME-1.0 路径仍 UNKNOWN。
 - 本次仅修改 ZivenLab/dev 治理文档；未改 mcp-memory 源码、记忆、数据库、注册表、聊天室工具或配置；未运行测试、未部署、不推/合并 main。
