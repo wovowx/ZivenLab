@@ -16,6 +16,7 @@
 - `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末追加 2026-10-28 现役状态：当前无待 Operit 执行任务，历史交接块不自动构成授权。聊天室/唤醒链与 Worker `tools/list` 继续冻结。
 - 驾驶舱 version77 将旧第4节 M1.2/聊天室行动路线、第5节旧阻塞表标为历史快照，并把第10节错误的 v6.57.2 “当前基线”修正为已只读核验的 v6.35.0 部署基线（main HEAD `71f6a03ebc81`、deployment `c78ab839`、verify_main=VERIFIED）；版本字段语义仍列作未关闭差距。
 - `governance/现状架构.md` 核对日期改为 2026-10-28；将当前阶段统一为阶段1–4完成、阶段5进行中、阶段6未启动；旧 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 回归明确改为历史批次，最新隔离回归基线指向 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf`；对 memory alias、data/category 等留存项明确为未关闭兼容差距，不把阶段4完成误写成这些风险已经消除。
+- 统一阶段边界措辞：当前仍处阶段5静态审计/文档一致性，阶段6仅可整理准入证据清单、尚未启动；已同步 `governance/roadmap.md` 与 `mcp-memory/dev/CROSS-HOST-BRIDGE.md`，驾驶舱更新至 version82，导航表更新至 v3.26。
 - 本次仅修改 ZivenLab/dev 治理文档与 mcp-memory/dev 跨宿主交接文档；未改 Worker 源码、记忆内容、数据库、注册表、聊天室工具或配置；未运行测试、未部署、不推/合并 main。
 
 ## [docs-2026.10.19] - 2026-10-27（dev 草稿，未发布）
