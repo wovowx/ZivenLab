@@ -8,7 +8,7 @@
 
 ### Pages artifact 在 dev 上构建验收通过（不部署）
 - `.github/workflows/pages.yml` 现在在 push 到 `dev` 或 `main` 时都构建并上传最小 `_site/` artifact；只有 `main` 分支会执行 deploy job。这样可在不部署的前提下，提前验证 Pages 页面构建和隐私断言。
-- bridge HEAD `f1b4072f5ceedabdcfa9acf073c7ae28bc1cd141` 的 `learning-regression` run `40660161775` SUCCESS；同 SHA 的 Pages workflow run `40660161759` SUCCESS，`Build and validate Pages artifact` 完成，`Deploy Pages (main only)` 因 dev 分支按设计 skipped。
+- bridge HEAD `7eabe99ee5c043cc837e3606769c60fadc02008d` 的 `learning-regression` run `40660621011` SUCCESS；同 SHA 的 Pages workflow run `40660621137` SUCCESS，`Build and validate Pages artifact` 完成，`Deploy Pages (main only)` 因 dev 分支按设计 skipped。
 - 构建合同检查 artifact 只含 `index.html` 与 `memory-universe.html`，且后者含合成示例标记、不含已知个人样例标记。该验证不证明 GitHub Pages 设置已启用或真实 URL 可访问。
 - 柳柳已确认保留 Pages；main 未改、未部署。正式发布前仍须先报告版本/范围/验证/风险/回滚并取得明确同意。
 
