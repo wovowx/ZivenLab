@@ -7,12 +7,13 @@
 ## [docs-2026.10.20] - 2026-10-28（dev 草稿，未发布）
 
 ### 阶段5文档一致性校准（只读证据对齐，不新增运行时结论）
-- 校正 `governance/真相源导航表.md` 至 v3.21：同步驾驶舱 version77、架构差距矩阵 v3.5，并更新 Schema Policy v1.9、资产整理计划 v3.13 的当前版本指针。驾驶舱旧 M1.2/聊天室行动地图已明确标为历史快照，避免与当前 roadmap 主线冲突。
+- 校正 `governance/真相源导航表.md` 至 v3.22：同步驾驶舱 version78、架构差距矩阵 v3.5、现状架构 2026-10-28 状态，并更新 Schema Policy v1.9、资产整理计划 v3.13 的当前版本指针。驾驶舱旧 M1.2/聊天室行动地图已明确标为历史快照，避免与当前 roadmap 主线冲突。
 - `governance/database/schema-policy.md` 升至 v1.9：将 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的最新完整隔离回归与较早 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的历史回归分开表述；真实 RPC/endpoint/DB 权限/DDL 仍未验收。
 - `governance/资产盘点与整理升级计划.md` 升至 v3.13：修正 A6/A7 状态，A6 现有记录对照待柳柳验收；A7 裸密钥独立新框实测未触发恢复，完整 SB-FRAME-1.0 路径仍 UNKNOWN。
 - `governance/架构差距矩阵.md` 升至 v3.5：将 GitHub 路径、release_guard、Patch Engine 先前的 E1/E2 pending 状态校准至最新完整回归 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf`；旧 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 与 `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 保留为历史证据。真实 endpoint/DB/RPC 仍未验收。
 - `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末追加 2026-10-28 现役状态：当前无待 Operit 执行任务，历史交接块不自动构成授权。聊天室/唤醒链与 Worker `tools/list` 继续冻结。
 - 驾驶舱 version77 将旧第4节 M1.2/聊天室行动路线、第5节旧阻塞表标为历史快照，并把第10节错误的 v6.57.2 “当前基线”修正为已只读核验的 v6.35.0 部署基线（main HEAD `71f6a03ebc81`、deployment `c78ab839`、verify_main=VERIFIED）；版本字段语义仍列作未关闭差距。
+- `governance/现状架构.md` 核对日期改为 2026-10-28；将当前阶段统一为阶段1–4完成、阶段5进行中、阶段6未启动；旧 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 回归明确改为历史批次，最新隔离回归基线指向 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf`；对 memory alias、data/category 等留存项明确为未关闭兼容差距，不把阶段4完成误写成这些风险已经消除。
 - 本次仅修改 ZivenLab/dev 治理文档与 mcp-memory/dev 跨宿主交接文档；未改 Worker 源码、记忆内容、数据库、注册表、聊天室工具或配置；未运行测试、未部署、不推/合并 main。
 
 ## [docs-2026.10.19] - 2026-10-27（dev 草稿，未发布）
