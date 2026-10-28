@@ -7,7 +7,7 @@
 ## [docs-2026.10.27] - 2026-10-28（dev 草稿，未发布）
 
 ### GitHub Actions 现有结果只读核查
-- GitHub 连接器现已可读取 Actions runs/jobs/steps/logs；只读检查未 dispatch/rerun workflow。`mcp-memory/dev` 当前 HEAD=`985c2ef4725ea04b55569a98155fde2e5d7fbccb`；最近一次 `learning-regression` 成功 run `39922942691` 运行于旧 SHA `2c6a00ffc1f94a4a368ac4d91c7d1ef494ec5f2b`，真实 job log 显示 `npm run check` 通过、学习工件 9 项 PASS，但不能覆盖当前 HEAD。
+- GitHub 连接器现已可读取 Actions runs/jobs/steps/logs；只读检查未 dispatch/rerun workflow。`mcp-memory/dev` 在本次只读核查时的 HEAD 快照=`985c2ef4725ea04b55569a98155fde2e5d7fbccb`（之后本轮文档提交会移动 dev HEAD，未对这些文档提交重跑代码回归）；最近一次 `learning-regression` 成功 run `39922942691` 运行于旧 SHA `2c6a00ffc1f94a4a368ac4d91c7d1ef494ec5f2b`，真实 job log 显示 `npm run check` 通过、学习工件 9 项 PASS，但不能覆盖当前 HEAD。
 - 当前 dev workflow 的路径过滤仅对 `tests/learning/**` 或 workflow 文件变更触发；当前 workflow 只运行学习工件 JSON 校验，不是每次提交的主代码回归。因此当前 HEAD 尚无此 workflow 提供的主代码回归结果，需登记为覆盖缺口，不将历史 PASS 当作现状。
 - main 上 Pages workflow runs `40163294520`（2026-10-25）与 `40276421501`（2026-10-26）均在 setup 阶段因 action 依赖链使用已弃用 `actions/upload-artifact@v3` 而失败，未进入部署步骤。此为发布流水线基础设施阻塞，不等于主代码测试失败，也不能单独推断当前线上部署状态；Pages settings/当前部署与可见性仍待独立核实。
 - 同步：驾驶舱 version91、路线图现役交接指针、差距矩阵 v4.3、桥接入口。仅更新治理/交接文档与检查点；未运行测试/触发 workflow、不改源码/DB/schema/注册表/聊天室链路、不部署、不推/合并 main。
