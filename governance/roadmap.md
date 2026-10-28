@@ -127,6 +127,14 @@
 
 **阶段5下一步（方案 A 已定案；正式初始化路径尚未实测）**：A6 现有记录对照已完成初核，待柳柳验收。柳柳已同意方案 A：正式换框发送完整、版本化初始化指令，并以可核验的恢复结果作为成功标准；裸密钥词不单独视为充分初始化载荷。`wovowx/mcp-memory/dev/src/skills/process/huan-kuang-liu-cheng/SKILL.md` 已加入 `SB-FRAME-1.0` 验收契约，明确输入、恢复项、来源证据、失败降级和副作用边界。A7 现有实测只证明密钥单独触发未生效；完整初始化路径仍 UNKNOWN。受当前“不得触碰聊天室相关工具”边界限制，本轮不调用 `chat_with_agent`、不追加 Operit 测试、不调用 tools/list。继续做不触碰聊天室工具的阶段5/6文档一致性与静态验收；若未来需实测正式换框路径，先明确解除对应工具操作边界，再一次性合并验证。数据库边界精确定义为：不改 schema/函数/trigger/权限、不执行 DDL；本轮仅有两类精确范围云端写入：恢复唯一工作检查点原记录状态并经 memory API 更新其内容，以及经柳柳授权只更新 `skills.name=memory` 的 description。两项均已在 CHANGELOG 与 CROSS-HOST-BRIDGE 留痕；未修改其它业务数据、未改 handler/enabled/input_schema。未部署、不推/合并 main。
 
+#### 阶段5文档一致性收敛（2026-10-28）
+
+- 已校准 `governance/真相源导航表.md` v3.19、`governance/database/schema-policy.md` v1.9、`governance/资产盘点与整理升级计划.md` v3.13、`governance/当前项目状态.md` version75 与 `CHANGELOG.md` 的当前版本指针。
+- 已将 schema-policy 中 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的回归明确标为历史证据，并指向最新已验证代码基线 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 的五项隔离回归；未将文档修改冒充代码回归。
+- 已纠正资产整理计划的 A6/A7 当前状态：A6 对照待柳柳验收；A7 裸密钥独立新框测试未触发恢复；正式 SB-FRAME-1.0 路径仍 UNKNOWN。
+- 本次仅修改 ZivenLab/dev 治理文档；未改 mcp-memory 源码、记忆、数据库、注册表、聊天室工具或配置；未运行测试、未部署、不推/合并 main。
+- **阶段5仍进行中**：剩余未关闭项仍按阶段5矩阵处理；不追加 Operit 测试，不触碰聊天室工具，不调用 Worker `tools/list`。阶段6尚未启动。
+
 ### 阶段 6｜整体验收与版本收口
 目标：证明架构职责清晰、已有能力得到保护，且真实扩展路径可理解、可验证。
 工作：分层执行静态检查、行为回归、跨宿主冷启动和真实 MCP/HTTP endpoint 验证；复核共享能力是否重复建设、扩展是否依赖无关模块改动、兼容路径是否有证据；核对 Pages 发布范围与隐私风险；整理未关闭差距和回滚说明。
