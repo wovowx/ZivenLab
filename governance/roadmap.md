@@ -147,7 +147,7 @@
 ### 明确暂缓与发布边界
 
 - 聊天室与 Agent runtime 唤醒失败继续暂停。
-- 已完成 `search_history` 最小非2xx/响应形状守门，并新增20项隔离 Mock；本项已包含在最新 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的完整仓库回归（E1 exit 0、webhook104/104、Router69/69、search_history20/20）。记忆生命周期审计确认 create/soft-delete/rename/move 事件与 source→target 关联缺口、update event 缺 new_value 且 version 语义冲突；详见 P1 数据安全，相关设计尚待定案。`serverInfo.version` 与 `package.json` 版本来源/语义待定义；`data.js` / `category.js` 无当前 skills 注册命中，作为 legacy 候选保留。permission_guard 实际写路径接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍在矩阵。真实 E3 endpoint 未执行，不将隔离 Mock 等同于线上验证。
+- 已完成 `search_history` 最小非2xx/响应形状守门，并新增20项隔离 Mock；历史完整仓库回归 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 曾验证 E1 exit 0、webhook104/104、Router/DDL parser69/69、search_history20/20。最新完整隔离回归已推进到 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf`，check0、webhook104/104、contracts122/122、search_history20/20、release_guard15/15 全部通过。记忆生命周期审计确认 create/soft-delete/rename/move 事件与 source→target 关联缺口、update event 缺 new_value 且 version 语义冲突；详见 P1 数据安全，相关设计尚待定案。`serverInfo.version` 与 `package.json` 版本来源/语义待定义；`data.js` / `category.js` 无当前 skills 注册命中，作为 legacy 候选保留。permission_guard 实际写路径接入、Pages 发布范围、`/memory-universe` 匿名访问风险仍在矩阵。真实 E3 endpoint 未执行，不将隔离 Mock 等同于线上验证。
 - `v6.35.0` 已发布并部署 VERIFIED；该版本是可靠性基线，不代表整体架构升级完成。下一次 main 发布须先说明版本、范围、验证与回滚，并取得柳柳明确同意。
 - 阶段4已按范围完成；阶段5聚焦驾驶舱与跨宿主连续性闭环，阶段6负责整体验收与发布候选边界。已登记的独立风险按矩阵触发条件重开，不在本阶段偷偷扩范围。
 - 本路线图控制当前行动顺序；历史 P0/P1/P2 清单仅为历史路线/待办参考，不自动成为活跃任务。
