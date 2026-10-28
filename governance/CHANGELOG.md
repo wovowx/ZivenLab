@@ -4,6 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.29] - 2026-10-28（dev 草稿，未发布）
+
+### CI 自动回归闭环已修复并验证
+- 修改 `wovowx/mcp-memory/dev/.github/workflows/learning-regression.yml`：去掉 `paths` 过滤，让每次 push/PR 都运行回归；保留 workflow/job 名称 `learning-regression`/`validate`；使用 `actions/checkout@v7`、`setup-node@v7`（Node 24）、`setup-python@v7`（Python 3.12），权限仅 `contents: read`。
+- CI 批次包括：`npm run check`、webhook 幂等/记忆写入 Mock、Router/registry/DDL/Patch Engine contracts、search_history Mock、release_guard、学习工件 runner。
+- 精确 HEAD `d962718b20f91c365ca87939e12fb62ddbdbe88b` 的 run `40655855146` SUCCESS；原始 job log：check PASS，webhook 104/104，contracts 122/122，search_history 20/20，release_guard 15/15，学习工件 9 项 PASS。环境 Node 24.21.0、Python 3.12.15。测试均为静态/本地 Mock，不代表真实 MCP/HTTP/DB/RPC 行为。
+- `rulesets` GET 返回空数组，dev/main branch protection 读取均 403 `Resource not accessible by integration`，required-check 状态仍无法证实；不把未读取到当作未配置。
+- 同步驾驶舱 version93、差距矩阵 v4.5、导航表 v3.36、资产整理计划 v3.19、roadmap 与唯一桥接入口。没有推/合并 main，没有部署，没有触碰聊天室/唤醒链或数据库 schema/权限。
+
 ## [docs-2026.10.28] - 2026-10-28（dev 草稿，未发布）
 
 ### Pages workflow 持续故障范围扩大（只读审计）
