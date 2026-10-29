@@ -15,7 +15,7 @@
  
 **当前唯一主线：把 Ziven 整体架构真正整理成「一本好书」——目录清楚、职责边界明确、权威来源唯一、实现与证据可追踪。** 代码复用、职责清晰和面向真实需求的可扩展性是贯穿全部阶段的硬性要求；不新增无关功能，不把零散修补当作整体升级。
 
-> **2026-10-29 实际代码收敛增量（mcp-memory/dev）**：已完成两处低风险职责去重：`src/utils/response.js` 的 `buildErrorResponse()` 复用共享 `jsonResponse()`；`src/modules/mcp_router.js` 的 `create_patch_proposal` schema 覆写统一由 `getToolSchemaOverride()` 提供，tools/list 暴露与 Router 参数校验共用同一对象。`tests/router_registry_contract_test.mjs` 新增响应契约回归。当前代码 commit `de017537f5f51429260b9285e682eb4dbb0a22e3` 的 `learning-regression` run `40805561230` 全绿：E1/31个 JS 文件、webhook 104/104、contracts 128/128、search_history 20/20、release_guard 15/15、学习工件通过；同 SHA Pages artifact build/upload 成功、main-only deploy skipped。未合并 main、未部署。这是实质性局部收敛，不冒充阶段6整体验收或真实 endpoint 验证。
+> **2026-10-29 实际代码收敛增量（mcp-memory/dev）**：已完成两处低风险职责去重：`src/utils/response.js` 的 `buildErrorResponse()` 复用共享 `jsonResponse()`；`src/modules/mcp_router.js` 的 `create_patch_proposal` schema 覆写统一由 `getToolSchemaOverride()` 提供，tools/list 暴露与 Router 参数校验共用同一对象。`tests/router_registry_contract_test.mjs` 新增响应契约回归。当前代码 commit `de017537f5f51429260b9285e682eb4dbb0a22e3` 的 `learning-regression` run `40805561230` 全绿：E1/31个 JS 文件、webhook 104/104、contracts 128/128、search_history 20/20、release_guard 15/15、学习工件通过；同 SHA Pages artifact build/upload 成功、main-only deploy skipped。随后仅桥接文档提交 SHA `f2d3317d33c0c2e0083144d0f01d3a52b47c4808` 的 E1/E2 run `40805938145` 与 Pages artifact run `40805938245` 也成功，deploy skipped；未再改源码。未合并 main、未部署。这是实质性局部收敛，不冒充阶段6整体验收或真实 endpoint 验证。
 
 > **A6 验收结论（2026-10-28）**：A6 的范围是“现有跨宿主状态记录对照”。已对照权威记录、桥接回填与阶段状态，未发现当前记录之间的冲突，因此 **A6 静态对照 PASS（范围限定）**，无需柳柳再批准这项技术判断。它不证明运行时硬门禁或冷启动行为。裸密钥冷启动是 A7，已证明单独密钥未触发恢复；正式 `SB-FRAME-1.0` 完整初始化路径仍 UNKNOWN，另行记录，不混入 A6。
 
