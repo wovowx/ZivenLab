@@ -1,5 +1,12 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.10.43] - 2026-10-29（dev 草稿，未发布）
+
+### 一次针对性检查点精确读取验收完成
+- 柳柳明确授权后，Operit 执行一次最小只读调用：`ziven_mcp:memory(action=recall,key="⚙️/当前工作检查点")`；真实响应命中 canonical 完整 key，并返回 category `⚙️`。判定：精确 recall 通路 PASS。
+- 结论边界：这次独立 recall 证明工具/完整 key 在 Operit 当前宿主可用，不证明 SB-FRAME-1.0 新框初始化会自动发起该调用。A7 仍部分 PASS，A6 完整跨宿主一致性仍 UNKNOWN；不重复冷启动、CI 或相同 recall。
+- 已同步驾驶舱 version109、架构差距矩阵 v4.19、导航表 v3.50、资产整理计划 v3.33。未改业务记忆、数据库/schema、生产代码；未部署、未推/合并 main。
+
 ## [docs-2026.10.42] - 2026-10-29（dev 草稿，未发布）
 
 ### Operit 检查点读取契约调查关闭与下一步授权门槛
