@@ -4,6 +4,14 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.38] - 2026-10-29（dev 草稿，未发布）
+
+### 阶段6只读准入与证据收敛（尚未总体验收）
+- 复核 `mcp-memory/dev` 的 CI `validate` jobs：run `40805561230` 与桥接文档提交 run `40805938145` 均 SUCCESS；测试覆盖 E1、webhook 104/104、Router/contracts 128/128、search_history 20/20、release_guard 15/15 与学习工件。均为静态/隔离 Mock，不证明真实 endpoint/DB/权限或完整换框路径。
+- 只读核验 Cloudflare `verify_main=true` 返回 `VERIFIED`：main HEAD `71f6a03ebc81` 与最新部署 `c78ab839` 匹配。Pages PR #319 状态仍为 open、mergeable clean、未合并；候选 artifact CI 成功不等于 Pages Source 已确认或真实部署成功。
+- 阶段6已开始做非破坏性核验，但不能总体验收通过：完整 SB-FRAME-1.0 冷启动需要冻结链具体授权；`/mcp` 与高影响 HTTP 路由外层认证/匿名拒绝与授权允许路径未验证；DB RLS/GRANT/trigger/CAS/事务和真实 RPC 行为未验证；Pages Source/真实 URL 未验证。没有调用高影响生产端点、Worker `tools/list` 或聊天室工具；没有 DB/schema/权限写入、部署、合并或推 main；未重复运行已通过的 Operit 测试，避免额外消耗 token。
+- 文档状态同步到驾驶舱 version103、架构差距矩阵 v4.13、导航表 v3.45、资产计划 v3.27、现状架构与路线图。此记录不把静态/Mock 证据升格为真实运行时 PASS。
+
 ## [docs-2026.10.37] - 2026-10-29（dev 草稿，未发布）
 
 ### Worker HTTP 高影响路由授权边界静态审计
