@@ -1,5 +1,13 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.10.48] - 2026-10-29（dev 草稿，未发布）
+
+### 新版 SB-FRAME-1.0 独立冷启动验收完成
+- Operit 已按授权执行唯一一次完整新版初始化，新框 `7516ae0a-23e2-4b6f-8dce-6cb4f592547f`，无旧对话上下文；载荷逐字取自 `mcp-memory/dev/src/skills/process/huan-kuang-liu-cheng/SKILL.md` 完整 SB-FRAME-1.0 指令。
+- 新框恢复身份根、canonical 检查点 `⚙️/当前工作检查点`（精确 recall 命中、category=⚙️）、SB-1.0、导航、巡检规则、日常归档与实时 stats（285条/23分类）；跳过冻结范围，未写业务记忆/DB、未调用冻结工具、未部署/推 main。A7 升为 PASS，限定于本次无旧对话上下文新框和可见证据；A6 完整跨宿主一致性仍 UNKNOWN，阶段6未总体验收。
+- 证据限制：Operit 回填的是 `read_messages` 返回的 aiResponse 自述，原始中间工具调用日志不可见；恢复结果与 canonical key/category 及既有独立 recall 佐证一致。故不宣称拥有原始工具调用日志或完整 A6 证据。详细记录见唯一桥接文末 2026-10-29 16:47 CST 条目。
+- 公开 `mcp-memory/main/src/public/memory-universe.html` 仍含旧个人样例，PR #319 脱敏候选未合并；Pages Source/真实 URL、真实 Worker/DB 权限、MCP metadata 来源仍 UNKNOWN。main 未改、未部署。
+
 ## [docs-2026.10.47] - 2026-10-29（dev 草稿，未发布）
 
 ### 确认 main 上的公开源文件仍有个人样例
