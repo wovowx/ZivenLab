@@ -4,6 +4,14 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.35] - 2026-10-29（dev 草稿，未发布）
+
+### Pages 候选与当前 dev 回归证据刷新
+- 柳柳已明确决定保留 GitHub Pages；该决定不授权合并/部署。
+- mcp-memory/dev 桥接提交 SHA `e444c9e7c041b1ebf4e0eeabd2550c7652cf150a` 的完整 E1/E2 run `40801256052` SUCCESS；同 SHA Pages artifact run `40801256038` SUCCESS，artifact build/upload 成功，main-only deploy job 按设计 skipped。
+- 发布候选 `release/pages-retain-2026-10` SHA `fd4cf7b6e735d186869cf89dd12459e6350b5fb4` 的 Pages run `40799872572` SUCCESS；PR #319 open、未合并，仅涉及 workflow、合成演示 HTML 与 README。
+- 发布 artifact 仅含 `_site/index.html` 与 `_site/memory-universe.html`；已知个人样例关键词扫描无命中。Pages source 与线上 URL 仍 UNKNOWN，须由有权限的人确认 Source=GitHub Actions，且合并/部署另需柳柳明确授权。main 未改、未部署。
+
 ## [docs-2026.10.34] - 2026-10-29（dev 草稿，未发布）
 
 ### GPT memory tool 元数据来源差距记录
