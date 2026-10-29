@@ -9,7 +9,7 @@
 ### 跨宿主工作检查点读取差异核验
 - 在唯一交接文档 `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末追加 GPT 侧只读调查，并修正了起初基于截断输出提出、后经 DB 行数据推翻的 valid_to 假设。
 - 实时 memory stats 为 285 条/23 分类。Supabase memories 的只读查询确认 canonical key `⚙️/当前工作检查点` 只有一条匹配活动行：status=active、valid_to=null、updated_at=2026-10-29T01:37:39.013+00:00（新加坡时间 09:37:39）。同 title 另有一条旧裸 key `当前工作检查点`，category=默认、status=deleted、valid_to 已设置；精确裸 key recall 未命中与该软删除状态一致。
-- GPT 侧按完整 canonical key 的 MCP recall 成功；Operit 新框（有角色卡、无旧对话上下文）报告系统 get_memory_by_title 未命中 canonical 行并回退找到过渡检查点副本。没有证据表明 canonical 云端记忆丢失；系统读取面的实现/索引/过滤契约仍 UNKNOWN。canonical 检查点正文停在 09:37，尚未包含 10:55/11:00 的新框测试结论。
+- GPT 侧按完整 canonical key 的 MCP recall 成功；Operit 新框（有角色卡、无旧对话上下文）报告系统 get_memory_by_title 未命中 canonical 行并回退找到过渡检查点副本。没有证据表明 canonical 云端记忆丢失；系统读取面的实现/索引/过滤契约仍 UNKNOWN。GPT 可见工具目录无该工具名，wovowx/mcp-memory 与 wovowx/ZivenLab 的代码索引搜索 get_memory_by_title、memory_by_title 均无命中，故实现来源当前对 GPT 侧不可见，暂记宿主/连接器层外部可见性阻塞。canonical 检查点正文停在 09:37，尚未包含 10:55/11:00 的新框测试结论。
 - A7 更新为部分 PASS，A6 完整跨宿主一致性 UNKNOWN。同步更新路线图、驾驶舱 version104、差距矩阵 v4.14、导航表 v3.46、资产整理计划 v3.28；不重跑 A7、不委派 Operit、不写/重命名/删除业务记忆、不改 DB/schema/权限/生产代码，不部署或推/合并 main。
 
 ## [docs-2026.10.38] - 2026-10-29（dev 草稿，未发布）
