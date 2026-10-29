@@ -7,7 +7,7 @@
 ## [docs-2026.10.37] - 2026-10-29（dev 草稿，未发布）
 
 ### Worker HTTP 高影响路由授权边界静态审计
-- 只读审查 `wovowx/mcp-memory/main/src/index.js` 发现 Northflank restart、execution session init/rotate/task、debug agent-context/deploy-status 等高影响路由在对应处理块前未见统一认证/能力授权守卫；`/upload` 亦未见入口级认证检查。
+- 只读审查 `wovowx/mcp-memory/main/src/index.js` 及 `src/modules/mcp_router.js` 发现 `/mcp` POST 直接进入未见 caller identity auth 的 `handleMCPRequest`（Router 的 dispatch guard 只是工具/注册/schema 门禁）；另有 Northflank restart、execution session init/rotate/task、debug agent-context/deploy-status 等高影响路由在对应处理块前未见统一认证/能力授权守卫；`/upload` 亦未见入口级认证检查。
 - 风险影响包括可能被未经授权触发的服务重启/执行会话或任务操作，以及上下文/部署元数据读取；但 Worker 实际部署 SHA、Cloudflare Access/WAF 与公网可达性未知，不将静态代码证据写成已证实的外部可利用事实。
 - 处置：先由具备权限者核实当前部署版本与外层保护；若保护不充分，再另行授权实施 Worker 内认证与最小权限，并补拒绝/允许回归。未调用生产端点，未改 Worker/权限/DB，不触碰冻结聊天室/执行链、未推/合并 main、未部署。
 
