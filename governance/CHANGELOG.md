@@ -4,6 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.33] - 2026-10-29（dev 草稿，未发布）
+
+### Pages 发布候选门槛与回滚原则
+- 当前 mcp-memory/dev HEAD `37d4cd1f88a945f5fee0cf33ddf5affef54848ed` 的 E1/E2 run `40800449492` SUCCESS，Pages artifact run `40800449494` SUCCESS；构建/上传白名单 artifact 成功，main-only deploy job 按设计 skipped。
+- 发布候选 PR #319 当前 SHA `fd4cf7b6e735d186869cf89dd12459e6350b5fb4` 的 Pages run `40799872572` SUCCESS。PR 仍 open、未合并；main 仍为 `71f6a03ebc81193e5d88a98297ad66083d301515`，未改、未部署。
+- 桥接文档已加入明确发布顺序：先让有权限的人确认 Pages source 为 GitHub Actions，再核对 PR/CI/脱敏 artifact，向柳柳报告版本、范围、风险、验证和回滚并取得明确合并授权；合并后再验证 main deploy run 与真实 URL。
+- 回滚必须保留脱敏 HTML 与白名单 artifact；不得直接恢复旧 `path: .` 全仓库发布或原个人记忆样例。Pages Settings/真实 URL 仍 UNKNOWN；保留 Pages 不构成部署授权。
+- 治理指针已更新至驾驶舱 version97、差距矩阵 v4.9、导航表 v3.40、资产整理计划 v3.23。没有触碰数据库/业务记忆/聊天室工具、没有部署或推/合并 main。
+
 ## [docs-2026.10.32] - 2026-10-29（dev 草稿，未发布）
 
 ### Pages 保留候选与 CI 状态收敛
