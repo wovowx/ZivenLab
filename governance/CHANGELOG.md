@@ -4,6 +4,14 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.41] - 2026-10-29（dev 草稿，未发布）
+
+### Operit 检查点读取工具契约核实（只读，不代表运行时复验）
+- Operit 侧只读 metadata 核验完成：`get_memory_by_title` 位于宿主顶层默认 memory-space 工具集，与 `query_memory` 同一工具面，不是 ziven_mcp MCP server 工具；输入必填 `title`，按精确 title 查找，可选 `chunk_index`、`chunk_range`、`query`、`limit`。带分类前缀的 `⚙️/当前工作检查点` 是 key 形态，不是 title；把它作为 `title` 传入不会命中记录标题“当前工作检查点”。
+- 该证据解释了 A7 新框中两种读取面的差异：`get_memory_by_title(title="⚙️/当前工作检查点")` 未命中，而 `ziven_mcp:memory(action=recall,key="⚙️/当前工作检查点")` 可按 canonical key 精确读取。宿主底层实现/索引仍不可见；本次只确认可见契约，不声称已证实全部内部过滤实现。
+- 换框流程、master-router、memory-retrieval-hybrid 三份 Skill 已规定以 `ziven_mcp:memory` + `action=recall` + 完整 key 读取 canonical 检查点，失败后 search 只用于定位、不可独立验收。尚未确认初始化指令在真实新框中是否实际发起该精确调用，故 A7 仍部分 PASS、A6 完整跨宿主一致性仍 UNKNOWN。
+- 静态工具契约调查已关闭，无需再次派发同项调查或重跑 CI。若要确认新框实际调用契约，必须另获针对性运行时授权；授权前不调用宿主工具、不创建新框、不查/写 DB、不调用 Worker `tools/list`，不写/改业务记忆、不部署、不推/合并 main。治理同步：roadmap、驾驶舱 version107、差距矩阵 v4.17、资产计划 v3.31；导航表更新尝试受连接器权限阻止，暂留 v3.48，后续仅在可用写入权限时更新。
+
 ## [docs-2026.10.40] - 2026-10-29（dev 草稿，未发布）
 
 ### 工作检查点读取契约最小修正与 CI 证据核对
