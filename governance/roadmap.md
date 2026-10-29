@@ -7,11 +7,11 @@
 >
 > **推进前必读**：开工前读本文件 + `governance/当前项目状态.md`，完成验证后更新两者。
 >
-> ## 🚦 当前活跃主线（2026-10-28 校准）
+> ## 🚦 当前活跃主线（2026-10-29 校准）
 
 > **现役交接指针（2026-10-29）**：阶段5静态审计/治理文档一致性范围已封口，阶段6尚未启动；当前无待 Operit 执行任务。跨宿主唯一交接入口是 `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md`，以文末最新状态优先于历史记录。mcp-memory/dev 当前精确 HEAD `37d4cd1f88a945f5fee0cf33ddf5affef54848ed` 的完整 E1/E2 run `40800449492` SUCCESS；同 SHA Pages artifact run `40800449494` SUCCESS，build/upload 成功、main-only deploy job skipped。候选 PR #319 的最新 SHA `fd4cf7b6e735d186869cf89dd12459e6350b5fb4` 对应 Pages run `40799872572` SUCCESS；PR 仍 open、未合并。Pages 保留已定案，但 Pages source/真实 URL 仍 UNKNOWN；须有权限者确认 Source=GitHub Actions。main 未改、未部署；推/合并 main 前仍需向柳柳报告版本、范围、CI、风险、回滚并取得明确同意。阶段6、冻结工具、DB/schema/权限及聊天室边界不变。
 
-> **Pages 决策与当前进度（2026-10-28，优先于本文件旧的“先确认是否保留”描述）**：柳柳已确认保留 Pages。mcp-memory/dev 已准备最小发布目录 workflow（只构建首页 + 合成数据记忆宇宙页，使用 upload-pages-artifact@v5/deploy-pages@v5），并移除 dev 静态 HTML 中的个人记忆样例；最新真实部署尚未执行，main 未改。当前 Pages settings 无法通过连接器读取，repo metadata 仍显示 has_pages=false；下一步是读最新 dev HEAD 与自动 CI，更新导航/驾驶舱/资产计划指针，并整理发布前验收和回滚清单。要将候选发布到 main 前，先向柳柳说明版本、范围、验证、风险与回滚并取得明确同意；不部署，不把“保留 Pages”扩大解释为授权发布。
+> **Pages 决策与当前进度（2026-10-29，当前）**：柳柳已决定保留 Pages。候选 PR #319 已准备完成并保持 open；候选 SHA `fd4cf7b6e735d186869cf89dd12459e6350b5fb4` 的 Pages build/upload run `40799872572` SUCCESS，deploy skipped。mcp-memory/dev 最新 HEAD `37d4cd1f88a945f5fee0cf33ddf5affef54848ed` 的完整 E1/E2 run `40800449492` 与 Pages artifact run `40800449494` 均 SUCCESS；workflow 只构建/发布 `_site/` 白名单页面，示例页已脱敏。发布前清单与安全回滚原则已写入 `CROSS-HOST-BRIDGE.md` 文末。剩余人工门槛：有权限的人确认 Settings → Pages → Source = `GitHub Actions`；随后向柳柳报告版本/范围/CI/风险/回滚并取得独立合并授权。GitHub Settings API 不可读取，repo metadata `has_pages=false`，真实 URL/线上状态 UNKNOWN。main 仍未修改、未合并、未部署；不得把“保留”扩大解释为发布授权。
  
 **当前唯一主线：把 Ziven 整体架构真正整理成「一本好书」——目录清楚、职责边界明确、权威来源唯一、实现与证据可追踪。** 代码复用、职责清晰和面向真实需求的可扩展性是贯穿全部阶段的硬性要求；不新增无关功能，不把零散修补当作整体升级。
 
