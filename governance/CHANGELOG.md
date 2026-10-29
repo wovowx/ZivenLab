@@ -1,5 +1,13 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.10.42] - 2026-10-29（dev 草稿，未发布）
+
+### Operit 检查点读取契约调查关闭与下一步授权门槛
+- Operit 侧只读 metadata 确认 `get_memory_by_title` 属于宿主顶层默认 memory-space 工具集，必填 `title` 且按精确标题查找，不按记忆 key；可选 `chunk_index`、`chunk_range`、`query`、`limit`。因此将 `⚙️/当前工作检查点` 作为 title 传入不会命中标题为“当前工作检查点”的记录。MCP 工具 `ziven_mcp:memory(action=recall,key="⚙️/当前工作检查点")` 则按 canonical key 精确读取。
+- 该证据在契约层解释了 A7 读取差异；宿主工具的内部索引/实现仍 UNKNOWN。静态 metadata 调查关闭，不再重复派发；现有三份 Skill 已要求完整 key exact recall，search 仅作候选定位且不能独立验收。
+- 尚无证据证明修订后的 SB-FRAME-1.0 初始化在真实新框中确实发起精确 recall。A7 仍部分 PASS，A6 完整跨宿主一致性 UNKNOWN，阶段6未总体验收。若要验证，仅做一次针对性运行时调用验收，必须另获柳柳明确授权；授权前不调用宿主工具、不创建新框、不重跑 CI，不查/写 DB，不调用 Worker `tools/list`，不写业务记忆、不部署、不推/合并 main。
+- 治理指针同步：驾驶舱 version108、架构差距矩阵 v4.18、导航表 v3.49、资产计划 v3.32。未改生产代码或业务数据。
+
 > 文档仓不假装软件发行版：版本模型 = 知识快照 `docs-YYYY.MM(.N)`（可带 baseline/snapshot 后缀）。
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
