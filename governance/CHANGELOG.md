@@ -4,6 +4,13 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.34] - 2026-10-29（dev 草稿，未发布）
+
+### GPT memory tool 元数据来源差距记录
+- 只读检查当前账号私有插件 `Ziven_MCP`（plugin ID `plugin_asdk_app_6ad85722a6808191b55587a39c60941e`，current release `PluginRelease_d2c4b06819cc8191a05828b0258e9c7c`）的 manifest/file list：包内只有 `.app.json` 与 `.codex-plugin/plugin.json`，没有 MCP memory tool schema 或 description。
+- 因此，插件包本身不是目前已证实的旧 key `复苏协议·system://boot` 文案来源。Supabase `skills.name=memory` description 与 GPT 当前可见的工具元数据是不同表面；真正来源/缓存更新路径仍 UNKNOWN。
+- 为避免聊天室注册副作用，不调用 Worker `tools/list`；不盲改插件包、不改数据库或生产配置。来源差距已加入架构差距矩阵 v4.10、驾驶舱 version98、roadmap 与导航表 v3.41。
+
 ## [docs-2026.10.33] - 2026-10-29（dev 草稿，未发布）
 
 ### Pages 发布候选门槛与回滚原则
