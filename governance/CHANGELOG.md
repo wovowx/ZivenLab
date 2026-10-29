@@ -10,7 +10,7 @@
 - A7 只读调查确认：云端 canonical key `⚙️/当前工作检查点` 存在且可由完整 key 的 MCP recall 读取；Operit 新框的系统 `get_memory_by_title` 读取面未命中。该系统工具实现仍不在当前 GPT 可见工具目录或两个仓库代码索引中，根因尚不能认定。
 - 不扩大查找范围、不调用 Worker `tools/list`、不再跑 A7；优先修正现有入口说明。在 `mcp-memory/dev` 的换框流程、master-router、memory-retrieval-hybrid 三份 Skill 中明确：先用 `ziven_mcp:memory` + `action=recall` + 完整 key `⚙️/当前工作检查点`；只有精确读取失败时才用 `action=search, keyword="⚙️/当前工作检查点"` 定位线索。静态源码与只读实测证实 search 格式化输出不含原始完整 key/status，故 search 结果不能独立验收；必须重试完整 key 的精确 recall，仍失败就进入受限模式。标题读取面、裸 key 与过渡副本不能代替权威记录。三文件均写入并回读验证。
 - 最新 `mcp-memory/dev` HEAD `fb34371dd00f7a3339648d7a6a8fae355996ecb7` 的 `learning-regression` run `40813963598` SUCCESS：E1 `npm run check` PASS、webhook 104/104、Router/contracts 128/128、search_history 20/20、release_guard 15/15、学习工件 9 项 PASS。相同 SHA 的 Pages run `40813963599` build/upload SUCCESS，main-only deploy 在 dev 上按设计 skipped。该次仅新增桥接文档，不改生产代码；Mock/静态回归不等于真实新框验证。以上仅是静态/Mock 回归，不等于真实新框通过。
-- 新增 Operit 侧静态核验任务：只读检查其现有工具注册表/工具说明/metadata 中的 `get_memory_by_title` 定义、输入 schema、title/key 语义、完整 key/分类前缀支持及实现来源；不要调用该工具，不发起真实记忆查询或新框/A7，不调用额外 API、Worker `tools/list` 或聊天室工具。若本地 metadata 无定义，报告已检查位置并停止。A7 仍部分 PASS，A6 完整跨宿主一致性仍 UNKNOWN。未写入/修改业务记忆、未改 DB/schema/生产代码、未部署或推/合并 main。
+- 新增 Operit 侧静态核验任务：只读检查其现有工具注册表/工具说明/metadata 中的 `get_memory_by_title` 定义、输入 schema、title/key 语义、完整 key/分类前缀支持及实现来源；不要调用该工具，不发起真实记忆查询或新框/A7，不调用额外 API、Worker `tools/list` 或聊天室工具。若本地 metadata 无定义，报告已检查位置并停止。A7 仍部分 PASS，A6 完整跨宿主一致性仍 UNKNOWN。未写入/修改业务记忆、未改 DB/schema/生产代码、未部署或推/合并 main。已同步治理路线图、驾驶舱 version106、差距矩阵 v4.16、导航表 v3.48 与资产计划 v3.30；唯一跨宿主执行说明仍以 `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末为准。
 
 ## [docs-2026.10.39] - 2026-10-29（dev 草稿，未发布）
 
