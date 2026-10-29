@@ -1,5 +1,12 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.10.45] - 2026-10-29（dev 草稿，未发布）
+
+### 新版换框初始化一次性运行时验收获授权
+- 柳柳最新指令“一次性搞定全部的”被落实为一项明确、有限的执行授权：仅再执行一次新版 `SB-FRAME-1.0` 独立冷启动验收，确认初始化是否实际调用 `ziven_mcp:memory(action=recall,key="⚙️/当前工作检查点")` 并正确恢复当前主线。
+- 唯一执行契约已追加至 `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末。当前状态为 AUTHORIZED / NOT RUN，等待 Operit 按该文档执行并追加真实证据；不重建第二个框、不重跑整套 CI。
+- 此授权不包括 main 合并/推送、部署、数据库/schema/权限修改、生产高影响端点、Worker `tools/list` 或聊天室/唤醒链。Pages 发布仍需要有权限者确认 Source=GitHub Actions，并由柳柳另行明确授权。
+- 已同步驾驶舱 version111、差距矩阵 v4.21、导航表 v3.52、资产计划 v3.35。
 ## [docs-2026.10.44] - 2026-10-29（dev 草稿，未发布）
 
 ### 一次性架构状态收敛
