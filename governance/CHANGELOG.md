@@ -1,5 +1,11 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.10.47] - 2026-10-29（dev 草稿，未发布）
+
+### 确认 main 上的公开源文件仍有个人样例
+- 最新只读回读 `wovowx/mcp-memory/main/src/public/memory-universe.html`，blob SHA `78473d60c0536fced45ba76b62b8785c0dcadd72`；检查确认仍包含旧个人记忆样例。mcp-memory 为 public 仓库，因此可从 GitHub 源文件直接访问；不需要 Pages 实际启用就存在源代码可见风险。
+- PR #319 的候选页已将样例替换为合成演示记录，静态检查通过，但 PR 仍 open 未合并。它是仅 3 个文件的 Pages 候选；main/dev compare 仍为 260 commits ahead、21 文件差异，不能把整条 dev 一揽子合入 main。必须由柳柳单独明确批准合并该候选并核对版本/范围/CI/回滚；当前未改 main、未部署。
+- 已同步驾驶舱 version113、架构差距矩阵 v4.23、导航表 v3.54、资产整理计划 v3.37。
 ## [docs-2026.10.46] - 2026-10-29（dev 草稿，未发布）
 
 ### 锁定一次性验收、最新回归与发布边界
