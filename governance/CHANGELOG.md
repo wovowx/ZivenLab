@@ -7,8 +7,8 @@
 - 唯一执行契约已追加至 `wovowx/mcp-memory/dev/CROSS-HOST-BRIDGE.md` 文末。当前状态为 AUTHORIZED / NOT RUN，等待 Operit 按该文档执行并追加真实证据；不重建第二个框、不重跑整套 CI。
 - 此授权不包括 main 合并/推送、部署、数据库/schema/权限修改、生产高影响端点、Worker `tools/list` 或聊天室/唤醒链。Pages 发布仍需要有权限者确认 Source=GitHub Actions，并由柳柳另行明确授权。
 - 最新 mcp-memory/dev HEAD `fc13b9455712cfb302aab8f16872b028cbed6677` 的 learning-regression run `40838550949` SUCCESS：check PASS、webhook104/104、Router/contracts128/128、search_history20/20、release_guard15/15、学习工件9项 PASS；Pages artifact run `40838550970` build/upload SUCCESS、main-only deploy skipped。上述不等于真实 runtime/DB/RPC/auth 验收。
-- 发布门禁只读补充：`GET /repos/wovowx/mcp-memory/branches/main` 的可见摘要返回 `protected=true`/`protection.enabled=true`，但 `required_status_checks.enforcement_level="off"`、`contexts=[]`、`checks=[]`；dev 为 `protected=false`。细项 `/protection` 仍不可读取（403），所以只记录“当前可见摘要未显示强制 CI contexts”，不推断其他仓库治理规则。Main 发布仍以柳柳明确同意为必要门槛。
-- 已同步驾驶舱 version111、差距矩阵 v4.21、导航表 v3.52、资产计划 v3.35。
+- 发布门禁只读补充：`GET /repos/wovowx/mcp-memory/branches/main` 的可见摘要返回 `protected=true`/`protection.enabled=true`，但 `required_status_checks.enforcement_level="off"`、`contexts=[]`、`checks=[]`；dev 为 `protected=false`。细项 `/protection` 仍不可读取（403），所以只记录“当前可见摘要未显示强制 CI contexts”，不推断其他仓库治理规则。
+- 当前发布范围核对：`mcp-memory main...dev` compare 为 ahead 260、behind 0、总计 21 个文件有差异；main HEAD `71f6a03ebc81193e5d88a98297ad66083d301515`，dev HEAD `fc13b9455712cfb302aab8f16872b028cbed6677`。不得把整个 dev 一揽子合入 main；Pages 候选 PR #319 仅 3 文件，仍须先确认 Pages Source=GitHub Actions，再由柳柳另行明确授权合并/部署。- 已同步驾驶舱 version111、差距矩阵 v4.21、导航表 v3.52、资产计划 v3.35。
 ## [docs-2026.10.44] - 2026-10-29（dev 草稿，未发布）
 
 ### 一次性架构状态收敛
