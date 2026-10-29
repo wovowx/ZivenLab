@@ -4,6 +4,15 @@
 > 记录：知识演进（新增/决策/归档），不记每个 commit。
 > 本文件已迁移至 governance/（2026-09-04 governance 目录重组）。
 
+## [docs-2026.10.32] - 2026-10-29（dev 草稿，未发布）
+
+### Pages 保留候选与 CI 状态收敛
+- 柳柳已明确决定保留 GitHub Pages；本决定不授权合并/推 main 或部署。
+- mcp-memory/dev SHA `c25f71d1e41be36b7dc9a888c1fb60d591fc7e2f` 的完整 E1/E2 run `40799853469` SUCCESS；同 SHA 的 Pages artifact build run `40799853457` SUCCESS，deploy job 按设计 skipped。
+- release candidate `release/pages-retain-2026-10` SHA `fd4cf7b6e735d186869cf89dd12459e6350b5fb4` 的 Pages run `40799872572` SUCCESS；build/上传白名单 artifact 成功，main-only deploy job skipped。workflow 使用 checkout@v7、configure-pages@v6、upload-pages-artifact@v5、deploy-pages@v5，只将首页与记忆宇宙示例页放入 `_site/`。
+- PR #319 仍 open、未合并，3 个文件涉及 Pages workflow、示例 HTML 脱敏和公开仓库 README 纠正。Pages settings/source 与真实 URL 仍 UNKNOWN；main 未改、未部署。合并前须核实 GitHub Pages source 为 GitHub Actions，合并/部署仍需柳柳单独明确同意。
+- 仅同步治理文档与 PR 发布候选说明；没有改云端/数据库业务记忆、聊天室工具、DB/schema/权限，没有部署或推/合并 main。
+
 ## [docs-2026.10.31] - 2026-10-28（dev 草稿，未发布）
 
 ### Pages artifact 在 dev 上构建验收通过（不部署）
