@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.10.46] - 2026-10-29（dev 草稿，未发布）
+
+### 锁定一次性验收、最新回归与发布边界
+- 新版 `SB-FRAME-1.0` 只读/初始化行为验收已写入唯一 `CROSS-HOST-BRIDGE.md` 文末，当前 AUTHORIZED / NOT RUN；需要 Operit 按该任务创建唯一一个新框并回填真实调用日志。GPT 当前宿主没有 `chat_with_agent`/Operit 对话创建工具，因此不能冒称已代跑。
+- 当前 mcp-memory/dev HEAD `fc13b9455712cfb302aab8f16872b028cbed6677` 的 learning-regression run `40838550949` SUCCESS：check PASS、webhook104/104、contracts128/128、search_history20/20、release_guard15/15、学习工件9项 PASS；Pages artifact run `40838550970` build/upload SUCCESS、main-only deploy skipped。以上不是实时端点/DB/权限验收。
+- 当前 main HEAD `71f6a03ebc81193e5d88a98297ad66083d301515`、dev HEAD `fc13b9455712cfb302aab8f16872b028cbed6677`；compare main...dev 为 ahead 260、behind 0、21 files。不能把整个 dev 一揽子合入 main。Pages PR #319 仅 3 文件、open、无 review threads，候选构建已成功但部署 skipped；Pages Source 仍需有权限者确认，合并/部署须柳柳另行明确授权。
+- main 的可见 branch 保护摘要为 protected=true，但 `required_status_checks.enforcement_level="off"`、contexts/checks 为空；细项保护接口仍 403。保留这一证据边界，不把它解释为不存在其他治理政策。
+- 阶段6仍未总体验收：真实 Worker 认证与外层 Access/WAF、DB/RPC/RLS/GRANT/trigger/CAS/事务、MCP metadata 发布源、Pages Source/URL 保持 UNKNOWN。没有改业务记忆、DB/schema/权限、main 或部署；没有调用冻结工具。
+
 ## [docs-2026.10.45] - 2026-10-29（dev 草稿，未发布）
 
 ### 新版换框初始化一次性运行时验收获授权
