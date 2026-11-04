@@ -5,6 +5,20 @@
 >
 > **现状边界（2026-10-27）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前公开 OpenAPI 列快照已在 2026-10-27 重新读取并写入 `governance/database/database-overview.md` v2.4：memories 当前列集中包含 version/status/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 有 jsonb old_value/new_value 列及 memory_id 外键。此快照不提供触发器、RLS、GRANT、外键 ON DELETE 行为、唯一约束和函数权限。进一步尝试经 `supabase_db` REST query 读取 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 均返回 HTTP404/PGRST205（未在当前 public PostgREST schema cache 暴露）；经 `exec_sql` 做 catalog-only SELECT 也被 P0001 拒绝。已检查的 `mcp-memory/dev/migrations` 当前只有聊天室 `claimed_at` 迁移，未发现 memory_events trigger/function migration；这仅说明当前检查范围缺少这类源码/迁移证据，不能据此断言真实数据库里不存在触发器。当前可见 MCP 没有独立只读 catalog 查询工具。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
 
+## 2026-11-04 Worker Memory Core 代码分层更新（仅 mcp-memory/dev）
+
+本节记录当前代码归属，不改变下方数据库模型与历史生命周期结论：
+
+- src/modules/memory/repository.js：memories、memory_events、memory_aliases 的数据访问层。
+- src/modules/memory/lifecycle.js：putMemory、软删除、rename、move 的协调层；当前仍沿用原先分离的 REST 请求顺序。
+- src/modules/memory/retrieval.js：记忆搜索、有效性过滤、匹配评分、受约束中文 bigram 回退、一跳关联，以及列表/分类/日期/统计/随机读取。
+- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口，并委托以上模块；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在。
+- src/utils/search.js：仍只负责 search_history/suggest，不是记忆正文检索实现。
+
+代码切片 commit：mcp-memory/dev SHA 28fcc6428c2a59bfa646b5bb43088e147e3b353d；当前桥接记录 HEAD：6d84839e2bcd3a8a9766668095906bb5a18ab410。GitHub Actions learning-regression run 41766843927 与 41766981289 均 SUCCESS；Memory Core contracts 29/29。上述为 E1 与 fetch-mock 行为证据，不证明真实 Supabase endpoint 或生产数据库行为。此次没有修改 DB schema、表、函数、trigger、权限或数据。
+
+生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 的原子迁移均未由本次模块提取解决。下方静态生命周期差距仍有效；后续如设计修复，需先明确现有 trigger/约束语义和失败策略，不得把本次代码分层写成生命周期账本已完整。
+
 ## 表清单
 
 | 表 | 角色 |
