@@ -2,6 +2,10 @@
 
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
+### scoped release 候选版本化与生产影响校准（Roadmap v1.2，2026-11-04）
+- 将 main 发布候选从“两项功能文件”补全为四文件版本化切片：`src/tools/github_v64.js`、现有 `tests/github_contents_contract_test.mjs`、`package.json`（6.36.1→6.36.2）、`CHANGELOG.md`。不新增测试脚本或修改 CI workflow；复用 main 已存在的 `test:github-contents` 与 PR/push learning-regression job。
+- 明确 main push 的旁路影响：`.github/workflows/pages.yml` 必然因 push main 触发，仍配置 `path: .` 与 Pages v2 actions，真实 Pages source/URL 未知；主仓库没有 Worker deploy workflow，Cloudflare 是否由 Git 集成自动部署仍未证实，必须独立 `verify_main=true`，不得预称已部署。
+- 当前只完成只读方案分析；临时 branch/PR 未创建，main 未改，Pages/Worker 未触发。仍需柳柳批准创建从精确 main 基线出发的 scoped release 分支/PR；合并与部署授权分开。
 ### Branch/PR helper main scoped release 可行性评估（只读完成，等待批准）
 - 对比 mcp-memory main HEAD `f74c36cb3f96928df292160745cf61a41951e312` 与 dev CI-tested commit `0c5cadde09452359c81198f35a26585b39aec303`：diverged，ahead426/behind20，涉及38个文件；禁止整支合并或直接 cherry-pick dev 测试 commit。
 - 建议四文件版本化候选：`src/tools/github_v64.js`（替换 helper 并给两个调用点传 PR number）、现有 `tests/github_contents_contract_test.mjs`（扩展 `handleGitHubTool` fetch-mock 合同）、`package.json`（6.36.1→6.36.2）、`CHANGELOG.md`（新增 v6.36.2 记录）。main 已有 `test:github-contents` npm script 与 CI step，无需改 workflow/新增依赖。
