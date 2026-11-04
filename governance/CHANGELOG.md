@@ -2,6 +2,19 @@
 
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
+### 整体架构重构总控 v1.1 与 Branch/PR helper 修复交付（2026-11-04）
+- 将现有 `governance/roadmap.md` 从 v1.0 更新为 v1.1：新增 Branch/PR helper 的实际代码交付、最终 E1/E2 证据，并将下一项明确改为 Branch/PR 职责边界研究提案；旧路线图正文仍完整留在第7节历史档案。
+- Branch/PR 修复已在 `wovowx/mcp-memory/dev` 实施：`tryAutoSyncDev()` 只在 PR `merged=true && head.ref=dev && base.ref=main` 时读取 main SHA 并更新 dev；metadata 缺失/失败/异常、未合并、其他 head/base、无效 SHA 均 fail closed。两个 merge handler 共享同一判断，工具名/Schema 不变。
+- 源码 blob SHA `a9975bde92b16eae83568e9667e7615c79b48686`；合同测试 blob SHA `d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；mcp-memory/dev HEAD `0c5cadde09452359c81198f35a26585b39aec303`。
+- learning-regression run #819 `41856598888` 全步骤 SUCCESS：E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine151/151（含11项新增条件回归）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。全程 fetch mock，真实 PR/refs auto-sync E3 NOT RUN。
+- 修复状态：CLOSED（dev，E1/E2 PASS）；尚未发布 main，未部署。mcp-memory main 仍为 `f74c36cb3f96928df292160745cf61a41951e312`，Cloudflare `[d639e1df]` 仍为既有 v6.36.1 VERIFIED；当前 `main...dev` diverged ahead426/behind20，不整支合并。
+- 同步 `架构差距矩阵.md` v4.47、`现状架构.md` Branch/PR 实施事实、`当前项目状态.md` version138、`真相源导航表.md` v3.65 与 mcp-memory 唯一桥接文末最新记录；roadmap v1.1 为唯一整体架构重构总控，云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态。
+- 本轮未修改 main、DB/schema、权限、生产数据或部署；未触碰聊天室工具、Worker `tools/list`、Agent runtime 唤醒链；未派发 Operit。
+
+### 整体架构重构总控 v1.0 初版（2026-11-04）
+- 将现有 `governance/roadmap.md` 整理为八节总控，不新建平行路线文件；第0–6节为当前控制面，第7节完整保留旧版路线图原文。
+- 明确总控只组织目标、阶段、交付、测试证据、当前主线和未关闭事项；不取代整体架构蓝图、现状架构、差距矩阵、云端身份根和唯一工作检查点。
+
 ### 整体架构重构总控 v1.0（2026-11-04）
 - 柳柳确认将现有 `governance/roadmap.md` 整理为八节总控结构，不新建平行路线文件；第 0–6 节为当前有效控制面，第 7 节完整保留旧版原文作为历史档案。
 - 总控新增：状态/证据分层、权威来源职责表、六阶段最终状态、已交付代码切片账本（文件/Commit/测试 Run/发布边界）、当前 Branch/PR merge-helper 主线、开放事项与明确冻结范围。
