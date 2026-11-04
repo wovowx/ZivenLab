@@ -9,18 +9,18 @@
 
 本节记录当前代码归属与验证基线，不改变下方数据库模型、设计约束或历史生命周期结论：
 
-- src/modules/memory/repository.js：memories、memory_events、memory_aliases 的数据访问层。
-- src/modules/memory/lifecycle.js：putMemory、软删除、rename、move 的协调层；仍沿用分离的 REST 请求，rename/move 仍是目标写入后源软删除的两步流程。
-- src/modules/memory/retrieval.js：记忆搜索、当前有效过滤、匹配评分、受约束中文 bigram 回退、一跳关联，以及列表/分类/日期/统计/随机读取。
-- src/modules/memory/transfer.js：共享导入与导出用例；导入通过 lifecycle.putMemory 写入并按真实写入结果计数，导出统一过滤 active 且 valid_to IS NULL 的记录。
-- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在，搜索输出增加 match_reason，import/export 委托 transfer。
-- src/tools/category.js：保留 list_categories/recall_by_category/move_category 旧入口，但读取与迁类已改为复用 repository/retrieval/lifecycle，不再自行执行 memories REST CRUD 或物理 DELETE。
-- src/tools/data.js：保留 data import/export 兼容入口，与 memory action 共用 transfer；为保留旧接口差异，非法行在 data facade 中继续跳过，在 memory facade 中计为 failed。
+- src/modules/memory/repository.js：memories、memory_events、memory_aliases 数据访问；统一 current-only API（isCurrentMemory/getCurrentMemories/getCurrentMemoryByKey），规则为 status=active 且 valid_to IS NULL。
+- src/modules/memory/lifecycle.js：putMemory、软删除、rename、move 协调；源/目标记录识别、软删除 PATCH 与回查均限定当前有效记录。REST 请求仍分离，rename/move 仍为目标写入后源软删除的两步流程。
+- src/modules/memory/retrieval.js：记忆搜索、current-only 过滤、匹配评分、受约束中文 bigram 回退、一跳关联，以及列表/分类/日期/统计/随机读取；全部读路径使用 repository current-only 查询。
+- src/modules/memory/transfer.js：共享导入与导出用例；导入通过 lifecycle.putMemory 写入并按真实写入结果计数，导出复用 getCurrentMemories。
+- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在，search 输出 match_reason；recall/remember/update/forget 使用 current-only 精确读取，import/export 委托 transfer。
+- src/tools/category.js：保留 list_categories/recall_by_category/move_category 旧入口；读取与迁类复用 repository/retrieval/lifecycle，不再自行执行 memories REST CRUD 或物理 DELETE，迁类前定位也使用 current-only key。
+- src/tools/data.js：保留 data import/export 兼容入口，与 memory action 共用 transfer；非法行在 data facade 中继续跳过，在 memory facade 中计为 failed。
 - src/utils/search.js：仍只负责 search_history/suggest，不是记忆正文检索实现。
 
-当前实现代码相关提交链：Memory Core 实现/兼容收敛 commit 5d20095f352ba45dd4104daa22e2d8f00e0c5a8b；transfer 模块 commit 6a9f49358161a933e4a3d3fa7840eb365e45947a；后续 facade/test 补齐持续提交至测试 SHA 997fc7a4d1cb703fd243571bc4ccde8c0540e07e。当前 mcp-memory/dev HEAD：3e311916b9ae56aa7b5d6041ca338def8eab3a15。GitHub Actions learning-regression run 41769004538 全步骤 SUCCESS；Memory Core contracts **50 passed / 0 failed**。上述为 E1 与 fetch-mock 行为证据，不证明真实 Supabase endpoint、生产数据库或真实 GPT/Operit 检索行为。此次没有修改 DB schema、表、函数、trigger、权限或数据。
+当前实现/测试基线：mcp-memory/dev 代码与测试 SHA **8584ed5f71cd5a8698fa9442c65337aa78a1e933**；GitHub Actions learning-regression run **41770041189** 全步骤 SUCCESS，Memory Core contracts **54 passed / 0 failed**。最新桥接文档 HEAD：2e8d4b6b50d437102ddb8bb957ace4cb5bebceed；其 learning-regression run 41770137562 已 SUCCESS。E1 与 fetch-mock 证据不证明真实 Supabase endpoint、生产数据库或真实 GPT/Operit 检索行为。本轮没有修改 DB schema、表、函数、trigger、权限或数据。
 
-生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 的原子迁移均未实现。rename/move 虽已统一入口并保留 type/source_ref/trigger_intents/entities/related_memory_ids 等语义元数据，但若源软删除失败仍会留下部分迁移并返回警告。category.js 旧的直接 REST DELETE/POST/PATCH 路径已于 2026-11-04 移除；data.js 与 memory_unified 的重复导入/导出用例已合并至 transfer.js。通用 supabase_db 仍是另一个可执行 CRUD/SQL 的潜在绕行入口，其实际 DB 权限不在本轮范围。下方静态生命周期差距仍有效，但旧的“category.js 当前直接物理 DELETE”仅作历史源码记录，不代表当前 dev 实现。
+生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 原子迁移均未实现。rename/move 虽已统一入口并保留 type/source_ref/trigger_intents/entities/related_memory_ids 等语义元数据，但若源软删除失败仍会留下部分迁移并返回警告。category.js 旧的直接 REST DELETE/POST/PATCH 路径已于 2026-11-04 移除；data.js 与 memory_unified 的重复导入/导出用例已合并至 transfer.js。通用 supabase_db 仍是另一个可执行 CRUD/SQL 的潜在绕行入口，其实际 DB 权限不在本轮范围。下方静态生命周期差距仍有效，但旧的“category.js 当前直接物理 DELETE”仅作历史源码记录，不代表当前 dev 实现。
 ## 表清单
 
 | 表 | 角色 |
