@@ -8,14 +8,14 @@
 - 回归：新增 `tests/github_contents_contract_test.mjs` 并纳入 learning-regression；CI run `41792822930` 对应 SHA `65814c838996b48aa4b98a57cb469734a4209473` 全步骤 SUCCESS：E1 check、E2 webhook114/114、Router/contracts140/140、GitHub Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifact regression。仅 E1/E2 mock，不代表真实 endpoint E3；未合并 main、未部署 Worker。
 
 ### main 增量发布节奏更新
-- 柳柳明确要求：达到可发布条件时就按阶段性成果及时推 main，不把多个无关切片长期堆在 dev；每次推送前必须提前告知准确版本、变更范围、CI/验证、风险、回滚和部署影响。对已确认的常规切片范围，预告后按计划执行，不再为每次常规发布重复索取同一范围的批准；若超出既定边界、触及 DB/schema/权限/生产数据或出现重大新风险，则暂停重新讨论。柳柳提出暂停时立即停止。当前协作协议 v4.4、Policy Index v2.8、导航表 v3.62、驾驶舱 version134。
+- 柳柳明确要求：达到可发布条件时就按阶段性成果及时推 main，不把多个无关切片长期堆在 dev；每次推送前必须提前告知准确版本、变更范围、CI/验证、风险、回滚和部署影响。对已确认的常规切片范围，预告后按计划执行，不再为每次常规发布重复索取同一范围的批准；若超出既定边界、触及 DB/schema/权限/生产数据或出现重大新风险，则暂停重新讨论。柳柳提出暂停时立即停止。当前协作协议 v4.4、Policy Index v2.8、导航表 v3.62、驾驶舱 version135。
 
 ### 基础能力、场景编排与工具入口的通用设计原则确认
 - 柳柳与 Ziven 经过技术讨论，确认整体架构采用逻辑三层能力组织：基础能力（Primitives）独立可复用；场景编排（Workflows / Use Cases）负责组合能力、封装完整用户意图及处理部分失败；工具入口（Facade）维持稳定接口、兼容与门禁，隐藏不必要的底层步骤。
 - 原始讨论以识图为例：识图入口可在内部处理必要上传后调用独立识别能力；上传、识别两项底层能力仍可独立复用。明确不机械地“每个场景一个工具”，也不为目录整齐而拆分。
 - 技术协作新增要求：Agent 必须独立分析、给出推荐与替代方案、揭示权衡；架构方向与职责边界需讨论并共同确认后才编码。用户初始想法是输入，不自动视作技术定案。
 - 同步权威文件：`governance/整体架构.md` v1.2、`governance/协作讨论与决策机制.md`、`governance/协作协议.md`、`governance/policy-index.md`、`governance/现状架构.md`、`governance/架构差距矩阵.md` v4.41、`governance/roadmap.md`、`governance/当前项目状态.md` version132。
-- GitHub Contents 被确定为首个候选垂直切片，但详细职责/接口原型待进一步分析和共同定案；Branch/PR 与 Patch Engine 不纳入首批。记录强调“设计方向已确认”不等于“代码已实现”。
+- GitHub Contents 已成为首个完成的代码垂直切片：采用稳定 facade + 单个 Contents domain module，内部以 primitives + workflows 组织；Branch/PR 与 Patch Engine 不纳入本批。实施范围和 E1/E2 证据见本文件前部的 v6.36.0 记录及 `governance/架构差距矩阵.md` v4.43。
 
 ### 记忆检索质量当前基线
 - GPT 当前宿主真实复测现有 7 条固定 memory search 查询：原始长句直接命中 3/7，核心词回退使另外 4 条均找到目标；2 条负向样本正确返回 0 条；宽泛词「自称」返回 6 条候选。
