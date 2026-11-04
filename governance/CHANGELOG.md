@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
+
+### 阶段6只读收敛与当前证据刷新
+- 已在既有 canonical `⚙️/当前工作检查点` 正文顶部加入当前状态覆盖段，回读确认；旧正文保留为历史。A7 仍为限定范围 PASS；A6 仍 UNKNOWN，因为 Operit 新框的首次回复早于同步，缺少同步后同一时点的双端对照。
+- 当前 `mcp-memory/dev` HEAD `eda4d728b8d78a87a7f297334374b526c48483b3` 的 learning-regression run `41750644413` 所有步骤 SUCCESS；Pages artifact run `41750644411` build/upload SUCCESS，main-only deploy SKIPPED。静态/Mock 和 artifact 结果不代表真实 endpoint、数据库或权限行为通过。
+- `mcp-memory/main` HEAD `71f6a03ebc81193e5d88a98297ad66083d301515` 与 Cloudflare 部署 `c78ab839` 匹配（VERIFIED）；main 未改、未部署。main...dev ahead 265 / behind 0 / 21 个文件差异，不能整支合并。
+- 已只读检查当前私有 Ziven_MCP 插件 release 的完整文件清单；仅有 `.app.json` 与 `.codex-plugin/plugin.json`，均不含 memory tool schema/description。GPT 工具描述旧 key 的来源因此排除当前插件 manifest，但 connector/host 动态 schema 来源仍 UNKNOWN；未调用 Worker `tools/list`，未修改插件包。
+- PR #319 仍 open、未合并；按柳柳决定不主动推动。阶段6剩余的双端对照、真实 Worker 外层认证、DB/RPC 权限证据、connector/host metadata 来源，以及未来若发布时的 Pages Source/URL，均需外部权限或运行时证据。未改 main、生产代码、DB/schema/权限或部署。
+
 ## [docs-2026.10.51] - 2026-10-29（dev 草稿，未发布）
 
 ### 阶段6证据收敛状态与风险决策对齐
