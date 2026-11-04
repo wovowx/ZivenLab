@@ -5,9 +5,9 @@
 ### 整体架构重构总控 v1.1 与 Branch/PR helper 修复交付（2026-11-04）
 - 将现有 `governance/roadmap.md` 从 v1.0 更新为 v1.1：新增 Branch/PR helper 的实际代码交付、最终 E1/E2 证据，并将下一项明确改为 Branch/PR 职责边界研究提案；旧路线图正文仍完整留在第7节历史档案。
 - Branch/PR 修复已在 `wovowx/mcp-memory/dev` 实施：`tryAutoSyncDev()` 只在 PR `merged=true && head.ref=dev && base.ref=main` 时读取 main SHA 并更新 dev；metadata 缺失/失败/异常、未合并、其他 head/base、无效 SHA 均 fail closed。两个 merge handler 共享同一判断，工具名/Schema 不变。
-- 源码 blob SHA `a9975bde92b16eae83568e9667e7615c79b48686`；合同测试 blob SHA `d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；mcp-memory/dev HEAD `0c5cadde09452359c81198f35a26585b39aec303`。
+- 源码 blob SHA `a9975bde92b16eae83568e9667e7615c79b48686`；合同测试 blob SHA `d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；learning-regression #819 绑定的代码/测试 commit `0c5cadde09452359c81198f35a26585b39aec303`；后续仅追加 bridge 文档提交，当前 branch tip 以实时 refs 为准。
 - learning-regression run #819 `41856598888` 全步骤 SUCCESS：E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine151/151（含11项新增条件回归）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。全程 fetch mock，真实 PR/refs auto-sync E3 NOT RUN。
-- 修复状态：CLOSED（dev，E1/E2 PASS）；尚未发布 main，未部署。mcp-memory main 仍为 `f74c36cb3f96928df292160745cf61a41951e312`，Cloudflare `[d639e1df]` 仍为既有 v6.36.1 VERIFIED；当前 `main...dev` diverged ahead426/behind20，不整支合并。
+- 修复状态：CLOSED（dev，E1/E2 PASS）；尚未发布 main，未部署。mcp-memory main 仍为 `f74c36cb3f96928df292160745cf61a41951e312`，Cloudflare `[d639e1df]` 仍为既有 v6.36.1 VERIFIED；CI-tested commit 时的 `main...dev` compare 为 diverged ahead426/behind20；之后的 bridge 文档提交只增加 dev ahead 数，不改变测试绑定 SHA；操作前重新读取实时 compare。
 - 同步 `架构差距矩阵.md` v4.47、`现状架构.md` Branch/PR 实施事实、`当前项目状态.md` version138、`真相源导航表.md` v3.65 与 mcp-memory 唯一桥接文末最新记录；roadmap v1.1 为唯一整体架构重构总控，云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态。
 - 本轮未修改 main、DB/schema、权限、生产数据或部署；未触碰聊天室工具、Worker `tools/list`、Agent runtime 唤醒链；未派发 Operit。
 
