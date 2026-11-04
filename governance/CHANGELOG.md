@@ -9,7 +9,12 @@
 - 当前 `mcp-memory/dev` HEAD `eda4d728b8d78a87a7f297334374b526c48483b3` 的 learning-regression run `41750644413` 所有步骤 SUCCESS；Pages artifact run `41750644411` build/upload SUCCESS，main-only deploy SKIPPED。静态/Mock 和 artifact 结果不代表真实 endpoint、数据库或权限行为通过。
 - `mcp-memory/main` HEAD `71f6a03ebc81193e5d88a98297ad66083d301515` 与 Cloudflare 部署 `c78ab839` 匹配（VERIFIED）；main 未改、未部署。main...dev ahead 266 / behind 0 / 21 个文件差异，不能整支合并。
 - 已只读检查当前私有 Ziven_MCP 插件 release 的完整文件清单；仅有 `.app.json` 与 `.codex-plugin/plugin.json`，均不含 memory tool schema/description。GPT 工具描述旧 key 的来源因此排除当前插件 manifest，但 connector/host 动态 schema 来源仍 UNKNOWN；未调用 Worker `tools/list`，未修改插件包。
-- PR #319 仍 open、未合并；按柳柳决定不主动推动。阶段6剩余的双端对照、真实 Worker 外层认证、DB/RPC 权限证据、connector/host metadata 来源，以及未来若发布时的 Pages Source/URL，均需外部权限或运行时证据。未改 main、生产代码、DB/schema/权限或部署。
+- PR #319 仍 open、未合并；按柳柳决定不主动推动。A6/A7 已按限定范围 PASS；未来若发布 Pages，届时再核验 Source/URL。未改 main、生产代码、DB/schema/权限或部署。
+
+### 2026-11-04 范围裁剪决策
+- 按柳柳判断，将 Worker 入口认证/Cloudflare Access/WAF 审计与 Supabase 线上 DB/RPC/RLS/GRANT/trigger/CAS/事务审计从当前主线及阶段6验收门槛中移除；不申请额外权限、不做线上审计、不作为待办。
+- 已有静态源码观察仍保留为历史事实，不继续扩展为基础设施审计。Pages Source/真实 URL 仅在未来实际发布前核验。
+- 当前唯一剩余只读核对为 GPT `memory` 工具描述旧恢复 key 的动态 metadata 来源；若当前宿主无法提供来源，记录 UNKNOWN、非阻塞，并按缩减后的验收范围收口阶段6。
 
 ## [docs-2026.10.51] - 2026-10-29（dev 草稿，未发布）
 
