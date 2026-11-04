@@ -2,6 +2,13 @@
 
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
+### 整体架构重构总控 v1.0（2026-11-04）
+- 柳柳确认将现有 `governance/roadmap.md` 整理为八节总控结构，不新建平行路线文件；第 0–6 节为当前有效控制面，第 7 节完整保留旧版原文作为历史档案。
+- 总控新增：状态/证据分层、权威来源职责表、六阶段最终状态、已交付代码切片账本（文件/Commit/测试 Run/发布边界）、当前 Branch/PR merge-helper 主线、开放事项与明确冻结范围。
+- 明确云端 `⚙️/当前工作检查点` 仍是唯一当前工作状态权威源；roadmap 只组织行动与交付，不复制云端检查点正文，也不替代蓝图、现状地图或差距矩阵。
+- 同步 `当前项目状态.md` version137、`真相源导航表.md` v3.64、`架构差距矩阵.md` v4.46；校准阶段6/A6/A7 最新范围结论，并将旧头部冲突状态标注为历史快照。
+- 本轮只修改 ZivenLab/dev 治理文档；未修改 mcp-memory 代码、数据库/schema、权限、生产数据、main 或部署；未运行代码测试，未派发 Operit。
+
 ### v6.36.0 / v6.36.1 发布闭环与 scoped PR 分支事故复盘（2026-11-04）
 - PR #320 将 GitHub Contents v6.36.0 以 scoped release 方式合入 main；当时 main=`5532a3ea52aa71e1362f830b66811abd1242d8fb`，Cloudflare deployment `[30eeb8d7]` VERIFIED。
 - **事故**：PR #320 的 head 是临时 scoped release 分支，并非 dev；但合并工具仍自动把 dev ref 强制移动到 main。源码根因已核实：`github_merge_pull_request` 与 `github_merge_to_main` 在任何成功合并后都调用 `tryAutoSyncDev()`，helper 没有检查 PR head/base。该问题不属于 Contents 首切片，v6.36.1 也尚未修复其触发条件。
