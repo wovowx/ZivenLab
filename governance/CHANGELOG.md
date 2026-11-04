@@ -11,10 +11,10 @@
 - 已只读检查当前私有 Ziven_MCP 插件 release 的完整文件清单；仅有 `.app.json` 与 `.codex-plugin/plugin.json`，均不含 memory tool schema/description。GPT 工具描述旧 key 的来源因此排除当前插件 manifest，但 connector/host 动态 schema 来源仍 UNKNOWN；未调用 Worker `tools/list`，未修改插件包。
 - PR #319 仍 open、未合并；按柳柳决定不主动推动。A6/A7 已按限定范围 PASS；未来若发布 Pages，届时再核验 Source/URL。未改 main、生产代码、DB/schema/权限或部署。
 
-### 2026-11-04 范围裁剪决策
-- 按柳柳判断，将 Worker 入口认证/Cloudflare Access/WAF 审计与 Supabase 线上 DB/RPC/RLS/GRANT/trigger/CAS/事务审计从当前主线及阶段6验收门槛中移除；不申请额外权限、不做线上审计、不作为待办。
-- 已有静态源码观察仍保留为历史事实，不继续扩展为基础设施审计。Pages Source/真实 URL 仅在未来实际发布前核验。
-- 当前唯一剩余只读核对为 GPT `memory` 工具描述旧恢复 key 的动态 metadata 来源；若当前宿主无法提供来源，记录 UNKNOWN、非阻塞，并按缩减后的验收范围收口阶段6。
+### 2026-11-04 范围裁剪与阶段6收口
+- 按柳柳判断，Worker 入口认证/Cloudflare Access/WAF 审计与 Supabase 线上 DB/RPC/RLS/GRANT/trigger/CAS/事务审计退出当前主线和阶段6验收门槛；不申请额外权限、不做线上审计、不作为待办。历史静态源码观察保留，不继续扩展为基础设施审计。
+- A6、A7 均按限定范围 PASS。重新读取 Ziven_MCP 当前私有 release：完整文件清单仅含 `.app.json` 与 `.codex-plugin/plugin.json`；两者仅有 app 绑定/展示元数据，无 memory tool schema/description。GPT 当前 `memory` 工具描述仍引用旧恢复 key，动态 connector/host 来源在当前宿主不可见，登记 UNKNOWN、非阻塞；A6 精确 recall 已证明 canonical 检查点读取路径可用。
+- 据此阶段6按缩减范围完成收口，不宣称全面基础设施审计通过。Pages Source/真实 URL 仅在未来实际发布前核验；其他静态差距继续留在矩阵，按真实需求推进。
 
 ## [docs-2026.10.51] - 2026-10-29（dev 草稿，未发布）
 
