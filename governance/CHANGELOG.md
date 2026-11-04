@@ -2,6 +2,11 @@
 
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
+### 记忆检索质量当前基线
+- GPT 当前宿主真实复测现有 7 条固定 memory search 查询：原始长句直接命中 3/7，核心词回退使另外 4 条均找到目标；2 条负向样本正确返回 0 条；宽泛词「自称」返回 6 条候选。
+- 源码静态证据显示 memory search 对拆分关键词采用全词 AND，并按 created_at 排序；初步差距是长句漏召回与宽泛词候选过多。未修改检索代码、DB/schema 或真实业务记忆。
+- 测试集更新为 `governance/database/记忆检索质量测试集.md` v1.5。下一步先做需求规格与最小原型，经柳柳验收后再编码；不新增表、不改 DB/schema/权限。
+
 ### 阶段6只读收敛与当前证据刷新
 - A6 = PASS（限定范围：2026-11-04 检查点同步后，GPT 与 Operit 精确 recall 返回相同 canonical key/category 和当前状态覆盖）；其他运行时/权限仍 UNKNOWN。
 - 最新 mcp-memory/dev HEAD `82b4a7fa1502eefa31779f7efebd04cbc37dd70e`：learning-regression `41754792789` SUCCESS；Pages artifact `41754792835` build/upload SUCCESS、deploy skipped；main...dev ahead 270 / behind 0 / 21 文件。
