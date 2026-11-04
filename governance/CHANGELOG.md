@@ -12,7 +12,7 @@
 - ChatGPT GitHub Connector 的 `update_ref` / `create_branch` refs mutation 返回 403 `Resource not accessible by integration`；dev 当时 `protected=false`。Connector 的 ref mutation 权限与仓库的 push/admin 元数据、以及 Worker Token 权限是不同通路；不能据此误判 branch protection，也不应重复让 Operit试同一受限 Connector 通路。
 - 最终 main...dev compare=`diverged`，ahead 415 / behind 20，merge base=`71f6a03ebc81193e5d88a98297ad66083d301515`。dev 的提交对象未丢失。不得整支合并 dev，也不得以 dev→main 合并来修复 branch ref；临时修复分支已在部署和恢复完成后删除。
 - **后续代码开放项**：修复两个 merge handler 的 auto-sync 条件——只有 PR `head.ref=dev` 且 `base.ref=main` 才允许 dev→main 自动同步；scoped release/hotfix/其他 head 必须跳过。增加回归：dev→main 触发、scoped→main 不触发、其他 base 不触发、merged/405 路径行为正确。修复尚未实施，不可把文档规则描述成代码已根治。
-- **固化的发布操作**：merge 前记录 main/dev 完整 SHA 与 PR head/base ref+SHA；合并后独立回读 PR merged、main/dev refs 和 Cloudflare verify；发生意外 ref 移动时，仅在目标 commit 存在且当前 dev 仍等于预期 post-merge SHA 时使用 dev-only 精确恢复，恢复后再次回读；绝不无条件 force、删除/重建 dev 或把 dev 合入 main。
+- **固化的发布操作**：merge 前记录 main/dev 完整 SHA 与 PR head/base ref+SHA；合并后独立回读 PR merged、main/dev refs 和 Cloudflare verify；发生意外 ref 移动时，仅在目标 commit 存在且当前 dev 仍等于预期 post-merge SHA 时使用 dev-only 精确恢复，恢复后再次回读；绝不无条件 force、删除/重建 dev 或把 dev 合入 main。 - **compare 安全解释**：ahead/behind 必须带方向判断；dev 为 main 祖先且没有独有提交（ahead=0）时才可快进 dev；只领先时保留 dev；两边都有独有提交 / diverged 时禁止用 `sync_branch` 强行对齐。
 - 未修改 Supabase DB/schema/权限/生产记忆数据；未触碰聊天室工具、Worker `tools/list` 或 Agent runtime 唤醒链；未派 Operit。
 
 ### GitHub Contents v6.36.0 首个垂直切片实施完成
