@@ -248,10 +248,10 @@
 
 | 事项 | 状态 | 是否当前主线 | 处理原则 |
 |---|---|---|---|
-| Branch/PR helper 无条件同步 dev | **DEV FIX VERIFIED；DEPLOYED MAIN RISK OPEN；E3 NOT RUN** | ✅ 生产修复发布可行性分析是当前工作 | dev CI-tested commit `0c5cadde…` / run `41856598888`；main 仍为旧 helper（blob `371de7e7…`）；发布需另行取得柳柳批准 |
+| Branch/PR helper 无条件同步 dev | **DEV FIX VERIFIED；DEPLOYED MAIN RISK OPEN；E3 NOT RUN** | ✅ 当前阻塞：等待柳柳批准创建 scoped release 分支/PR | 推荐 v6.36.2 四文件候选；只读可行性已完成；未创建分支/PR。main 仍为旧 helper（blob `371de7e7…`）；合并/部署须另行授权 |
 | Memory Core 完整事件账本、事务一致性、CAS、rename/move 原子迁移 | 设计/实现差距仍存在 | 否，独立差距 | 依据记忆两表设计、domains/memory 与差距矩阵；未共同确认方案前不改 DB/schema/生产记忆 |
 | GitHub Contents 真实文件读写 E3 | NOT RUN | 否 | 当前已有 E1/E2 fetch-mock；未来确有必要且获准再安排真实 endpoint 验收 |
-| Branch/PR 领域模块边界评估 | CANDIDATE（研究/提案阶段，未定案） | ✅ 下一项分析任务；不是编码授权 | 先核对调用链、依赖、复用、错误/测试边界并参考成熟方案；提交选项与推荐，柳柳确认后才能做结构性改动 |
+| Branch/PR 领域模块边界评估 | CANDIDATE（研究/提案阶段，未定案） | 否，生产修复发布后再评估 | 当前先关闭已部署 Worker 的 merge-helper 生产风险；之后再核对调用链、依赖、复用、错误/测试边界并与柳柳讨论是否拆分 |
 | Pages Source / 真实 URL | UNKNOWN；PR #319 不主动推动 | 否 | 仅未来实际发布 Pages 前核验；保留决定不等于合并/部署授权 |
 | GPT memory tool description 的动态 connector/host 来源 | UNKNOWN、非阻塞 | 否 | 不调用 Worker `tools/list`；不为追查文案触碰聊天室注册副作用 |
 
