@@ -9,18 +9,18 @@
 
 本节记录当前代码归属与验证基线，不改变下方数据库模型、设计约束或历史生命周期结论：
 
-- src/modules/memory/repository.js：memories、memory_events、memory_aliases 数据访问；统一 current-only API（isCurrentMemory/getCurrentMemories/getCurrentMemoryByKey），current-only 规则为 status=active 且 valid_to IS NULL。
+- src/modules/memory/repository.js：memories、memory_events、memory_aliases 数据访问；统一 current-only API（isCurrentMemory/getCurrentMemories/getCurrentMemoryByKey），current-only 规则为 status=active 且 valid_to IS NULL。另提供 getMemoryHistoryByKey 精确 key 历史查询，刻意不加 active/status/valid_to 条件，逐条读取对应 memory_events。
 - src/modules/memory/lifecycle.js：putMemory、软删除、rename、move 协调；源/目标记录识别、软删除 PATCH 与回查均限定当前有效记录。REST 请求仍分离，rename/move 仍为目标写入后源软删除的两步流程。
-- src/modules/memory/retrieval.js：记忆搜索、current-only 过滤、匹配评分、受约束中文 bigram 回退、一跳关联，以及列表/分类/日期/统计/随机读取；全部读路径使用 repository current-only 查询。listMemories/listMemoriesByCategory/listMemoriesByDate 共用 paginateItems，统一 total/page/nextCursor 计算。
+- src/modules/memory/retrieval.js：记忆搜索、current-only 过滤、匹配评分、受约束中文 bigram 回退、一跳关联，以及列表/分类/日期/统计/随机读取；全部业务读路径使用 repository current-only 查询。listMemories/listMemoriesByCategory/listMemoriesByDate 共用 paginateItems，统一 total/page/nextCursor 计算。
 - src/modules/memory/transfer.js：共享导入与导出用例；导入通过 lifecycle.putMemory 写入并按真实写入结果计数，导出复用 getCurrentMemories。
-- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在，search 输出 match_reason；recall/remember/update/forget 使用 current-only 精确读取，import/export 委托 transfer。
+- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在，search 输出 match_reason；recall/remember/update/forget 使用 current-only 精确读取，import/export 委托 transfer，history action 使用 getMemoryHistoryByKey 回看已软删除/过期 key 与 events。
 - src/tools/category.js：保留 list_categories/recall_by_category/move_category 旧入口；读取与迁类复用 repository/retrieval/lifecycle，不再自行执行 memories REST CRUD 或物理 DELETE，迁类前定位也使用 current-only key。
 - src/tools/data.js：保留 data import/export 兼容入口，与 memory action 共用 transfer；非法行在 data facade 中继续跳过，在 memory facade 中计为 failed。
 - src/utils/search.js：仍只负责 search_history/suggest，不是记忆正文检索实现。
 
-当前实现/测试基线：mcp-memory/dev 代码/测试 SHA **b092241f5a9b69d2028d57d37d0537eeb2d0ed48**；GitHub Actions learning-regression run **41770714322** 全步骤 SUCCESS，Memory Core contracts **56 passed / 0 failed**。共享分页 helper 重构 commit：dc290fc63243d5ddc65a0eec578e25b59ff1b1ea。最新桥接文档 HEAD：186c56dc2e6b33c57837ca45b3780acaaeef3300；其 learning-regression run 41770821271 待最终回读。E1 与 fetch-mock 证据不证明真实 Supabase endpoint、生产数据库或真实 GPT/Operit 检索行为。本轮没有修改 DB schema、表、函数、trigger、权限或数据。
+当前实现/测试基线：mcp-memory/dev 代码/测试 SHA **19faad1f69ff3a43e1bc94570f1c6487f55fe580**；GitHub Actions learning-regression run **41782153460** 全步骤 SUCCESS，Memory Core contracts **60 passed / 0 failed**。最新 bridge HEAD：**f5ff985136c0c54284407de78472dd3baf56dfe7**；其 learning-regression run **41782447108** 与 Pages artifact run **41782447112** 均 SUCCESS（dev 不部署）。Webhook suite 114/114；Router/registry/DDL parser/Patch Engine contracts、search_history、release_guard、learning artifacts 全通过。上述为 E1/E2 与 fetch-mock 行为证据，不证明真实 Supabase endpoint、生产数据库或真实 GPT/Operit 检索行为。本轮没有修改 DB schema、表、函数、trigger、权限或数据。
 
-生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 原子迁移均未实现。rename/move 虽已统一入口并保留 type/source_ref/trigger_intents/entities/related_memory_ids 等语义元数据，但若源软删除失败仍会留下部分迁移并返回警告。category.js 旧的直接 REST DELETE/POST/PATCH 路径已于 2026-11-04 移除；data.js 与 memory_unified 的重复导入/导出用例已合并至 transfer.js。通用 supabase_db 仍是另一个可执行 CRUD/SQL 的潜在绕行入口，其实际 DB 权限不在本轮范围。下方静态生命周期差距仍有效，但旧的“category.js 当前直接物理 DELETE”仅作历史源码记录，不代表当前 dev 实现。
+生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 原子迁移均未实现。rename/move 虽已统一入口并保留 type/source_ref/trigger_intents/entities/related_memory_ids 等语义元数据，但若源软删除失败仍会留下部分迁移并返回警告。history 查询修复只恢复现有记录与 events 的可读性，没有补造缺失的事件，也没有改变 memory_events 数据。category.js 旧的直接 REST DELETE/POST/PATCH 路径已于 2026-11-04 移除；data.js 与 memory_unified 的重复导入/导出用例已合并至 transfer.js。通用 supabase_db 仍是另一个可执行 CRUD/SQL 的潜在绕行入口，其实际 DB 权限不在本轮范围。下方静态生命周期差距仍有效，但旧的“category.js 当前直接物理 DELETE”仅作历史源码记录，不代表当前 dev 实现。
 ## 表清单
 
 | 表 | 角色 |
