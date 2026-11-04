@@ -1,4 +1,4 @@
-# Policy Index（规范索引）· v2.8 · 2026-11-04
+# Policy Index（规范索引）· v2.9 · 2026-11-04
 
 > **用途**：所有 Agent（Ziven/GPT/未来）行为的「规范在哪、什么时候用、怎么加载」——统一入口，避免规范躺在文档里没人看。
 > **原则（GPT #791）**：Source of Truth 存全文，各入口只放引用，不复制全文（防漂移）。
@@ -31,10 +31,11 @@
 | **AAD 行为透明** | 协作协议#八（Agent 行为透明协议） | all_tasks（所有任务） | 角色卡引用 + buildSystemPrompt 引用 |
 | **Ownership 闭环责任** | 协作协议#九（闭环责任协议） | long_running（长任务/部署/等待类） | 角色卡引用；deploy skill#6 |
 | **Deploy Closure 部署自动闭环** | deploy skill#6（部署自动闭环验证） | deploy 场景（merge 后） | 部署时读 deploy skill；merge 工具返回提示 |
+| **Scoped PR 分支引用保护与恢复** | `wovowx/mcp-memory/src/skills/deploy/SKILL.md`（v6.6.5）；`governance/协作协议.md` §六.五；操作事实见 `wovowx/mcp-memory/CROSS-HOST-BRIDGE.md` 文末 | 每次合并 main 的 PR，特别是 scoped release/hotfix 分支 | merge 前记录 main/dev 与 PR head/base SHA；merge 后独立回读 PR/main/dev 与 Cloudflare。当前 merge helper 对任意 PR 都可能 force-sync dev→main，代码条件修复仍 open；若发生意外移动，只能在 expected SHA 校验后使用 dev-only 精确恢复，禁止用 dev→main 合并补救 |
 | **Permission Guard（执行接入待核）** | 代码 `src/modules/permission_guard.js` | 设计上覆盖 write/merge（github_push/github_merge） | 该模块当前未被 `src/index.js` / `src/modules/mcp_router.js` 导入；不能表述为当前 MCP request path 中不可绕过的硬门禁。运行时接入与拒绝/放行回归状态见 `governance/架构差距矩阵.md` |
 | **Release Guard** | 代码 src/modules/release_guard.js | push/merge 到 main | 代码硬约束（版本化强制） |
 | **Database Guard**（Table Change Guard） | `governance/database/schema-policy.md` | 加表/改表/DDL 执行前 | Worker `mcp-memory/dev` 已加入 create/drop/exec 的 necessity gate、`supabase_*` 注册表校验，以及 `supabase_db` 与 `supabase_schema` 的公开 necessity 参数提示；Operit 在 SHA `c4ef21814fb6c0a5c9b06fed9295cac9d5bc975c` 的隔离 worktree 中通过 `npm run check`、webhook 104/104、Router Mock 44/44；该版本包含 create_patch_proposal 必填 schema/统一 usage_count 打点及 IMPORT/SECURITY DDL gate 回归。此前 SHA `2833a94e08c23b45a0598256a486463ee5d4cf6e` 的37/37属于前一轮证据。此证据仅覆盖隔离 mock，不代表线上部署或真实 RPC 权限。上述 SHA `d41d6cdfa8d4ef1e70e59c047f0a33c7f010ca8a` 的 E1/E2 属于历史回归批次。最新完整隔离回归已于 2026-10-27 在 SHA `fcd12b1e55f6a7119addb27647e6d2692773a8cf` 通过：E1 `npm run check` exit 0、webhook 104/104、contracts 122/122、search_history 20/20、release_guard 15/15，stderr 空、worktree clean。后续治理/Skill/桥接文档提交未在该 SHA 上重跑；全程 mock/本地，不代表真实 RPC/endpoint/DB 权限已验证。独立可见 `supabase_schema` 工具签名仍无 `necessity`，其是否经过 Worker Router 仍未知；真实 RPC/DDL 权限与多语句行为未验证。necessity 只是必要性描述门槛，不等于执行授权；真实 DDL 始终须柳柳明确授权 |
-| **协作协议 v4.4（含技术设计讨论、main 增量发布纪律）** | governance/协作协议.md（含「技术设计与架构讨论」）；细则见 governance/协作讨论与决策机制.md | 所有协作讨论/决策/执行，尤其模块边界、基础能力复用、场景编排、工具入口与公共接口设计 | 架构级编码前必须按讨论机制形成共同确认；已确认方案的局部实现细节可自主处理 |
+| **协作协议 v4.5（含技术设计讨论、main 增量发布与 scoped PR refs 纪律）** | governance/协作协议.md（含「技术设计与架构讨论」及 §六.五）；细则见 governance/协作讨论与决策机制.md | 所有协作讨论/决策/执行，尤其模块边界、基础能力复用、工具入口、main 发布与分支引用变更 | 架构级编码前必须按讨论机制形成共同确认；每次 merge 还须遵守 refs 快照、独立回读与恢复边界 |
 | **能力组织原则** | governance/整体架构.md「能力组织原则：基础能力 → 场景编排 → 工具入口」 | 新建/重构工具、Skill、业务模块或跨场景复用能力时 | 设计前读取权威原则；与协作讨论机制配合，不把原则机械理解为每个场景都新增工具 |
 | **协作准则·痛点清单与规划 v1.0** | governance/协作准则·痛点清单与规划.md | 治理方向/31条痛点盘点/能力-凭据-方法清单查询（不东存西存） | 文档阅读（治理/遗留问题/能力方法） |
 | **C 类缺口机制 v1.1** | governance/C类缺口机制.md | 优化建议库/复盘链条/新框审视（缺口 12/13/14）机制落地 | 遇建议归档/复盘沉淀/治理文档更新审视时读全文 |
