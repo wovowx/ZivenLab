@@ -226,7 +226,7 @@
 ### 6.4 当前发布与分支快照（2026-11-04 本轮回读）
 
 - `wovowx/mcp-memory/main` HEAD：`f74c36cb3f96928df292160745cf61a41951e312`；v6.36.1 已发布，Cloudflare deployment `[d639e1df]` VERIFIED。
-- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 429 / behind 20**；当前 dev HEAD=`708252ef8faa6c49ddbe906109ddf5eed25866f6`；禁止整支合并或强制同步任一方向。
+- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 430 / behind 20**；当前 dev HEAD=`f7ce30965c059c55cfccefcf341a297a3418f0cf`；禁止整支合并或强制同步任一方向。
 - v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；Branch/PR merge-helper 条件修复现已在 dev 完成并有 E1/E2 证据，但尚未发布 main。
 - 本轮治理文档只更新 ZivenLab/dev，不涉及 main。最新 ZivenLab dev Commit 以 GitHub 分支当前 HEAD 为准；不得把治理文档 Commit 当作 mcp-memory 代码版本。
 
