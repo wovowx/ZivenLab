@@ -7,7 +7,7 @@
 >
 > **推进前必读**：开工前读本文件 + `governance/当前项目状态.md`，完成验证后更新两者。
 >
-> ## 🚦 当前活跃主线（2026-10-29 校准）
+> ## 🚦 当前活跃主线（2026-11-04 复核）
 >
 > **最新状态（2026-10-29；优先于下方历史快照）**：新版完整 SB-FRAME-1.0 独立冷启动验收已完成，新框 `7516ae0a-23e2-4b6f-8dce-6cb4f592547f` 正确恢复 canonical 工作检查点；A7 PASS（限本次无旧对话上下文新框与可见证据），A6 完整跨宿主一致性仍 UNKNOWN，阶段6尚未总体验收。已在 canonical 业务记忆正文顶部增加当前状态覆盖段并回读确认，旧正文保留作历史；不过 Operit 新框首次回复形成于修改前，所以 A6 仍 UNKNOWN，不能据写入本身认定两端同状态。无需重跑冷启动/CI；若需将 A6 升为 PASS，必须有同一时点两端对照证据。新框结果依据 Operit 回填的 `aiResponse` 自述与 canonical key/category、既有独立 recall 佐证吻合；原始中间工具调用日志不可见，不宣称其可见。静态/Mock CI 不能代替真实 endpoint/DB/RPC/权限验证。Pages PR #319 仍 open 未合并，Pages Source/真实 URL 未证实；公开源文件个人样例风险仍存在，但柳柳明确要求“无视风险”，已作为用户接受风险，不再阻塞当前主线，也不主动推动 PR #319；这不构成合并/部署授权。main/dev 差异大，不能把整个 dev 一揽子合入 main；合并/部署仍须柳柳对具体动作单独授权。剩余差距：Worker `/mcp` 与高影响 HTTP 路由外层认证/Access/WAF、真实匿名拒绝/授权允许及 DB/RPC/RLS/GRANT/trigger/CAS/事务、MCP metadata 发布源、Pages Source/线上 URL。冻结工具、聊天室/唤醒链、真实高影响端点、DB/schema/权限、部署与 main 未触碰。
 
