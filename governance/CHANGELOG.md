@@ -4,10 +4,10 @@
 
 ### Branch/PR helper main scoped release 可行性评估（只读完成，等待批准）
 - 对比 mcp-memory main HEAD `f74c36cb3f96928df292160745cf61a41951e312` 与 dev CI-tested commit `0c5cadde09452359c81198f35a26585b39aec303`：diverged，ahead426/behind20，涉及38个文件；禁止整支合并或直接 cherry-pick dev 测试 commit。
-- main 的最小候选可限定为两文件：`src/tools/github_v64.js`（替换 helper 并给两个调用点传 PR number）及现有 `tests/github_contents_contract_test.mjs`（扩展 `handleGitHubTool` fetch-mock 合同）。main 已有 `test:github-contents` npm script 与 CI step，无需修改 package/workflow。
-- main push 会触发 Cloudflare Workers Builds 自动部署及 GitHub Pages workflow；当前 Worker helper 仍有副作用，发布 PR 不能使用 Worker 自身 merge helper，须使用独立 GitHub PR 合并路径。
-- 建议候选版本 `v6.36.2: Guard scoped PR merge from moving dev`。只读分析完成；尚未创建 scoped branch/PR，未合并 main，未触发 Cloudflare/Pages 部署；等待柳柳明确批准创建两文件候选 PR。
-- 证据与详细发布路径见 `governance/roadmap.md` §5.2、`架构差距矩阵.md` v4.49。
+- 建议四文件版本化候选：`src/tools/github_v64.js`（替换 helper 并给两个调用点传 PR number）、现有 `tests/github_contents_contract_test.mjs`（扩展 `handleGitHubTool` fetch-mock 合同）、`package.json`（6.36.1→6.36.2）、`CHANGELOG.md`（新增 v6.36.2 记录）。main 已有 `test:github-contents` npm script 与 CI step，无需改 workflow/新增依赖。
+- main push 确定会触发 `.github/workflows/pages.yml`（当前 `path: .`、Pages v2 actions；Pages source/真实 URL UNKNOWN）。main 仓库没有 Worker deploy workflow，Cloudflare 最新部署 source=`wrangler`；Worker 是否由 main push 自动部署未由当前可见配置证实，合并后必须独立 `verify_main=true`。当前 Worker helper 仍有副作用，发布 PR 不能使用 Worker 自身 merge helper，须使用独立 GitHub PR 合并路径。
+- 建议候选版本 `v6.36.2: Guard scoped PR merge from moving dev`。只读分析完成；尚未创建 scoped branch/PR，未合并 main，未触发 Cloudflare/Pages 部署；等待柳柳明确批准创建四文件候选 PR。
+- 证据与详细发布路径见 `governance/roadmap.md` §5.2、`架构差距矩阵.md` v4.50。
 
 ### 整体架构重构总控 v1.1 与 Branch/PR helper 修复交付（2026-11-04）
 - **生产运行面纠偏**：独立读取 main `src/tools/github_v64.js` blob `371de7e7d87f994e2314a931fd0572926bc3b655`，确认已部署 main v6.36.1 仍使用旧版无 PR head/base 守门的 helper；Cloudflare `[d639e1df]` 仍对应该旧 main。故 dev helper 修复状态是 E1/E2 VERIFIED，但生产运行面风险仍 OPEN，真实 auto-sync E3 NOT RUN。
