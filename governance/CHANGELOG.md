@@ -2,13 +2,26 @@
 
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
+### v6.36.0 / v6.36.1 发布闭环与 scoped PR 分支事故复盘（2026-11-04）
+- PR #320 将 GitHub Contents v6.36.0 以 scoped release 方式合入 main；当时 main=`5532a3ea52aa71e1362f830b66811abd1242d8fb`，Cloudflare deployment `[30eeb8d7]` VERIFIED。
+- **事故**：PR #320 的 head 是临时 scoped release 分支，并非 dev；但合并工具仍自动把 dev ref 强制移动到 main。源码根因已核实：`github_merge_pull_request` 与 `github_merge_to_main` 在任何成功合并后都调用 `tryAutoSyncDev()`，helper 没有检查 PR head/base。该问题不属于 Contents 首切片，v6.36.1 也尚未修复其触发条件。
+- PR #321 发布 v6.36.1：修复 Contents 模块调用 Cloudflare Worker global `fetch` 时丢失 receiver 而报 `Illegal invocation`；新增 `github_sync_branch` 的 dev-only 精确 SHA 恢复模式，要求目标 commit 可读、expected current dev SHA 匹配、PATCH 后回读一致，并拒绝 main/其他分支。
+- PR #321 head SHA `3b15ac0713d7d771f3b86361051a1cde4ce0f101` 的 learning-regression #804/#805（`41810390533` / `41810455092`）均 SUCCESS：`npm run check` PASS、GitHub Contents contracts 36 passed、Webhook/Router regression 106/106、Learning artifact regression PASS。此为 E1/E2 mock；真实 Contents 文件读写 E3 未执行。
+- v6.36.1 合并后 main=`f74c36cb3f96928df292160745cf61a41951e312`；Cloudflare deployment `[d639e1df]`（2026-11-04T09:56:55.953Z）`VERIFIED`。
+- 使用 Worker 自身 GitHub Token 通路，按目标 SHA=`aeb6a8ebed19575e587d3c21dde3fb51e3597a84`、expected current dev SHA=`f74c36cb3f96928df292160745cf61a41951e312` 精确恢复 dev；随后独立 GitHub API 回读 main/dev，确认 main=`f74c36cb...`、dev=`aeb6a8...`。这是实际 refs E3；精确恢复的 expected 检查与 PATCH 不是原子 CAS，操作窗口内不得有并发 dev writer。
+- ChatGPT GitHub Connector 的 `update_ref` / `create_branch` refs mutation 返回 403 `Resource not accessible by integration`；dev 当时 `protected=false`。Connector 的 ref mutation 权限与仓库的 push/admin 元数据、以及 Worker Token 权限是不同通路；不能据此误判 branch protection，也不应重复让 Operit试同一受限 Connector 通路。
+- 最终 main...dev compare=`diverged`，ahead 415 / behind 20，merge base=`71f6a03ebc81193e5d88a98297ad66083d301515`。dev 的提交对象未丢失。不得整支合并 dev，也不得以 dev→main 合并来修复 branch ref；临时修复分支已在部署和恢复完成后删除。
+- **后续代码开放项**：修复两个 merge handler 的 auto-sync 条件——只有 PR `head.ref=dev` 且 `base.ref=main` 才允许 dev→main 自动同步；scoped release/hotfix/其他 head 必须跳过。增加回归：dev→main 触发、scoped→main 不触发、其他 base 不触发、merged/405 路径行为正确。修复尚未实施，不可把文档规则描述成代码已根治。
+- **固化的发布操作**：merge 前记录 main/dev 完整 SHA 与 PR head/base ref+SHA；合并后独立回读 PR merged、main/dev refs 和 Cloudflare verify；发生意外 ref 移动时，仅在目标 commit 存在且当前 dev 仍等于预期 post-merge SHA 时使用 dev-only 精确恢复，恢复后再次回读；绝不无条件 force、删除/重建 dev 或把 dev 合入 main。
+- 未修改 Supabase DB/schema/权限/生产记忆数据；未触碰聊天室工具、Worker `tools/list` 或 Agent runtime 唤醒链；未派 Operit。
+
 ### GitHub Contents v6.36.0 首个垂直切片实施完成
 - 已在 `wovowx/mcp-memory/dev` 新增 `src/modules/github/contents.js`，将 `getContent/listContents/getTree/putContent/deleteContent/verifyContent` 等 primitives 与 read/list/push/edit/delete/copy/move workflows 内聚；`src/tools/github_v64.js` 保留 facade、工具注册/Schema、兼容入口和非 Contents 域。Branch/PR 与 Patch Engine 不纳入首批。
 - 完成行为修正：非发布写入目标默认 dev（copy source_branch 只读仍默认 main），Router 与 handler fallback 同步；push 仅把 404 视为目标不存在；push/copy/edit 采用 blob SHA 或精确回读验证，支持空文件及有限重试；edit 验证失败显式返回部分写入；move 处理 tree truncated 回退、源 SHA 并发变化与准确部分失败报告。
 - 回归：新增 `tests/github_contents_contract_test.mjs` 并纳入 learning-regression；最终 SHA `dd4042d36089bc824201f3c1c3c2875e17626ba9` / CI run `41793876283` 全步骤 SUCCESS：E1 check、E2 webhook114/114、Router/contracts140/140、GitHub Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifact regression。该回归包含 read/list facade 委托和 root-list 尾斜杠兼容。仅 E1/E2 mock，不代表真实 endpoint E3；未合并 main、未部署 Worker。
 
 ### main 增量发布节奏更新
-- 柳柳明确要求：达到可发布条件时就按阶段性成果及时推 main，不把多个无关切片长期堆在 dev；每次推送前必须提前告知准确版本、变更范围、CI/验证、风险、回滚和部署影响。对已确认的常规切片范围，预告后按计划执行，不再为每次常规发布重复索取同一范围的批准；若超出既定边界、触及 DB/schema/权限/生产数据或出现重大新风险，则暂停重新讨论。柳柳提出暂停时立即停止。当前协作协议 v4.4、Policy Index v2.8、导航表 v3.62、驾驶舱 version135。
+- 柳柳明确要求：达到可发布条件时就按阶段性成果及时推 main，不把多个无关切片长期堆在 dev；每次推送前必须提前告知准确版本、变更范围、CI/验证、风险、回滚和部署影响。对已确认的常规切片范围，预告后按计划执行，不再为每次常规发布重复索取同一范围的批准；若超出既定边界、触及 DB/schema/权限/生产数据或出现重大新风险，则暂停重新讨论。柳柳提出暂停时立即停止。当前协作协议 v4.5、Policy Index v2.9、导航表 v3.63、驾驶舱 version136。
 
 ### 基础能力、场景编排与工具入口的通用设计原则确认
 - 柳柳与 Ziven 经过技术讨论，确认整体架构采用逻辑三层能力组织：基础能力（Primitives）独立可复用；场景编排（Workflows / Use Cases）负责组合能力、封装完整用户意图及处理部分失败；工具入口（Facade）维持稳定接口、兼容与门禁，隐藏不必要的底层步骤。
