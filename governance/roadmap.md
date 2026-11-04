@@ -15,7 +15,7 @@
 
 **GitHub Contents 已实施的行为修正**：非发布写入目标默认 dev（copy 的 source_branch 只读仍默认 main）；Router fallback 与 handler 对齐，显式 main 仍拒绝；push existence check 仅 HTTP 404 视为不存在；SHA/精确内容校验支持空文件并有限重试；edit 验证失败返回部分写入；move 在 tree truncated 时尝试完整 Contents 遍历，无法证明完整则写入前停止；全部目标复制成功后重新核对源 SHA，再按快照 SHA 串行删除；并发源变化和部分失败都有明确状态。
 
-**验证证据**：mcp-memory/dev learning-regression run `41792822930` 全步骤 SUCCESS：E1 `npm run check`；E2 webhook 114/114、Router/registry/DDL/Patch Engine 140/140、GitHub Contents 31/31、search_history 20/20、Memory Core 60/60、Release Guard 15/15、Learning artifact regression。均为 CI 中的静态检查与 mock 契约，不代表真实 GitHub endpoint E3、线上 Worker/Supabase 或宿主工具调用已验证。对应代码快照 SHA `65814c838996b48aa4b98a57cb469734a4209473`；package/changelog 同步后将以最新 CI SHA 更新最终指针。
+**验证证据**：mcp-memory/dev learning-regression run `41792914126` 全步骤 SUCCESS：E1 `npm run check`；E2 webhook 114/114、Router/registry/DDL/Patch Engine 140/140、GitHub Contents 31/31、search_history 20/20、Memory Core 60/60、Release Guard 15/15、Learning artifact regression。均为 CI 中的静态检查与 mock 契约，不代表真实 GitHub endpoint E3、线上 Worker/Supabase 或宿主工具调用已验证。对应代码快照 SHA `42b289c54befc3aa397ab8fccef1d580e382cd19`；package/changelog 同步后将以最新 CI SHA 更新最终指针。
 
 **范围边界**：未改 DB/schema/权限/生产数据；不碰聊天室工具、Worker `tools/list` 与 Agent runtime 唤醒链；没有真实 GitHub API 写入；无需 Operit；未推/合并 main，未部署 Cloudflare Worker。Pages artifact workflow 成功不等于 Worker 部署。
 
