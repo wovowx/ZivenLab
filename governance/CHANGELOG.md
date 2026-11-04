@@ -13,7 +13,7 @@
 - **生产运行面纠偏**：独立读取 main `src/tools/github_v64.js` blob `371de7e7d87f994e2314a931fd0572926bc3b655`，确认已部署 main v6.36.1 仍使用旧版无 PR head/base 守门的 helper；Cloudflare `[d639e1df]` 仍对应该旧 main。故 dev helper 修复状态是 E1/E2 VERIFIED，但生产运行面风险仍 OPEN，真实 auto-sync E3 NOT RUN。
 - 发布前操作限制：修复进入 main 并独立部署验证前，不使用当前线上 Worker merge helper 合并 scoped release/hotfix/非 dev-head PR。下一步先只读评估基于分叉历史的 scoped release 可行性；不创建发布分支/PR、不合并、不部署，待柳柳审阅并授权。
 - 同步 `governance/架构差距矩阵.md` v4.48、`governance/协作协议.md` v4.6、`governance/policy-index.md` v3.0、`governance/roadmap.md` v1.1 与部署 Skill v6.6.6；云端 `⚙️/当前工作检查点` 仍为唯一工作状态源，本会话的精确 recall 曾被上游工具安全检查拦截，未写入或覆盖云端检查点。
-- 将现有 `governance/roadmap.md` 从 v1.0 更新为 v1.1：新增 Branch/PR helper 的实际代码交付、最终 E1/E2 证据，并将下一项明确改为 Branch/PR 职责边界研究提案；旧路线图正文仍完整留在第7节历史档案。
+- 将现有 `governance/roadmap.md` 从 v1.0 更新为 v1.1：新增 Branch/PR helper 的实际代码交付、最终 E1/E2 证据、已部署 main 仍有生产风险的边界；下一步先完成 scoped release 的只读方案并等待柳柳批准，Branch/PR 职责边界研究延后；旧路线图正文仍完整留在第7节历史档案。
 - Branch/PR 修复已在 `wovowx/mcp-memory/dev` 实施：`tryAutoSyncDev()` 只在 PR `merged=true && head.ref=dev && base.ref=main` 时读取 main SHA 并更新 dev；metadata 缺失/失败/异常、未合并、其他 head/base、无效 SHA 均 fail closed。两个 merge handler 共享同一判断，工具名/Schema 不变。
 - 源码 blob SHA `a9975bde92b16eae83568e9667e7615c79b48686`；合同测试 blob SHA `d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；learning-regression #819 绑定的代码/测试 commit `0c5cadde09452359c81198f35a26585b39aec303`；后续仅追加 bridge 文档提交，当前 branch tip 以实时 refs 为准。
 - learning-regression run #819 `41856598888` 全步骤 SUCCESS：E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine151/151（含11项新增条件回归）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。全程 fetch mock，真实 PR/refs auto-sync E3 NOT RUN。
