@@ -160,7 +160,7 @@
 
 ### 5.2 scoped release 可行性评估结论（只读完成；等待柳柳批准）
 
-**结论：可做成从 main 精确基线出发的两文件 scoped release；不需要合并 dev 历史，也不需要把 dev 的整套新测试体系搬进 main。** 这是发布可行性结论，不是发布授权。
+**结论：可以从 main 精确基线制作一个四文件 scoped release；不需要合并 dev 历史，也不需要搬运 dev 的整套新测试体系。** 四个文件由两项功能变更（源码、回归测试）和两项正常版本元数据（package version、CHANGELOG）组成。这是发布可行性结论，不是发布授权。
 
 #### 已核实的基线与差异
 
@@ -172,25 +172,32 @@
 
 #### 推荐的最小发布候选
 
-以 main HEAD `f74c36c...` 为唯一基线，在临时 scoped release 分支上只修改：
+以 main HEAD `f74c36c...` 为唯一基线，在临时 scoped release 分支上只修改以下四个文件：
 
 1. `src/tools/github_v64.js`
-   - 替换 `tryAutoSyncDev(baseUrl, ghHeaders)` 为已在 dev 验证的 PR metadata fail-closed 逻辑；
+   - 替换旧 `tryAutoSyncDev(baseUrl, ghHeaders)` 为已在 dev 验证的 PR metadata fail-closed 逻辑；
    - `github_merge_to_main` 调用时传入实际 `prNum`；
    - `github_merge_pull_request` 调用时传入实际 `pull_number`；
    - 保持工具名、Schema、repo/token 门槛和现有响应结构不变。
 2. `tests/github_contents_contract_test.mjs`
-   - 该文件已存在于 main，已导入 `GITHUB_TOOL_DEFS` 与 `restoreBranchReference`，可直接扩展为导入 `handleGitHubTool`；
+   - 该文件已存在于 main，已导入 `GITHUB_TOOL_DEFS` 与 `restoreBranchReference`，可扩展为导入 `handleGitHubTool`；
    - 在现有 fetch-mock/check harness 中追加 11 项 Branch/PR helper 合同用例，覆盖 dev→main 正向、scoped release、非 main base、metadata HTTP/JSON/字段失败、未 merged、无效 main SHA、405 已合并路径及两个 handler；
-   - main 的 `package.json` 已有 `test:github-contents` 脚本，main 的 learning-regression workflow 已执行该测试，因此无需改 package.json 或 workflow，也无需把 dev 独有的 `router_registry_contract_test.mjs` 搬到 main。
+   - main 的 `package.json` 已有 `test:github-contents` 脚本，main 的 learning-regression workflow 已执行此测试，因此可复用既有 CI，不新增测试入口，也不搬运 dev 独有的 `router_registry_contract_test.mjs`。
+3. `package.json`
+   - 将 package version 从 `6.36.1` 升至 `6.36.2`，使代码仓版本元数据与候选发布版本一致；不增加脚本、不改依赖。
+4. `CHANGELOG.md`
+   - 增加 `v6.36.2` 条目，只记录 scoped PR auto-sync 条件修复、11 项回归覆盖及本次真实 CI/部署验证结果；合并前未知的 E3/部署结果先标 NOT RUN，不预填 PASS。
+
+候选精确文件清单：`src/tools/github_v64.js`、`tests/github_contents_contract_test.mjs`、`package.json`、`CHANGELOG.md`。不改 workflow、工具 Schema、`src/modules/mcp_router.js`、Contents 业务模块、DB/schema、权限、生产记忆、Pages 文件或聊天室代码。
 
 #### 发布与部署路径风险
 
 - main 的旧 helper 有副作用：若通过当前线上 Worker 的 `github_merge_to_main` / `github_merge_pull_request` 合并这个 scoped PR，它会在合并后再次无条件移动 dev。**不得用当前 Worker merge helper 合并该发布 PR。**
 - 若柳柳批准发布，应使用独立 GitHub PR 能力完成合并（不调用当前 Worker merge helper），并在合并前再次确认 PR head/base、精确文件清单和 CI。
-- mcp-memory main 的 Cloudflare Workers Builds 由 main push 自动构建/部署；GitHub Pages workflow 也会在 main push 触发。因此该候选不只是代码合并：还会触发既有 Pages workflow。当前没有把 Pages 源码/真实 URL 验收纳入本次候选；若不能接受该自动触发，应先停下来讨论，而不是假设它不会运行。
+- **GitHub Pages workflow：确定会被触发**。main 的 `.github/workflows/pages.yml` 明确配置 `push` 到 main 时执行 `upload-pages-artifact@v2` + `deploy-pages@v2`，artifact 路径是整个仓库 `.`。本次不修改 Pages workflow，也不把 Pages 源码/真实 URL 验收混进四文件代码候选；但合并会触发该 workflow，实际结果及是否部署必须查看 Actions run。仓库 metadata 曾返回 `has_pages=false`、Pages Settings 当前不可读，因此真正的 Pages source/线上 URL 仍 UNKNOWN；不能保证该 job 会成功或一定不部署。
+- **Cloudflare Worker：部署触发机制未由当前可见仓库配置完全证实**。main 的 `.github/workflows` 只有 `learning-regression.yml` 与 `pages.yml`，没有 Worker deploy workflow；当前 Worker deployment `[d639e1df]` 的 source 显示 `wrangler`，且它与 main HEAD VERIFIED。故本次不能仅凭 main push 就宣称 Worker 已部署；候选合并后必须读取 Cloudflare status，只有 `verify_main=true` 返回 VERIFIED 才算部署闭环。若没有自动新部署，需要单独申请/确认部署动作，不自动触发手动 deploy。
 - 合并后按部署闭环等待传播并独立执行 `cloudflare_deploy_status(verify_main=true)`；E3 还应至少验证线上源码/部署 HEAD 对应新 main，并在受控测试 PR 条件下确认 scoped PR 不会 PATCH dev。不得把 E1/E2 Mock 通过当成 E3。
-- 版本候选建议：`v6.36.2: Guard scoped PR merge from moving dev`（修复型版本；最终版本号/名称以发布前确认结果为准）。CHANGELOG 只记录这两个文件的修复与对应 E1/E2/E3 证据，不夹带其他 dev 架构切片。
+- 版本候选建议：`v6.36.2: Guard scoped PR merge from moving dev`（修复型版本；最终版本号/名称以发布前确认结果为准）。提交标题需满足 release_guard 的 `vX.Y.Z:` 格式。CHANGELOG 仅记录这次修复和对应 E1/E2/E3 证据，不夹带其他 dev 架构切片。
 - 回滚基线：main `f74c36cb3f96928df292160745cf61a41951e312` / 当前 Worker 部署 `[d639e1df]`。若部署验证失败，按既有发布协议处理，不做强制回退或覆盖 dev。
 
 #### 当前状态与授权边界
@@ -199,7 +206,7 @@
 - scoped patch/临时分支/PR：**尚未创建**。
 - main merge：**未授权、未执行**。
 - Cloudflare Worker / Pages：**未触发、未部署**。
-- 建议下一步：柳柳确认是否批准创建这个两文件 scoped release 候选；若批准，只创建 PR 并跑 main 基线 CI，不自动合并或部署。合并与部署仍按既定发布确认流程单独处理。
+- 建议下一步：柳柳确认是否批准创建这个四文件 scoped release 候选；若批准，只从 main 精确基线创建临时分支、应用四文件补丁、创建 PR 并跑 main 基线 CI，不自动合并、不手动部署。PR 创建后再提交最终 main 合并预告（包含 Pages workflow 触发影响、CI、回滚与部署状态）；合并和部署按既定发布纪律分别处理。
 
 ### 5.3 后续候选：Branch/PR 能力职责边界评估（研究/提案阶段，尚未定案）
 
