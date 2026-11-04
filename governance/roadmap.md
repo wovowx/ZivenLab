@@ -196,7 +196,7 @@
 - 若柳柳批准发布，应使用独立 GitHub PR 能力完成合并（不调用当前 Worker merge helper），并在合并前再次确认 PR head/base、精确文件清单和 CI。
 - **GitHub Pages workflow：确定会被触发**。main 的 `.github/workflows/pages.yml` 明确配置 `push` 到 main 时执行 `upload-pages-artifact@v2` + `deploy-pages@v2`，artifact 路径是整个仓库 `.`。本次不修改 Pages workflow，也不把 Pages 源码/真实 URL 验收混进四文件代码候选；但合并会触发该 workflow，实际结果及是否部署必须查看 Actions run。仓库 metadata 曾返回 `has_pages=false`、Pages Settings 当前不可读，因此真正的 Pages source/线上 URL 仍 UNKNOWN；不能保证该 job 会成功或一定不部署。
 - **Cloudflare Worker：部署触发机制未由当前可见仓库配置完全证实**。main 的 `.github/workflows` 只有 `learning-regression.yml` 与 `pages.yml`，没有 Worker deploy workflow；当前 Worker deployment `[d639e1df]` 的 source 显示 `wrangler`，且它与 main HEAD VERIFIED。故本次不能仅凭 main push 就宣称 Worker 已部署；候选合并后必须读取 Cloudflare status，只有 `verify_main=true` 返回 VERIFIED 才算部署闭环。若没有自动新部署，需要单独申请/确认部署动作，不自动触发手动 deploy。
-- 合并后按部署闭环等待传播并独立执行 `cloudflare_deploy_status(verify_main=true)`；E3 还应至少验证线上源码/部署 HEAD 对应新 main，并在受控测试 PR 条件下确认 scoped PR 不会 PATCH dev。不得把 E1/E2 Mock 通过当成 E3。
+- 合并后按部署闭环等待传播并独立执行 `cloudflare_deploy_status(verify_main=true)`，核对部署 ID、source、部署时间与新 main SHA 的对应关系。此次版本验收不通过生产 Worker 再合并一个测试 PR 来验证副作用；E2 合同测试覆盖分支条件，真实 PR/refs auto-sync E3 保持 NOT RUN。若未来确需端到端 E3，必须另行设计无生产影响的隔离验证环境并单独讨论授权。不得把 E1/E2 Mock 通过当成 E3。
 - 版本候选建议：`v6.36.2: Guard scoped PR merge from moving dev`（修复型版本；最终版本号/名称以发布前确认结果为准）。提交标题需满足 release_guard 的 `vX.Y.Z:` 格式。CHANGELOG 仅记录这次修复和对应 E1/E2/E3 证据，不夹带其他 dev 架构切片。
 - 回滚基线：main `f74c36cb3f96928df292160745cf61a41951e312` / 当前 Worker 部署 `[d639e1df]`。若部署验证失败，按既有发布协议处理，不做强制回退或覆盖 dev。
 
