@@ -158,17 +158,48 @@
 - **生产状态仍 OPEN**：已部署 main v6.36.1 的 `src/tools/github_v64.js` blob SHA `371de7e7d87f994e2314a931fd0572926bc3b655` 仍定义旧版 `tryAutoSyncDev(baseUrl, ghHeaders)`，两个 merge handler 也仍无条件调用它。故 Cloudflare 当前运行面仍可能因 scoped release/hotfix/非 dev PR 合并而移动 dev ref。dev CI PASS 不代表生产修复已生效。
 - 在修复发布并独立验证部署前，不使用当前线上 Worker 的 `github_merge_to_main` / `github_merge_pull_request` 合并 scoped release、hotfix 或其他非 dev-head PR。
 
-### 5.2 下一项：生产修复的 scoped release 可行性评估（只读提案，不执行发布）
+### 5.2 scoped release 可行性评估结论（只读完成；等待柳柳批准）
 
-**下一步先把已经验证的 dev 修复整理成可审查的 main 发布候选方案；当前只做范围分析，不创建发布分支/PR，不合并、不部署。**
+**结论：可做成从 main 精确基线出发的两文件 scoped release；不需要合并 dev 历史，也不需要把 dev 的整套新测试体系搬进 main。** 这是发布可行性结论，不是发布授权。
 
-发布候选分析将核对：
-- 从 main 精确基线到 CI-tested code/test commit `0c5cadde09452359c81198f35a26585b39aec303` 的提交/文件差异，判断能否安全提取仅含 `github_v64.js` 与测试的最小变更，而不是合并 dev 历史。
-- 修复代码是否依赖 dev 独有的其他实现；测试对 main 基线的导入、辅助函数、包脚本和现有断言是否兼容。
-- 适合的发布方式、候选版本号、精确文件范围、完整 E1/E2 证据、E3 未验证边界、回滚目标，以及是否触发 Cloudflare 部署。
-- 若无法证明是干净的 scoped slice，明确列出阻塞，不通过 cherry-pick/重写/强制同步猜测解决。
+#### 已核实的基线与差异
 
-**授权边界**：此项是只读发布可行性分析。完成后先把候选版本、准确文件/行为范围、CI 证据、未验证项、回滚与部署影响交给柳柳决定；在明确批准前，不创建临时分支/PR，不触碰 main，不部署。
+- 当前 main HEAD：`f74c36cb3f96928df292160745cf61a41951e312`；Cloudflare deployment `[d639e1df]` 对应 v6.36.1，已 VERIFIED。
+- 当前 main 的 `src/tools/github_v64.js` blob：`371de7e7d87f994e2314a931fd0572926bc3b655`，仍使用旧版无 PR head/base 检查的 helper；两个 merge handler 均无条件调用它。生产风险真实存在。
+- dev 修复源码 blob：`a9975bde92b16eae83568e9667e7615c79b48686`；合同测试 blob：`d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；CI-tested code/test commit：`0c5cadde09452359c81198f35a26585b39aec303`；learning-regression run `41856598888` 全步骤 SUCCESS。
+- 精确比较 main HEAD → CI-tested commit 显示 diverged（ahead 426 / behind 20），包含 38 个文件，涉及多项已发布/未发布架构切片；**禁止整支合并、禁止直接 cherry-pick 该测试 commit、禁止把 dev 同步到 main**。
+- CI-tested commit `0c5cadde...` 本身只修改了测试文件的一个换行格式；helper 源码修复在其父历史中。发布候选应从 main 基线重新制作最小补丁，而不是把测试 commit 当成完整发布提交。
+
+#### 推荐的最小发布候选
+
+以 main HEAD `f74c36c...` 为唯一基线，在临时 scoped release 分支上只修改：
+
+1. `src/tools/github_v64.js`
+   - 替换 `tryAutoSyncDev(baseUrl, ghHeaders)` 为已在 dev 验证的 PR metadata fail-closed 逻辑；
+   - `github_merge_to_main` 调用时传入实际 `prNum`；
+   - `github_merge_pull_request` 调用时传入实际 `pull_number`；
+   - 保持工具名、Schema、repo/token 门槛和现有响应结构不变。
+2. `tests/github_contents_contract_test.mjs`
+   - 该文件已存在于 main，已导入 `GITHUB_TOOL_DEFS` 与 `restoreBranchReference`，可直接扩展为导入 `handleGitHubTool`；
+   - 在现有 fetch-mock/check harness 中追加 11 项 Branch/PR helper 合同用例，覆盖 dev→main 正向、scoped release、非 main base、metadata HTTP/JSON/字段失败、未 merged、无效 main SHA、405 已合并路径及两个 handler；
+   - main 的 `package.json` 已有 `test:github-contents` 脚本，main 的 learning-regression workflow 已执行该测试，因此无需改 package.json 或 workflow，也无需把 dev 独有的 `router_registry_contract_test.mjs` 搬到 main。
+
+#### 发布与部署路径风险
+
+- main 的旧 helper 有副作用：若通过当前线上 Worker 的 `github_merge_to_main` / `github_merge_pull_request` 合并这个 scoped PR，它会在合并后再次无条件移动 dev。**不得用当前 Worker merge helper 合并该发布 PR。**
+- 若柳柳批准发布，应使用独立 GitHub PR 能力完成合并（不调用当前 Worker merge helper），并在合并前再次确认 PR head/base、精确文件清单和 CI。
+- mcp-memory main 的 Cloudflare Workers Builds 由 main push 自动构建/部署；GitHub Pages workflow 也会在 main push 触发。因此该候选不只是代码合并：还会触发既有 Pages workflow。当前没有把 Pages 源码/真实 URL 验收纳入本次候选；若不能接受该自动触发，应先停下来讨论，而不是假设它不会运行。
+- 合并后按部署闭环等待传播并独立执行 `cloudflare_deploy_status(verify_main=true)`；E3 还应至少验证线上源码/部署 HEAD 对应新 main，并在受控测试 PR 条件下确认 scoped PR 不会 PATCH dev。不得把 E1/E2 Mock 通过当成 E3。
+- 版本候选建议：`v6.36.2: Guard scoped PR merge from moving dev`（修复型版本；最终版本号/名称以发布前确认结果为准）。CHANGELOG 只记录这两个文件的修复与对应 E1/E2/E3 证据，不夹带其他 dev 架构切片。
+- 回滚基线：main `f74c36cb3f96928df292160745cf61a41951e312` / 当前 Worker 部署 `[d639e1df]`。若部署验证失败，按既有发布协议处理，不做强制回退或覆盖 dev。
+
+#### 当前状态与授权边界
+
+- 只读可行性分析：**完成**。
+- scoped patch/临时分支/PR：**尚未创建**。
+- main merge：**未授权、未执行**。
+- Cloudflare Worker / Pages：**未触发、未部署**。
+- 建议下一步：柳柳确认是否批准创建这个两文件 scoped release 候选；若批准，只创建 PR 并跑 main 基线 CI，不自动合并或部署。合并与部署仍按既定发布确认流程单独处理。
 
 ### 5.3 后续候选：Branch/PR 能力职责边界评估（研究/提案阶段，尚未定案）
 
