@@ -3,6 +3,8 @@
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
 ### 阶段6只读收敛与当前证据刷新
+- A6 = PASS（限定范围：2026-11-04 检查点同步后，GPT 与 Operit 精确 recall 返回相同 canonical key/category 和当前状态覆盖）；其他运行时/权限仍 UNKNOWN。
+- 最新 mcp-memory/dev HEAD `82b4a7fa1502eefa31779f7efebd04cbc37dd70e`：learning-regression `41754792789` SUCCESS；Pages artifact `41754792835` build/upload SUCCESS、deploy skipped；main...dev ahead 270 / behind 0 / 21 文件。
 - 已在既有 canonical `⚙️/当前工作检查点` 正文顶部加入 2026-11-04 当前状态覆盖，回读确认；2026-10-29 原正文完整保留为历史。随后 Operit 在同步后真实精确 recall，GPT 再独立回读，两端命中相同完整 key、category=⚙️、顶部状态覆盖与关键字段，故 **A6 = PASS（限定范围：同一时点权威检查点跨宿主读取一致）**；A7 继续为限定范围 PASS。该结论不代表其他工具、初始化钩子、Worker/HTTP/DB/RPC 或生产权限行为通过。
 - 当前 `mcp-memory/dev` HEAD `eda4d728b8d78a87a7f297334374b526c48483b3` 的 learning-regression run `41750644413` 所有步骤 SUCCESS；Pages artifact run `41750644411` build/upload SUCCESS，main-only deploy SKIPPED。静态/Mock 和 artifact 结果不代表真实 endpoint、数据库或权限行为通过。
 - `mcp-memory/main` HEAD `71f6a03ebc81193e5d88a98297ad66083d301515` 与 Cloudflare 部署 `c78ab839` 匹配（VERIFIED）；main 未改、未部署。main...dev ahead 266 / behind 0 / 21 个文件差异，不能整支合并。
