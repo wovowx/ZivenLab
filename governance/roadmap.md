@@ -1,6 +1,6 @@
 # 整体架构重构总控（Roadmap · v1.0）
 
-> **版本**：v1.0 · 2026-11-04  
+> **版本**：v1.1 · 2026-11-04  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -132,6 +132,7 @@
 | Cloudflare Worker Status Provider | `src/modules/cloudflare/worker_status.js` 承接 deployment/build logs/status/verify；`src/tools/github_v64.js` 保留原工具定义、GitHub token/repo 门槛与分派 | ✅ 已在 dev 实施 | SHA `4e4e3145af30954666a7cb2e2871bae556c22606` / run `41783624515`：新增 7 项隔离合同；Router/registry/DDL/Patch Engine 140/140、Webhook 114/114、Memory Core 60/60 | fetch-mock 不代表真实 Cloudflare/GitHub endpoint 通过 |
 | GitHub Contents | `src/modules/github/contents.js` 提供 get/list/tree/put/delete/verify primitives 与 push/edit/delete/copy/move workflows；`src/tools/github_v64.js` 保留稳定 facade、Schema、门槛和兼容入口 | ✅ 已实施并形成独立垂直切片；v6.36.0/v6.36.1 已发布 | SHA `aeb6a8ebed19575e587d3c21dde3fb51e3597a84` / run `41794905599`：E1 check；E2 webhook114/114、Router/registry/DDL/Patch Engine140/140、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts 全成功。PR #321 head SHA `3b15ac0713d7d771f3b86361051a1cde4ce0f101` 的 runs `41810390533`/`41810455092` 均 SUCCESS：check、Contents contracts36、Webhook/Router106/106、learning artifacts PASS | v6.36.0 经 PR #320、v6.36.1 经 PR #321 合入 main；main HEAD `f74c36cb3f96928df292160745cf61a41951e312`；Cloudflare deployment `[d639e1df]` VERIFIED。真实 GitHub Contents 文件读写 E3 未执行；dev refs 精确恢复另有真实 API 独立回读证据 |
 | Patch Engine（独立于 Contents） | `src/modules/patch_engine.js`；集中目标分支/repo/path/patch 形状校验、proposal 条件认领及部分成功状态 | 🟡 已有独立代码与 E1/E2 回归；不是 Contents 切片，也未在本账本认定为独立发布 | run `41783624515` 的 Router/registry/DDL/Patch Engine contracts 140/140 | 不自动并入 Contents 发布；后续变更按自己的边界验收 |
+| Branch/PR merge-helper 条件修复 | `src/tools/github_v64.js` 的 `tryAutoSyncDev()`；两个合并入口共用 PR metadata 守门 | ✅ 已在 dev 实施；不改变工具名/Schema | dev HEAD `0c5cadde09452359c81198f35a26585b39aec303` / run `41856598888`；E1 check PASS，E2 contracts151/151（含新增11项）、Webhook114/114、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS | 未发布 main；真实 PR/refs auto-sync E3 NOT RUN；不得因测试通过自动发布 |
 
 ### 交付账本规则
 
@@ -144,56 +145,63 @@
 
 ## 5. 当前主线与下一步
 
-### 5.1 当前唯一代码主线
+### 5.1 已完成的当前代码修复
 
-**修复 GitHub Branch/PR merge helper 的无条件 dev 自动同步副作用，并增加回归保护。**
+**Branch/PR merge-helper 无条件同步 dev 的缺陷已在 mcp-memory/dev 修复，并通过 E1/E2。**
 
-当前静态证据：
+- 原缺陷：两个合并入口在合并成功后直接调用 `tryAutoSyncDev()`，不检查 PR head/base，scoped release/hotfix 也可能强制移动 dev。
+- 修复：helper 按 PR number 读取当前 metadata；只有 `merged === true && head.ref === 'dev' && base.ref === 'main'` 才允许后续 dev 同步；PR metadata 错误/JSON 异常/未确认 merged/head-base 不完整或不匹配/main SHA 无效均 fail closed。
+- 两个入口 `github_merge_pull_request` 与 `github_merge_to_main` 均传递 PR number；保留工具名、Schema、repo/token 门槛与响应接口。
+- 源码 blob SHA：`a9975bde92b16eae83568e9667e7615c79b48686`；测试 blob SHA：`d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；mcp-memory/dev HEAD：`0c5cadde09452359c81198f35a26585b39aec303`。
+- learning-regression run `41856598888`（#819）绑定上述 dev HEAD，全步骤 SUCCESS。E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine contracts151/151（其中新增11项 Branch/PR 条件合同）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。
+- E2 使用 fetch mock；真实 GitHub PR merge 与 refs auto-sync E3 未执行。修复只在 dev，未发布 main，未部署。
 
-- mcp-memory/dev 的 `src/tools/github_v64.js` blob SHA：`e79203b91b7d7aea121271fd8d71ba1331a8ffdf`。
-- `tryAutoSyncDev()` 被 `github_merge_to_main` 与 `github_merge_pull_request` 两条成功路径调用。
-- helper 当前没有按已合并 PR 的 `head.ref` / `base.ref` 判断是否允许移动 dev；scoped release/hotfix PR 也可能触发 dev→main force-sync。
-- 缺陷仍 OPEN；v6.36.1 的 dev-only exact-SHA restore 是事故恢复能力，不是 helper 条件修复。
+### 5.2 下一项：Branch/PR 能力职责边界评估（研究/提案阶段，尚未定案）
 
-**目标行为（已记录于协作协议 v4.5 §六.五与差距矩阵）：**
+**下一步不是直接拆文件或新增模块，而是先弄清 Branch/PR 能力的真实内聚边界，再与柳柳讨论。**
 
-- 仅当 PR 已确认 merged，且 `head.ref === 'dev'`、`base.ref === 'main'` 时允许 dev→main 自动同步。
-- scoped release、hotfix、其他 head/base 一律跳过 dev 自动同步。
-- metadata 读取失败、字段缺失、合并状态不确定或分支信息未知时 fail closed：不移动 dev，并说明原因。
-- 两条 merge handler 均遵守相同规则；测试覆盖正常 dev→main、scoped→main、非 main base、metadata 失败/不完整/未 merged，以及旧 405/已合并响应分支。
-- 保留工具名、Schema、响应兼容与 repo/token 门槛；不触碰聊天室工具/路由、Worker `tools/list` 或 Agent runtime 唤醒链。
-- 只在 mcp-memory/dev 修改；不整支合并 dev，不直接改 main，不动 DB/schema/权限/生产数据。
+当前源码事实：
+- `src/tools/github_v64.js` 仍是稳定 facade，承载工具定义/Schema、repo/token 前置门槛、handler 分派、Branch/PR handlers、注册表同步、Patch Engine 入口及 Cloudflare provider 委托；Contents 业务已下沉至 `src/modules/github/contents.js`，Cloudflare 状态也已有独立 provider。
+- Branch/PR 能力包括 branch create/sync、branch comparison、PR create/get/close/merge，以及合并后的 refs 协调；其中合并工作流涉及多个 GitHub endpoint 和 ref 状态副作用。
+- 这表明值得评估职责边界，但不能仅凭文件行数或 handler 数量决定拆分，也不能预先断言 Branch 与 PR 应拆成两个模块。
 
-**实施状态**：目标行为已有协作协议与差距矩阵依据；本轮总控整理未改 `github_v64.js`、未新增测试、未运行代码测试。修复与 E1/E2 回归仍未完成。
+初步外部方案研究（仅作候选依据，不是架构决策）：
+- Octokit 将 REST endpoint methods 作为便于使用的薄封装，底层仍使用统一 `request`；endpoint 方法由 GitHub OpenAPI 描述生成，共用请求层负责认证、headers、retry 与 throttling。参考：`https://github.com/octokit/octokit.js`、`https://github.com/octokit/rest.js/blob/main/HOW_IT_WORKS.md`。
+- 对 Ziven 的启发是：保持工具 facade 稳定，将传输/通用请求策略与 Branch/PR 场景工作流职责分清；不代表需要引入 Octokit 依赖，也不意味着照搬 SDK 的代码生成/插件体系。
 
-### 5.2 执行顺序
+待分析并带回讨论的选项：
+1. 暂时保留在 `github_v64.js`：最小改动，适合当前代码尚未证明需要抽离的情形。
+2. 抽取一个 Branch/PR 领域模块：共享 branch/ref/PR metadata 与合并工作流，facade 保留 Schema、权限门槛和 dispatch。
+3. 分别抽取 Branch 与 Pull Request 模块：边界更细，但可能增加跨模块编排和重复上下文传递。
 
-1. 重新读取当前 dev 的 helper、两个调用点和现有测试 harness，不沿用旧行号或旧文件 SHA。
-2. 在不改变外部契约的前提下做最小实现：helper 接收或读取 PR metadata；只在唯一满足条件时同步；未知状态 fail closed。
-3. 增加两条 handler 的正向/反向合同测试，确保 scoped PR 不会 PATCH dev；不新建通用 branch-sync 框架。
-4. 对同一精确 dev SHA 执行适用 E1/E2 回归，记录命令、exit code、断言数、CI run 与日志证据。
-5. 回读源码/测试/Commit，更新本总控、现状架构、差距矩阵和驾驶舱。
-6. 达到完整、兼容、可回滚的垂直切片后，再按协作协议 v4.5 §六.五预告 main 发布候选；发布不由本任务自动授权。
+分析必须回答：
+- 哪些是基础 primitives（读 PR、读 branch ref、创建/更新 ref、compare），哪些是完整 workflows（创建 PR→校验→合并→条件同步），哪些属于稳定 facade/治理门槛？
+- Branch 与 PR 的变化原因、依赖方向、错误/部分成功语义、测试边界是否真的独立？一个领域模块是否足够？
+- 现有公共能力、GitHub Contents/Cloudflare provider/Patch Engine 的依赖是否能保持单向；是否会出现模块循环依赖或把 facade 逻辑反向带入领域层？
+- 拆分后如何保留工具名、Schema、响应兼容、repo allowlist、token/release gate、所有已存在行为与回归覆盖？
+- 若收益有限，明确建议暂不拆分，不为了架构外观制造新层。
+
+**边界**：此项目前仅为研究与原型提案，不是已确认的模块拆分决策；不得先改蓝图、差距矩阵的目标边界或代码。先完成实际调用链与测试边界分析、外部方案对照，再将初始想法/挑战/权衡/推荐方案带给柳柳共同定案。
 
 ### 5.3 主线运行纪律
 
-- 不重开全仓库审计；沿当前切片所需调用链做最小范围核查。
+- 不重开全仓库审计；沿候选切片所需调用链做最小范围核查。
 - 不为代码整洁强行拆模块；保持基础能力可复用、工作流内聚、Facade 稳定。
 - Operit 本机测试会消耗柳柳 API token；优先用现有 GitHub Actions/可用验证能力，确实需要本地 Node 时才提出 Operit 执行。
 - 无需柳柳判断时持续推进；目标、边界、外部契约、权限或风险变化时回到协作讨论。
 - 不静默推 main；发布前按协议说明版本、范围、验证、风险、回滚和部署影响。
 
 ---
-
 ## 6. 未关闭事项与明确边界
 
 ### 6.1 开放事项
 
 | 事项 | 状态 | 是否当前主线 | 处理原则 |
 |---|---|---|---|
-| Branch/PR helper 无条件同步 dev | OPEN | ✅ 是，当前唯一代码任务 | 按 §5 修复并补 scoped/hotfix 反向回归 |
+| Branch/PR helper 无条件同步 dev | CLOSED（dev，E1/E2 PASS；main 未发布，E3 未运行） | 否，代码修复已交付 | run `41856598888` / dev HEAD `0c5cadde…`；详细断言与 SHA 见 §5.1 和差距矩阵 v4.47 |
 | Memory Core 完整事件账本、事务一致性、CAS、rename/move 原子迁移 | 设计/实现差距仍存在 | 否，独立差距 | 依据记忆两表设计、domains/memory 与差距矩阵；未共同确认方案前不改 DB/schema/生产记忆 |
 | GitHub Contents 真实文件读写 E3 | NOT RUN | 否 | 当前已有 E1/E2 fetch-mock；未来确有必要且获准再安排真实 endpoint 验收 |
+| Branch/PR 领域模块边界评估 | CANDIDATE（研究/提案阶段，未定案） | ✅ 下一项分析任务；不是编码授权 | 先核对调用链、依赖、复用、错误/测试边界并参考成熟方案；提交选项与推荐，柳柳确认后才能做结构性改动 |
 | Pages Source / 真实 URL | UNKNOWN；PR #319 不主动推动 | 否 | 仅未来实际发布 Pages 前核验；保留决定不等于合并/部署授权 |
 | GPT memory tool description 的动态 connector/host 来源 | UNKNOWN、非阻塞 | 否 | 不调用 Worker `tools/list`；不为追查文案触碰聊天室注册副作用 |
 
@@ -218,8 +226,8 @@
 ### 6.4 当前发布与分支快照（2026-11-04 本轮回读）
 
 - `wovowx/mcp-memory/main` HEAD：`f74c36cb3f96928df292160745cf61a41951e312`；v6.36.1 已发布，Cloudflare deployment `[d639e1df]` VERIFIED。
-- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 422 / behind 20**；禁止整支合并或强制同步任一方向。
-- v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；没有修复 §5 的 merge-helper 条件缺陷。
+- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 426 / behind 20**；当前 dev HEAD=`0c5cadde09452359c81198f35a26585b39aec303`；禁止整支合并或强制同步任一方向。
+- v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；Branch/PR merge-helper 条件修复现已在 dev 完成并有 E1/E2 证据，但尚未发布 main。
 - 本轮治理文档只更新 ZivenLab/dev，不涉及 main。最新 ZivenLab dev Commit 以 GitHub 分支当前 HEAD 为准；不得把治理文档 Commit 当作 mcp-memory 代码版本。
 
 ---
