@@ -3,9 +3,9 @@
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
 ### GitHub Contents v6.36.0 首个垂直切片实施完成
-- 已在 `wovowx/mcp-memory/dev` 新增 `src/modules/github/contents.js`，将 `getContent/listContents/getTree/putContent/deleteContent/verifyContent` 等 primitives 与 push/edit/delete/copy/move workflows 内聚；`src/tools/github_v64.js` 保留 facade、工具注册/Schema、兼容入口和非 Contents 域。Branch/PR 与 Patch Engine 不纳入首批。
+- 已在 `wovowx/mcp-memory/dev` 新增 `src/modules/github/contents.js`，将 `getContent/listContents/getTree/putContent/deleteContent/verifyContent` 等 primitives 与 read/list/push/edit/delete/copy/move workflows 内聚；`src/tools/github_v64.js` 保留 facade、工具注册/Schema、兼容入口和非 Contents 域。Branch/PR 与 Patch Engine 不纳入首批。
 - 完成行为修正：非发布写入目标默认 dev（copy source_branch 只读仍默认 main），Router 与 handler fallback 同步；push 仅把 404 视为目标不存在；push/copy/edit 采用 blob SHA 或精确回读验证，支持空文件及有限重试；edit 验证失败显式返回部分写入；move 处理 tree truncated 回退、源 SHA 并发变化与准确部分失败报告。
-- 回归：新增 `tests/github_contents_contract_test.mjs` 并纳入 learning-regression；CI run `41792914126` 对应 SHA `42b289c54befc3aa397ab8fccef1d580e382cd19` 全步骤 SUCCESS：E1 check、E2 webhook114/114、Router/contracts140/140、GitHub Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifact regression。仅 E1/E2 mock，不代表真实 endpoint E3；未合并 main、未部署 Worker。
+- 回归：新增 `tests/github_contents_contract_test.mjs` 并纳入 learning-regression；最终 SHA `dd4042d36089bc824201f3c1c3c2875e17626ba9` / CI run `41793876283` 全步骤 SUCCESS：E1 check、E2 webhook114/114、Router/contracts140/140、GitHub Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifact regression。该回归包含 read/list facade 委托和 root-list 尾斜杠兼容。仅 E1/E2 mock，不代表真实 endpoint E3；未合并 main、未部署 Worker。
 
 ### main 增量发布节奏更新
 - 柳柳明确要求：达到可发布条件时就按阶段性成果及时推 main，不把多个无关切片长期堆在 dev；每次推送前必须提前告知准确版本、变更范围、CI/验证、风险、回滚和部署影响。对已确认的常规切片范围，预告后按计划执行，不再为每次常规发布重复索取同一范围的批准；若超出既定边界、触及 DB/schema/权限/生产数据或出现重大新风险，则暂停重新讨论。柳柳提出暂停时立即停止。当前协作协议 v4.4、Policy Index v2.8、导航表 v3.62、驾驶舱 version135。
