@@ -15,11 +15,11 @@
 
 **GitHub Contents 已实施的行为修正**：非发布写入目标默认 dev（copy 的 source_branch 只读仍默认 main）；Router fallback 与 handler 对齐，显式 main 仍拒绝；push existence check 仅 HTTP 404 视为不存在；SHA/精确内容校验支持空文件并有限重试；edit 验证失败返回部分写入；move 在 tree truncated 时尝试完整 Contents 遍历，无法证明完整则写入前停止；全部目标复制成功后重新核对源 SHA，再按快照 SHA 串行删除；并发源变化和部分失败都有明确状态。
 
-**验证证据**：mcp-memory/dev learning-regression run `41792914126` 全步骤 SUCCESS：E1 `npm run check`；E2 webhook 114/114、Router/registry/DDL/Patch Engine 140/140、GitHub Contents 31/31、search_history 20/20、Memory Core 60/60、Release Guard 15/15、Learning artifact regression。均为 CI 中的静态检查与 mock 契约，不代表真实 GitHub endpoint E3、线上 Worker/Supabase 或宿主工具调用已验证。对应代码快照 SHA `42b289c54befc3aa397ab8fccef1d580e382cd19`；package/changelog 同步后将以最新 CI SHA 更新最终指针。
+**验证证据**：mcp-memory/dev learning-regression run `41792914126` 全步骤 SUCCESS：E1 `npm run check`；E2 webhook 114/114、Router/registry/DDL/Patch Engine 140/140、GitHub Contents 31/31、search_history 20/20、Memory Core 60/60、Release Guard 15/15、Learning artifact regression。均为 CI 中的静态检查与 mock 契约，不代表真实 GitHub endpoint E3、线上 Worker/Supabase 或宿主工具调用已验证。对应最终代码快照 SHA `dd4042d36089bc824201f3c1c3c2875e17626ba9`，learning-regression run `41793876283`（完整回归包含 github_read/list facade 接线与 root-list 兼容修复）。
 
 **范围边界**：未改 DB/schema/权限/生产数据；不碰聊天室工具、Worker `tools/list` 与 Agent runtime 唤醒链；没有真实 GitHub API 写入；无需 Operit；未推/合并 main，未部署 Cloudflare Worker。Pages artifact workflow 成功不等于 Worker 部署。
 
-**下一步**：完成治理文档/导航/工作检查点同步，然后向柳柳预告 v6.36.0 main 发布候选：准确变更范围、CI、风险、回滚与部署影响。预告后按已确认的常规发布范围执行；如柳柳提出暂停则停止。超出既定范围或触及 DB/schema/权限/生产数据等新授权事项时暂停讨论。
+**main 发布阻塞**：fresh compare 显示 `mcp-memory/main...dev` ahead 412 / behind 0 / 35 files，包含 Memory Core、Agnes、DDL parser、Cloudflare provider、Pages workflow、Skills、Patch Engine 等多批此前成果，不是单独 Contents 切片。整支 dev 不能直接合并，否则会把多批成果一起发布。柳柳此前要求只在 dev 工作、不新建分支；因此 v6.36.0 当前是代码已验收但尚未隔离的发布候选。若要单独发布 Contents，需先共同决定是否允许一次性临时 scoped release branch；获得决定前不创建分支、不改 main。
 
 > **历史状态快照（2026-10-29；当前状态见下方 2026-11-04 补记）**：新版完整 SB-FRAME-1.0 独立冷启动验收已完成，新框 `7516ae0a-23e2-4b6f-8dce-6cb4f592547f` 正确恢复 canonical 工作检查点；A7 PASS（限本次无旧对话上下文新框与可见证据），A6 完整跨宿主一致性仍 UNKNOWN，阶段6尚未总体验收。已在 canonical 业务记忆正文顶部增加当前状态覆盖段并回读确认，旧正文保留作历史；不过 Operit 新框首次回复形成于修改前，所以 A6 仍 UNKNOWN，不能据写入本身认定两端同状态。无需重跑冷启动/CI；若需将 A6 升为 PASS，必须有同一时点两端对照证据。新框结果依据 Operit 回填的 `aiResponse` 自述与 canonical key/category、既有独立 recall 佐证吻合；原始中间工具调用日志不可见，不宣称其可见。静态/Mock CI 不能代替真实 endpoint/DB/RPC/权限验证。Pages PR #319 仍 open 未合并，Pages Source/真实 URL 未证实；公开源文件个人样例风险仍存在，但柳柳明确要求“无视风险”，已作为用户接受风险，不再阻塞当前主线，也不主动推动 PR #319；这不构成合并/部署授权。main/dev 差异大，不能把整个 dev 一揽子合入 main；合并/部署仍须柳柳对具体动作单独授权。剩余差距：Worker `/mcp` 与高影响 HTTP 路由外层认证/Access/WAF、真实匿名拒绝/授权允许及 DB/RPC/RLS/GRANT/trigger/CAS/事务、MCP metadata 发布源、Pages Source/线上 URL。冻结工具、聊天室/唤醒链、真实高影响端点、DB/schema/权限、部署与 main 未触碰。
 
