@@ -5,19 +5,21 @@
 >
 > **现状边界（2026-10-27）**：本文件包含历史数据模型设计，不替代实时 schema 与活跃 Worker 调用链。当前公开 OpenAPI 列快照已在 2026-10-27 重新读取并写入 `governance/database/database-overview.md` v2.4：memories 当前列集中包含 version/status/valid_to/type/trigger_intents/entities/related_memory_ids；memory_events 有 jsonb old_value/new_value 列及 memory_id 外键。此快照不提供触发器、RLS、GRANT、外键 ON DELETE 行为、唯一约束和函数权限。进一步尝试经 `supabase_db` REST query 读取 `information_schema.triggers`、`pg_catalog.pg_trigger`、`pg_indexes` 均返回 HTTP404/PGRST205（未在当前 public PostgREST schema cache 暴露）；经 `exec_sql` 做 catalog-only SELECT 也被 P0001 拒绝。已检查的 `mcp-memory/dev/migrations` 当前只有聊天室 `claimed_at` 迁移，未发现 memory_events trigger/function migration；这仅说明当前检查范围缺少这类源码/迁移证据，不能据此断言真实数据库里不存在触发器。当前可见 MCP 没有独立只读 catalog 查询工具。下文“追加式账本/触发器/事件类型”若没有当前数据库目录和源码覆盖证据，只表示设计约束或历史记录，不自动视为已验证生效。
 
-## 2026-11-04 Worker Memory Core 代码分层更新（仅 mcp-memory/dev）
+## 2026-11-04 Worker Memory Core 代码分层与兼容入口收敛（仅 mcp-memory/dev）
 
-本节记录当前代码归属，不改变下方数据库模型与历史生命周期结论：
+本节记录当前代码归属与验证基线，不改变下方数据库模型、设计约束或历史生命周期结论：
 
 - src/modules/memory/repository.js：memories、memory_events、memory_aliases 的数据访问层。
-- src/modules/memory/lifecycle.js：putMemory、软删除、rename、move 的协调层；当前仍沿用原先分离的 REST 请求顺序。
+- src/modules/memory/lifecycle.js：putMemory、软删除、rename、move 的协调层；仍沿用分离的 REST 请求，rename/move 仍是目标写入后源软删除的两步流程。
 - src/modules/memory/retrieval.js：记忆搜索、有效性过滤、匹配评分、受约束中文 bigram 回退、一跳关联，以及列表/分类/日期/统计/随机读取。
-- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口，并委托以上模块；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在。
+- src/tools/memory_unified.js：保留 MCP memory 工具与 action 兼容入口；原 getMemoryByKey/getAllMemories/findAuthoritativeKey/putMemory 兼容导出继续存在，搜索输出增加 match_reason。
+- src/tools/category.js：保留 list_categories/recall_by_category/move_category 旧入口，但读取与迁类已改为复用 repository/retrieval/lifecycle，不再自行执行 memories REST CRUD 或物理 DELETE。
+- src/tools/data.js：继续通过 memory_unified 兼容导出使用统一入口。
 - src/utils/search.js：仍只负责 search_history/suggest，不是记忆正文检索实现。
 
-代码切片 commit：mcp-memory/dev SHA 28fcc6428c2a59bfa646b5bb43088e147e3b353d；当前桥接记录 HEAD：6d84839e2bcd3a8a9766668095906bb5a18ab410。GitHub Actions learning-regression run 41766843927 与 41766981289 均 SUCCESS；Memory Core contracts 29/29。上述为 E1 与 fetch-mock 行为证据，不证明真实 Supabase endpoint 或生产数据库行为。此次没有修改 DB schema、表、函数、trigger、权限或数据。
+实现代码 commit：mcp-memory/dev SHA 5d20095f352ba45dd4104daa22e2d8f00e0c5a8b；失败边界测试 commit：c3853215854a951da6ce00df9c51b18069c2ac62；当前桥接记录 HEAD：5441ecabbd5836ccceb2bd414a5d7feefbea8573。GitHub Actions learning-regression run 41768012372（测试 SHA）全步骤 SUCCESS；Memory Core contracts **40/40**。覆盖 repository/lifecycle/retrieval、兼容 facade、分类迁类、检索 match_reason、迁移元数据保留及关键失败阶段。上述为 E1 与 fetch-mock 行为证据，不证明真实 Supabase endpoint、生产数据库或真实 GPT/Operit 检索行为。此次没有修改 DB schema、表、函数、trigger、权限或数据。
 
-生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 的原子迁移均未由本次模块提取解决。下方静态生命周期差距仍有效；后续如设计修复，需先明确现有 trigger/约束语义和失败策略，不得把本次代码分层写成生命周期账本已完整。
+生命周期语义差距仍然存在：create/revoke/rename/move 事件覆盖、update event new_value、事件与当前记录的事务一致性、CAS 并发保护以及 source→target 的原子迁移均未实现。rename/move 虽已统一入口并保留 type/source_ref/trigger_intents/entities/related_memory_ids 等语义元数据，但若源软删除失败仍会留下部分迁移并返回警告。category.js 旧的直接 REST DELETE/POST/PATCH 路径已于 2026-11-04 移除；通用 supabase_db 仍是另一个可执行 CRUD/SQL 的潜在绕行入口，实际 DB 权限不在本轮范围。下方静态生命周期差距仍有效，但旧的“category.js 当前直接物理 DELETE”仅作历史源码记录，不代表当前 dev 实现。
 
 ## 表清单
 
@@ -46,7 +48,7 @@
 ## memory_events（事件账本）
 **设计用途**：记录 memories 生命周期事件（例如 create/update/revoke/rename/move），支持追溯与审计。历史记录称 `memory_events 禁止 UPDATE/DELETE` 的触发器于 2026-10-17 实装；但 2026-10-26 的 schema_dump 仅返回列/FK，不包含触发器目录，因此当前数据库是否仍实际强制追加式约束尚未复核，不把这条历史记载当成已验证硬门禁。
 
-**2026-10-27 当前 Worker 源码静态证据（不是数据库/endpoint 运行证据）**：`putMemory` 仅在更新已存在记忆时，先写一条 `event_type=update`（含 `memory_id/version/old_value/actor/reason`），再 PATCH 当前值；该事件 body 未包含 `new_value`；并且记录的 `version` 为更新前的 `oldVersion`，而本表历史设计文字把它解释为变更后版本，两者语义不一致。事件 POST 与当前记忆 PATCH 是两个独立的 REST 请求，不在同一数据库事务中：若 event POST 成功、随后记忆 PATCH 失败，事件行仍留在账本，却可能描述一个并未生效的更新；当前代码只返回 `stage='update'`，没有事件撤销/补偿机制。另当前 PATCH 的过滤条件只有 `id=eq.<id>`，未把 `version=eq.<oldVersion>` 作为 compare-and-swap 条件；并发更新可能都读取同一 oldVersion、写入相同的下一个 version，最后写入者覆盖先前值，而事件账本无法唯一表示最终胜出的变更。新记忆 insert 分支没有 create event。`deleteMemory` 将记忆软删除并回查，但不写 revoke/delete event。`rename` 与 `move` 是先向目标 key 调用 `putMemory`（新目标走 INSERT，无 create event），再软删除源记录（无 delete event）；未记录 source→target 关联或 rename/move reason。`forget` 同样只软删除。另 `history` 先调用只查 active 记录的 `getMemoryByKey`，因此已软删除的旧 key 不能通过此 action 查询事件历史。上述缺口均来自源码路径审阅，未写数据库、未做 E3；触发器/RLS/唯一约束当前生效状态仍待单独证实。继续核对写入口发现：data.js 的 import 复用 putMemory；category.js 的 move_category 则直接对 memories 进行 DELETE 后再 POST/PATCH，绕过统一生命周期事件路径（当前 skills 注册表无该精确注册项，但源码仍被 Router 导入，外部调用契约未知）。已注册的通用 supabase_db 可执行任意表 CRUD，exec 会调用原始 exec_sql；若仅在 Worker memory handler 增补事件逻辑，这些路径仍可能绕过。因此，硬性事务/事件不变量必须落实在数据库写入边界，且先核对真实 RLS/GRANT/trigger/function 才能决定最小实现。与设计稿“记忆变更与事件追加同一事务”相比，当前多次 REST 请求不构成事务，需先定义失败后的账本语义/补偿策略，再设计代码改动。
+**2026-10-27 当前 Worker 源码静态证据（不是数据库/endpoint 运行证据）**：`lifecycle.putMemory` 仅在更新已存在记忆时，先写一条 `event_type=update`（含 `memory_id/version/old_value/actor/reason`），再 PATCH 当前值；该事件 body 未包含 `new_value`；并且记录的 `version` 为更新前的 `oldVersion`，而本表历史设计文字把它解释为变更后版本，两者语义不一致。事件 POST 与当前记忆 PATCH 是两个独立的 REST 请求，不在同一数据库事务中：若 event POST 成功、随后记忆 PATCH 失败，事件行仍留在账本，却可能描述一个并未生效的更新；当前代码只返回 `stage='update'`，没有事件撤销/补偿机制。另当前 PATCH 的过滤条件只有 `id=eq.<id>`，未把 `version=eq.<oldVersion>` 作为 compare-and-swap 条件；并发更新可能都读取同一 oldVersion、写入相同的下一个 version，最后写入者覆盖先前值，而事件账本无法唯一表示最终胜出的变更。新记忆 insert 分支没有 create event。`lifecycle.deleteMemory` 将记忆软删除并回查，但不写 revoke/delete event。`lifecycle.renameMemory` 与 `moveMemory` 仍是先向目标 key 调用 `putMemory`（新目标走 INSERT，无 create event），再软删除源记录（无 delete event）；未记录 source→target 关联或 rename/move reason。2026-11-04 起 `category.js` 的 `move_category` 已委托该 lifecycle 流程，不再直接对 memories 物理 DELETE；这只消除了该 Worker 工具入口的旁路，不构成事务原子化。`forget` 同样只软删除。另 `history` 先调用只查 active 记录的 `getMemoryByKey`，因此已软删除的旧 key 不能通过此 action 查询事件历史。上述缺口均来自源码路径审阅，未写数据库、未做 E3；触发器/RLS/唯一约束当前生效状态仍待单独证实。继续核对写入口发现：data.js 的 import 复用 memory_unified 兼容导出的 putMemory；category.js 旧 move_category 直接 CRUD 的实现已在 2026-11-04 移除，当前改为委托 lifecycle.moveMemory。已注册的通用 supabase_db 可执行任意表 CRUD，exec 会调用原始 exec_sql；若仅在 Worker memory handler 增补事件逻辑，这些路径仍可能绕过。因此，硬性事务/事件不变量必须落实在数据库写入边界，且先核对真实 RLS/GRANT/trigger/function 才能决定最小实现。与设计稿“记忆变更与事件追加同一事务”相比，当前多次 REST 请求不构成事务，需先定义失败后的账本语义/补偿策略，再设计代码改动。
 
 | 列 | 类型 | 含义 |
 |---|---|---|
