@@ -145,9 +145,9 @@
 
 ## 5. 当前主线与下一步
 
-### 5.1 已完成的当前代码修复
+### 5.1 已完成的 dev 代码修复（生产发布仍开放）
 
-**Branch/PR merge-helper 无条件同步 dev 的缺陷已在 mcp-memory/dev 修复，并通过 E1/E2。**
+**Branch/PR merge-helper 已在 mcp-memory/dev 修复并通过 E1/E2；但已部署 main 的 Worker 仍是旧实现，生产风险尚未关闭。**
 
 - 原缺陷：两个合并入口在合并成功后直接调用 `tryAutoSyncDev()`，不检查 PR head/base，scoped release/hotfix 也可能强制移动 dev。
 - 修复：helper 按 PR number 读取当前 metadata；只有 `merged === true && head.ref === 'dev' && base.ref === 'main'` 才允许后续 dev 同步；PR metadata 错误/JSON 异常/未确认 merged/head-base 不完整或不匹配/main SHA 无效均 fail closed。
@@ -155,12 +155,24 @@
 - 源码 blob SHA：`a9975bde92b16eae83568e9667e7615c79b48686`；测试 blob SHA：`d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；learning-regression #819 绑定的 dev 代码/测试 commit：`0c5cadde09452359c81198f35a26585b39aec303`；随后仅追加 bridge 文档提交。
 - learning-regression run `41856598888`（#819）绑定上述 dev HEAD，全步骤 SUCCESS。E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine contracts151/151（其中新增11项 Branch/PR 条件合同）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。
 - E2 使用 fetch mock；真实 GitHub PR merge 与 refs auto-sync E3 未执行。修复只在 dev，未发布 main，未部署。
+- **生产状态仍 OPEN**：已部署 main v6.36.1 的 `src/tools/github_v64.js` blob SHA `371de7e7d87f994e2314a931fd0572926bc3b655` 仍定义旧版 `tryAutoSyncDev(baseUrl, ghHeaders)`，两个 merge handler 也仍无条件调用它。故 Cloudflare 当前运行面仍可能因 scoped release/hotfix/非 dev PR 合并而移动 dev ref。dev CI PASS 不代表生产修复已生效。
+- 在修复发布并独立验证部署前，不使用当前线上 Worker 的 `github_merge_to_main` / `github_merge_pull_request` 合并 scoped release、hotfix 或其他非 dev-head PR。
 
-### 5.2 下一项：Branch/PR 能力职责边界评估（研究/提案阶段，尚未定案）
+### 5.2 下一项：生产修复的 scoped release 可行性评估（只读提案，不执行发布）
 
-**下一步不是直接拆文件或新增模块，而是先弄清 Branch/PR 能力的真实内聚边界，再与柳柳讨论。**
+**下一步先把已经验证的 dev 修复整理成可审查的 main 发布候选方案；当前只做范围分析，不创建发布分支/PR，不合并、不部署。**
 
-当前源码事实：
+发布候选分析将核对：
+- 从 main 精确基线到 CI-tested code/test commit `0c5cadde09452359c81198f35a26585b39aec303` 的提交/文件差异，判断能否安全提取仅含 `github_v64.js` 与测试的最小变更，而不是合并 dev 历史。
+- 修复代码是否依赖 dev 独有的其他实现；测试对 main 基线的导入、辅助函数、包脚本和现有断言是否兼容。
+- 适合的发布方式、候选版本号、精确文件范围、完整 E1/E2 证据、E3 未验证边界、回滚目标，以及是否触发 Cloudflare 部署。
+- 若无法证明是干净的 scoped slice，明确列出阻塞，不通过 cherry-pick/重写/强制同步猜测解决。
+
+**授权边界**：此项是只读发布可行性分析。完成后先把候选版本、准确文件/行为范围、CI 证据、未验证项、回滚与部署影响交给柳柳决定；在明确批准前，不创建临时分支/PR，不触碰 main，不部署。
+
+### 5.3 后续候选：Branch/PR 能力职责边界评估（研究/提案阶段，尚未定案）
+
+生产 helper 修复的发布方案确定后，再推进 Branch/PR 模块边界研究。它仍不是编码授权。当前源码事实：
 - `src/tools/github_v64.js` 仍是稳定 facade，承载工具定义/Schema、repo/token 前置门槛、handler 分派、Branch/PR handlers、注册表同步、Patch Engine 入口及 Cloudflare provider 委托；Contents 业务已下沉至 `src/modules/github/contents.js`，Cloudflare 状态也已有独立 provider。
 - Branch/PR 能力包括 branch create/sync、branch comparison、PR create/get/close/merge，以及合并后的 refs 协调；其中合并工作流涉及多个 GitHub endpoint 和 ref 状态副作用。
 - 这表明值得评估职责边界，但不能仅凭文件行数或 handler 数量决定拆分，也不能预先断言 Branch 与 PR 应拆成两个模块。
@@ -183,7 +195,7 @@
 
 **边界**：此项目前仅为研究与原型提案，不是已确认的模块拆分决策；不得先改蓝图、差距矩阵的目标边界或代码。先完成实际调用链与测试边界分析、外部方案对照，再将初始想法/挑战/权衡/推荐方案带给柳柳共同定案。
 
-### 5.3 主线运行纪律
+### 5.4 主线运行纪律
 
 - 不重开全仓库审计；沿候选切片所需调用链做最小范围核查。
 - 不为代码整洁强行拆模块；保持基础能力可复用、工作流内聚、Facade 稳定。
@@ -198,7 +210,7 @@
 
 | 事项 | 状态 | 是否当前主线 | 处理原则 |
 |---|---|---|---|
-| Branch/PR helper 无条件同步 dev | CLOSED（dev，E1/E2 PASS；main 未发布，E3 未运行） | 否，代码修复已交付 | run `41856598888` / dev HEAD `0c5cadde…`；详细断言与 SHA 见 §5.1 和差距矩阵 v4.47 |
+| Branch/PR helper 无条件同步 dev | **DEV FIX VERIFIED；DEPLOYED MAIN RISK OPEN；E3 NOT RUN** | ✅ 生产修复发布可行性分析是当前工作 | dev CI-tested commit `0c5cadde…` / run `41856598888`；main 仍为旧 helper（blob `371de7e7…`）；发布需另行取得柳柳批准 |
 | Memory Core 完整事件账本、事务一致性、CAS、rename/move 原子迁移 | 设计/实现差距仍存在 | 否，独立差距 | 依据记忆两表设计、domains/memory 与差距矩阵；未共同确认方案前不改 DB/schema/生产记忆 |
 | GitHub Contents 真实文件读写 E3 | NOT RUN | 否 | 当前已有 E1/E2 fetch-mock；未来确有必要且获准再安排真实 endpoint 验收 |
 | Branch/PR 领域模块边界评估 | CANDIDATE（研究/提案阶段，未定案） | ✅ 下一项分析任务；不是编码授权 | 先核对调用链、依赖、复用、错误/测试边界并参考成熟方案；提交选项与推荐，柳柳确认后才能做结构性改动 |
@@ -226,8 +238,8 @@
 ### 6.4 当前发布与分支快照（2026-11-04 本轮回读）
 
 - `wovowx/mcp-memory/main` HEAD：`f74c36cb3f96928df292160745cf61a41951e312`；v6.36.1 已发布，Cloudflare deployment `[d639e1df]` VERIFIED。
-- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 430 / behind 20**；当前 dev HEAD=`f7ce30965c059c55cfccefcf341a297a3418f0cf`；禁止整支合并或强制同步任一方向。
-- v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；Branch/PR merge-helper 条件修复现已在 dev 完成并有 E1/E2 证据，但尚未发布 main。
+- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 432 / behind 20**；当前 dev HEAD=`4aa0cd0360466743ca8ace7a79841efc0cdcc205`；禁止整支合并或强制同步任一方向。
+- v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；dev merge-helper 条件修复已有 E1/E2 证据，但 main 的 `github_v64.js` blob `371de7e7d87f994e2314a931fd0572926bc3b655` 仍是旧版，生产修复尚未发布/部署。
 - 本轮治理文档只更新 ZivenLab/dev，不涉及 main。最新 ZivenLab dev Commit 以 GitHub 分支当前 HEAD 为准；不得把治理文档 Commit 当作 mcp-memory 代码版本。
 
 ---
