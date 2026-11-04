@@ -2,6 +2,11 @@
 
 ## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
 
+### GitHub Contents 只读分析与详细原型 v0.1
+- 已完成对 `github_v64.js` Contents 相关动作与 Router 门禁的第一轮只读分析。形成推荐的 `src/modules/github/contents.js`：基础 I/O primitives 与场景 workflows 内聚在一个领域模块，`github_v64.js` 继续保留 facade、工具注册/Schema、兼容入口和非 Contents 域。Branch/PR 与 Patch Engine 不纳入首批。
+- 登记当前静态行为问题：写入默认 branch 与 main-write guard 冲突；push existence check 未区分 404 与其他错误；size-only verify 误拒绝空文件且不能证明内容一致；edit verify 非2xx仍可能返回 OK/Verified:false；move 未处理 tree truncation、复制后源并发变化和部分删除状态清单错误。
+- 原型 v0.1 已写入 `governance/架构差距矩阵.md` v4.42；尚未与柳柳确认，未创建代码模块、未修改业务代码、未运行 E1/E2。上述行为调整是否整体纳入第一切片待共同定案。
+
 ### main 增量发布节奏更新
 - 柳柳明确要求：达到可发布条件时就按阶段性成果及时推 main，不把多个无关切片长期堆在 dev；每次推送前必须提前告知准确版本、变更范围、CI/验证、风险、回滚和部署影响，并取得该候选范围的明确确认。协作协议升级至 v4.4，Policy Index 升至 v2.8，导航表升至 v3.61，驾驶舱升至 version133。
 
