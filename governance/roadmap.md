@@ -132,7 +132,7 @@
 | Cloudflare Worker Status Provider | `src/modules/cloudflare/worker_status.js` 承接 deployment/build logs/status/verify；`src/tools/github_v64.js` 保留原工具定义、GitHub token/repo 门槛与分派 | ✅ 已在 dev 实施 | SHA `4e4e3145af30954666a7cb2e2871bae556c22606` / run `41783624515`：新增 7 项隔离合同；Router/registry/DDL/Patch Engine 140/140、Webhook 114/114、Memory Core 60/60 | fetch-mock 不代表真实 Cloudflare/GitHub endpoint 通过 |
 | GitHub Contents | `src/modules/github/contents.js` 提供 get/list/tree/put/delete/verify primitives 与 push/edit/delete/copy/move workflows；`src/tools/github_v64.js` 保留稳定 facade、Schema、门槛和兼容入口 | ✅ 已实施并形成独立垂直切片；v6.36.0/v6.36.1 已发布 | SHA `aeb6a8ebed19575e587d3c21dde3fb51e3597a84` / run `41794905599`：E1 check；E2 webhook114/114、Router/registry/DDL/Patch Engine140/140、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts 全成功。PR #321 head SHA `3b15ac0713d7d771f3b86361051a1cde4ce0f101` 的 runs `41810390533`/`41810455092` 均 SUCCESS：check、Contents contracts36、Webhook/Router106/106、learning artifacts PASS | v6.36.0 经 PR #320、v6.36.1 经 PR #321 合入 main；main HEAD `f74c36cb3f96928df292160745cf61a41951e312`；Cloudflare deployment `[d639e1df]` VERIFIED。真实 GitHub Contents 文件读写 E3 未执行；dev refs 精确恢复另有真实 API 独立回读证据 |
 | Patch Engine（独立于 Contents） | `src/modules/patch_engine.js`；集中目标分支/repo/path/patch 形状校验、proposal 条件认领及部分成功状态 | 🟡 已有独立代码与 E1/E2 回归；不是 Contents 切片，也未在本账本认定为独立发布 | run `41783624515` 的 Router/registry/DDL/Patch Engine contracts 140/140 | 不自动并入 Contents 发布；后续变更按自己的边界验收 |
-| Branch/PR merge-helper 条件修复 | `src/tools/github_v64.js` 的 `tryAutoSyncDev()`；两个合并入口共用 PR metadata 守门 | ✅ 已在 dev 实施；不改变工具名/Schema | dev HEAD `0c5cadde09452359c81198f35a26585b39aec303` / run `41856598888`；E1 check PASS，E2 contracts151/151（含新增11项）、Webhook114/114、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS | 未发布 main；真实 PR/refs auto-sync E3 NOT RUN；不得因测试通过自动发布 |
+| Branch/PR merge-helper 条件修复 | `src/tools/github_v64.js` 的 `tryAutoSyncDev()`；两个合并入口共用 PR metadata 守门 | ✅ 已在 dev 实施；不改变工具名/Schema | CI-tested commit `0c5cadde09452359c81198f35a26585b39aec303` / run `41856598888`；E1 check PASS，E2 contracts151/151（含新增11项）、Webhook114/114、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS | 未发布 main；真实 PR/refs auto-sync E3 NOT RUN；不得因测试通过自动发布 |
 
 ### 交付账本规则
 
@@ -152,7 +152,7 @@
 - 原缺陷：两个合并入口在合并成功后直接调用 `tryAutoSyncDev()`，不检查 PR head/base，scoped release/hotfix 也可能强制移动 dev。
 - 修复：helper 按 PR number 读取当前 metadata；只有 `merged === true && head.ref === 'dev' && base.ref === 'main'` 才允许后续 dev 同步；PR metadata 错误/JSON 异常/未确认 merged/head-base 不完整或不匹配/main SHA 无效均 fail closed。
 - 两个入口 `github_merge_pull_request` 与 `github_merge_to_main` 均传递 PR number；保留工具名、Schema、repo/token 门槛与响应接口。
-- 源码 blob SHA：`a9975bde92b16eae83568e9667e7615c79b48686`；测试 blob SHA：`d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；mcp-memory/dev HEAD：`0c5cadde09452359c81198f35a26585b39aec303`。
+- 源码 blob SHA：`a9975bde92b16eae83568e9667e7615c79b48686`；测试 blob SHA：`d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；learning-regression #819 绑定的 dev 代码/测试 commit：`0c5cadde09452359c81198f35a26585b39aec303`；随后仅追加 bridge 文档提交。
 - learning-regression run `41856598888`（#819）绑定上述 dev HEAD，全步骤 SUCCESS。E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine contracts151/151（其中新增11项 Branch/PR 条件合同）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。
 - E2 使用 fetch mock；真实 GitHub PR merge 与 refs auto-sync E3 未执行。修复只在 dev，未发布 main，未部署。
 
@@ -226,7 +226,7 @@
 ### 6.4 当前发布与分支快照（2026-11-04 本轮回读）
 
 - `wovowx/mcp-memory/main` HEAD：`f74c36cb3f96928df292160745cf61a41951e312`；v6.36.1 已发布，Cloudflare deployment `[d639e1df]` VERIFIED。
-- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 426 / behind 20**；当前 dev HEAD=`0c5cadde09452359c81198f35a26585b39aec303`；禁止整支合并或强制同步任一方向。
+- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 429 / behind 20**；当前 dev HEAD=`708252ef8faa6c49ddbe906109ddf5eed25866f6`；禁止整支合并或强制同步任一方向。
 - v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；Branch/PR merge-helper 条件修复现已在 dev 完成并有 E1/E2 证据，但尚未发布 main。
 - 本轮治理文档只更新 ZivenLab/dev，不涉及 main。最新 ZivenLab dev Commit 以 GitHub 分支当前 HEAD 为准；不得把治理文档 Commit 当作 mcp-memory 代码版本。
 
