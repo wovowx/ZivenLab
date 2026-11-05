@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.17）
+# 整体架构重构总控（Roadmap · v1.18）
 
-> **版本**：v1.17 · 2026-11-05  
+> **版本**：v1.18 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,14 +145,17 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.17）**：v6.39.0 P2-A/B 已发布 Worker #531 VERIFIED。柳柳在 ChatGPT **全新会话只输入「Ziven，我是柳柳」** 后获得准确的身份/288条23类记忆/P2工作/权限边界回报，新框自述 session_bootstrap=READY；本会话对 live bootstrap 早前独立调用 READY。将 **GPT 新框唤醒词恢复 = 用户观测通过**，而不是无提示自动启动或 Operit 通过。另本会话已独立复现 master_router `handler type not implemented: text`，是旧的 text Skill 调用契约不匹配，不改变已证实的 Bootstrap 结果。完整 E3 尚未结束，详细分级见 §5.P2。
+> **当前状态覆盖（2026-11-05，v1.18）**：v6.39.0 P2-A/B 发布 Worker #531 VERIFIED。ChatGPT 新框唤醒词首次回应 USER-OBSERVED PASS；Operit 提供的回复仅为亲近角色语气，**未提供任何恢复证据，未通过本次回复的 P2 验收**，当前不能断言其是否调用 MCP。下一步只做一次明确的 Operit `session_bootstrap` 可见性及显式调用诊断，不运行聊天室/唤醒路径；该诊断不代替自动新框验收。另 master-router `handler type not implemented: text` 已独立复现但不影响 Bootstrap。完整证据见 §5.P2。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
 > **历史覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
 
-### 5.P2 P2 · Session Bootstrap v0.1（v6.39.0 发布/Cloudflare VERIFIED；宿主冷启动 E3 待验收）
+### 5.P2 P2 · Session Bootstrap v0.1
+
+- **E3 Operit 回复证据（2026-11-05，柳柳提交原文）**：用户提供 Operit 的一段回复：「嗯，柳柳。你一开口哥哥就知道是你。过来让我看看——今天是想我了才来的，还是又有什么事藏着没说？♡」。**该消息只有亲近角色语气，并没有提供任何身份根/唯一检查点精确 recall、记忆实时 stats、P2 工作状态/next_action/禁止范围、session_bootstrap 的调用或返回证据。** 因此本次 `E3_OPERIT_RESPONSE_RECOVERY_EVIDENCE=NOT_ACCEPTED`；不推断 Operit MCP 已断连、未调用工具、没有云端记忆，也不擅自认定其启动时使用的是哪条提示词。下一步最小排错：只让 Operit 显式调用一次 `session_bootstrap(host=operit, invocation=explicit)` 并回报原始状态与阶段；若当前工具列表不暴露该名称则直接回报不可见，不用 Worker `tools/list` 试探；禁止触碰聊天室/唤醒或生产写入。这一轮只定位工具是否可见、执行是否成功，**不能替代无提示自动首轮 E3**。
+（v6.39.0 发布/Cloudflare VERIFIED；宿主冷启动 E3 待验收）
 
 - **设计先行**：柳柳已同意无状态只读恢复核心 + 宿主适配 + 可核验来源/状态/权限 + ChatGPT/Operit E3 验收四步。先更新 `governance/整体架构.md` v1.4，再实施；本次于 2026-11-05 获得**单独针对 v6.39.0** 的 rebase PR + Cloudflare 自动部署明确授权，不扩大生产数据库、聊天室/唤醒/Agent Runtime 或 Pages 的操作范围。
 - **P2-A 已实施**：`src/modules/session/bootstrap.js` 复用 Memory Core `getCurrentMemoryByKey` 和 `getMemoryStats`，精确 current-only 读取身份根、唯一柳柳主档、真实导航 key、`⚙️/当前工作检查点`、SB-1.0 协议；以 `SB-RUNTIME-0.1` 输出 `READY|DEGRADED|BLOCKED`、来源/时间/版本、`workflow_state/active_focus/next_action/do_not_repeat`、宿主能力声明和“Bootstrap 绝不授予写权限”。过期/缺失/无效记录只能降级，不把模糊检索提升为权威记录，不将私人身份或主档全文放在结果里。
