@@ -1,5 +1,11 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-p0-release-candidate] - 2026-11-05（dev 发布候选准备，未获 main 授权）
+
+- `mcp-memory/dev` 已准备 `v6.37.0: P0 Core Modules Recovery`（package 6.37.0 + CHANGELOG），候选完整 SHA `98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c`；相对 main `e145651bb579d5e6a7b0fedba6a304e70f1ed05a` ahead40/behind0，共33个文件，无聊天室/唤醒源码差异。
+- GitHub Actions learning-regression `41967892278` 完整 SUCCESS；E1 Static、E2 Contents47、Webhook/Agnes114、Memory60、Search20、Release Guard、Learning artifacts、Router/Registry/Patch 全绿；真实端点 E3 NOT RUN。没有合并 main、部署或生产 DB/schema 更改。
+- 柳柳需对本候选版本的精确变更、线上影响、回滚与未验证项单独授权；目前仍停在发布审核门禁。Roadmap v1.9 §5.0 与驾驶舱 version147 已同步，旧 dev `4aa0cd0` 无长期保护 ref 的风险仍开放。
+
 ## [docs-2026.11.05-p0-e1e2-closed] - 2026-11-05（dev 治理同步，未发布 main）
 
 - 柳柳同意 P0 按领域恢复旧 dev 有效代码，并单独放行 `src/modules/mcp_router.js` 仅非聊天室七项 Router/Schema/tools-list/usage 修复；不改聊天室/唤醒、生产 DB/schema/main/部署。
