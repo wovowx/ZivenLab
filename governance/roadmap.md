@@ -197,7 +197,7 @@
 - `src/tools/memory_unified.js` 的 remember 构造 data 时没有传入 `safeArgs.type`；update 也没有显式修改 type。
 - `src/modules/memory/lifecycle.js` 新增时仅在收到 `data.type` 才写入；更新分支不更新 type。
 - Skill 要求把 type 写在 value 内，但正文文字不会自动填充数据库 type 列；search 展示层又把缺失 type 回退显示为 fact。
-- 对外注册 Schema 是否暴露 type 尚未核实。L1 必须一起收敛 Schema→handler→lifecycle→display，不是只改 Skill 文案；若需写入注册元数据，先确认授权路径，不绕过注册表。
+- 当前 GPT 可见 memory Schema 没有 `type` 参数；Worker 远端注册元数据/Operit Schema 是否相同仍未知。不得调用有注册同步副作用的 `tools/list` 探查；先找无副作用只读来源。L1 必须一起收敛 Schema→handler→lifecycle→display，不是只改 Skill 文案；若需写入注册元数据，先确认授权路径，不绕过注册表。
 
 **实施门禁与验收**：每个代码切片仍先形成可验收原型，再由柳柳确认后进入 dev；E1/E2 绑定精确 SHA。必须证明：一份正文多视图引用；pending 不冒充事实；Archive 不污染当前检索；Core 有真实装载证据；现有 current-only、检索四态、别名、一跳关联和来源解释不退化。任何 DB/schema/真实数据写入、main 发布、Worker 部署均不包含在本次 L0 授权内。
 
