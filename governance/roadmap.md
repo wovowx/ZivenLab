@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.44）
+# 整体架构重构总控（Roadmap · v1.45）
 
-> **版本**：v1.44 · 2026-11-06  
+> **版本**：v1.45 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：Memory Retrieval Reliability v0.1 的 dev 代码、E1/E2 与跨宿主 Bridge 交接保持完成（代码 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577`；Bridge `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668`；最新 dev HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543`）。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；本轮没有修改 mcp-memory。柳柳已确认 Memory Layering v0.1 的四种逻辑视图与单一权威正文；ZivenLab/dev 的 L0 治理文档定案已完成：整体架构 v1.22、详细设计 v2.0、Roadmap v1.44、差距矩阵 v4.60、当前项目状态 version176、导航表 v3.74、需求 v0.3、数据库设计 v1.7、Memory 域 v1.7、README 与 CHANGELOG 均已同步。**本轮仅治理文档：没有 Worker/Skill/代码、Schema、真实记忆、main、E3 或部署改动。** 下一施工切片是 L1 Type 写入链：先核对公开注册 Schema，再对 Skill→Schema→handler→lifecycle→search display 做最小可验收原型与合同测试；Technology Scout 保留为长期横向方向，不插队替代当前主线。
+> **当前状态**：Memory Retrieval Reliability v0.1 的 dev 代码、E1/E2 与跨宿主 Bridge 交接保持完成（代码 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577`；Bridge `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668`；mcp-memory/dev HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543`）。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；本轮没有修改 mcp-memory。Memory Layering v0.1 四层逻辑视图已由柳柳确认；ZivenLab/dev 已完成 L0 文档定案并新增 L1 Type 原型 v0.1：整体架构 v1.23、详细设计 v2.1、Roadmap v1.45、差距矩阵 v4.61、当前项目状态 version177、导航表 v3.75、数据库设计 v1.8、Memory 域 v1.8、CHANGELOG 已同步。只读核对确认 Supabase 启用的 memory 注册 Schema 无 type；`tools/list` 在 main/dev 源码和 Router 测试中均为只读，旧副作用判断已纠正。**本轮仅 ZivenLab/dev 治理文档：没有 Worker/Skill/代码、Supabase 注册表、Schema、真实记忆、main、E3 或部署改动。** 当前停在 L1 原型验收，不进入编码；Technology Scout 保留长期横向方向，不插队替代当前主线。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`，相对 main ahead51/behind0。代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` SUCCESS；最新 Bridge 版本号同步 commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` SUCCESS，源码与测试未变。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -166,7 +166,7 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态（2026-11-06 · v1.44）**：Memory Retrieval Reliability v0.1 的代码、E1/E2 与跨宿主 Bridge 交接保持完成；mcp-memory/main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED，dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`、相对 main ahead51/behind0；本轮未改 mcp-memory 仓库。柳柳已明确同意 Memory Layering v0.1：Core/Long-term/Reflection/Archive 四种逻辑视图 + 单一权威正文。ZivenLab/dev 已完成 L0 治理文档定案：整体架构 v1.22、详细设计 v2.0、Roadmap v1.44、差距矩阵 v4.60、导航表 v3.74、需求 v0.3、数据库设计 v1.7、Memory 域 v1.7 与 README/CHANGELOG 同步。**本轮仅治理文档；没有 Worker/Skill/代码、Schema、真实记忆数据、main、生产部署或聊天室/唤醒改动。** 下一实施顺序为 L1 Type 写入规则 → L2 Core 上下文组装 → L3 Reflection → L4 Archive → L5 只读存量映射；L6 生命周期写入保障只作为依赖自动状态迁移时的前置门禁。Technology Scout 仍是已确认长期横向方向，不插队替代当前记忆切片。
+> **当前状态（2026-11-06 · v1.45）**：Memory Retrieval Reliability v0.1 的代码、E1/E2 与跨宿主 Bridge 交接保持完成；mcp-memory/main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED，dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`、相对 main ahead51/behind0；本轮未改 mcp-memory 仓库。柳柳已明确同意 Memory Layering v0.1：Core/Long-term/Reflection/Archive 四种逻辑视图 + 单一权威正文。L0 已 CLOSED；L1 Type 写入链原型 v0.1 已写入唯一详细设计源 `governance/记忆层存量归位规范.md` v2.1，等待柳柳验收。ZivenLab/dev 同步：整体架构 v1.23、Roadmap v1.45、差距矩阵 v4.61、导航表 v3.75、当前项目状态 version177、数据库设计 v1.8、Memory 域 v1.8。只读 Supabase 注册表确认 memory input_schema 无 type；main/dev 源码与 Router 合同测试确认 tools/list 是只读，旧副作用判断已纠正。**本轮仅 ZivenLab/dev 治理文档：没有 Worker/Skill/代码、Supabase 注册表、DB Schema、真实记忆、main、E3 或部署改动。** 下一实施顺序仍为 L1 Type → L2 Core → L3 Reflection → L4 Archive → L5 只读映射；L6 仅作为依赖自动状态迁移时的前置门禁。Technology Scout 保留为长期横向方向。
 
 ### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 治理文档完成）
 
@@ -186,22 +186,23 @@
 - `governance/架构差距矩阵.md` v4.60、`当前项目状态.md` version176、`真相源导航表.md` v3.74、README 与 CHANGELOG 已同步。
 
 **L1-L6 实施计划**：
-1. **L1 Type 写入规则收敛**：更新 Memory Management Skill；核对实际注册 Schema；贯通 type 参数到 remember/update/lifecycle；缺失 type 不再伪显示为 fact；补合同测试。agreement 仅显式确认，quote 保留原话，fact 有来源，模型未验证判断用 inference；无法分类则暂缓，历史数据不自动重标。
+1. **L1 Type 写入规则收敛**：原型 v0.1 已形成，等待柳柳验收；建议使用 optional 顶层 type enum，由 Worker 代码层 helper 同步扩展 tools/list 暴露与 dispatchGuard 校验，不写 Supabase skills 注册表；贯通 remember/update/lifecycle/history/search display 与 Skill。agreement 仅显式确认，quote 保留原话，fact 有来源，inference 明示不确定；无法分类则暂缓，旧调用可省略并保留 NULL，历史数据不自动重标。
 2. **L2 Core 视图与上下文组装**：复用 SB-1.0 已核实的五个精确来源 key；区分稳定核心/动态指针；先做只读最小上下文组装、预算/缺失/降级测试；Bootstrap READY 不等于全文 persona 已装入宿主，必须单独取证。
 3. **L3 Reflection 工作流**：复用 lesson、tests/learning 与治理文档；标准化 pending/validated/rejected/deferred、source_refs、evidence、target、decision_reason；只有 validated 才晋升。
 4. **L4 Archive 历史视图**：复用现有 history/events/对话归档；默认当前检索不混入历史；明确历史意图时返回带时间/来源/当时状态的结果；不补造缺失事件。
 5. **L5 存量只读映射**：先用合成样例，再对真实数据做只读 dry-run，输出 id/key/category/type/status/建议视图/理由/不确定项；零写入、可复核；柳柳验收后才考虑极小试点，且多数记录不需要物理搬动。
 6. **L6 生命周期写入保障**：只在某个功能确实依赖自动状态迁移/多步写入时，针对性解决 create/revoke/rename/move 事件覆盖、update new_value/version、事务一致性、CAS、幂等与 source→target 原子迁移；不重新激活已移出主线的宽泛生产 DB 安全审计。
 
-**L1 根因基线（mcp-memory/dev 静态源码）**：
-- `src/tools/memory_unified.js` 的 remember 构造 data 时没有传入 `safeArgs.type`；update 也没有显式修改 type。
-- `src/modules/memory/lifecycle.js` 新增时仅在收到 `data.type` 才写入；更新分支不更新 type。
-- Skill 要求把 type 写在 value 内，但正文文字不会自动填充数据库 type 列；search 展示层又把缺失 type 回退显示为 fact。
-- 当前 GPT 可见 memory Schema 没有 `type` 参数；Worker 远端注册元数据/Operit Schema 是否相同仍未知。不得调用有注册同步副作用的 `tools/list` 探查；先找无副作用只读来源。L1 必须一起收敛 Schema→handler→lifecycle→display，不是只改 Skill 文案；若需写入注册元数据，先确认授权路径，不绕过注册表。
+**L1 根因基线（2026-11-06 只读源码与 live registry）**：
+- Supabase 当前启用的 `skills.name='memory'` input_schema 无 `type`；`memories.type` 是 nullable text，`memory_events.old_value/new_value` 是既有 JSONB。
+- `memory_unified.js` remember 未传 `safeArgs.type`；update 未读取新 type；`lifecycle.js` 新增仅在收到 `data.type` 时写入，更新忽略 `data.type`；search 对缺失 type 显示为 fact。
+- `skills.name='记忆管理'` 是独立 text Skill；Worker `loadTextSkill` 固定从 GitHub main 读取文件，因此 dev Skill 改动需与获批 main 发布配套。
+- **tools/list 纠正**：main/dev 的 `mcp_router.js` 中 tools/list 只 GET 读取 skills 并返回 Schema；Router 合同测试明确断言不 POST/PATCH/DELETE skills、不写 usage/business data。真正的 `syncChatTools` 在调用 CHAT_TOOL_DEFS 聊天工具时触发，不在 tools/list。旧检查点中的反向判断已纠正。
+- L1 推荐原型：Worker 代码层共享 Schema augmentation helper，同时用于对外暴露与 dispatchGuard 校验；不写 Supabase skills 注册表；type 为 optional enum；remember 显式传入；update 省略时保留、显式传入才更新；NULL 显示“未标注”而非 fact；History 兼容 legacy string 与新 JSONB `{value,type}` 快照。详细合同见唯一设计源 v2.1 §2.3。
 
 **实施门禁与验收**：每个代码切片仍先形成可验收原型，再由柳柳确认后进入 dev；E1/E2 绑定精确 SHA。必须证明：一份正文多视图引用；pending 不冒充事实；Archive 不污染当前检索；Core 有真实装载证据；现有 current-only、检索四态、别名、一跳关联和来源解释不退化。任何 DB/schema/真实数据写入、main 发布、Worker 部署均不包含在本次 L0 授权内。
 
-**下一行动**：L1 的 Skill 与 Worker 源码已完成只读核对；剩余唯一前置事实是实际对外注册 memory Schema 是否暴露 type 参数。先通过不触发 tools/list 注册副作用的只读来源确认该 Schema；随后提交 L1 可验收原型（参数契约、remember/update 持久化、缺失 type 展示、兼容性与合同测试），由柳柳验收后再改 dev。不得直接写 Supabase skills 注册元数据，不顺手改真实记忆。
+**下一行动**：L1 原型 v0.1 已完成并写入 `governance/记忆层存量归位规范.md` §2.3；当前只等待柳柳验收核心行为合同：optional 顶层 type enum + 代码层 Schema augmentation（不写 Supabase 注册表）+ update 省略时保留旧 type + NULL 显示“未标注” + JSONB 历史快照兼容。验收前不改 mcp-memory/dev 代码/Skill/测试；验收后再按原型实施并跑 E1/E2。main 发布、部署与任何真实数据写入仍需独立授权。
 
 > **前一状态快照（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
 
