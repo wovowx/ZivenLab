@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.15）
+# 整体架构重构总控（Roadmap · v1.16）
 
-> **版本**：v1.15 · 2026-11-05  
+> **版本**：v1.16 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,22 +145,24 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.15）**：v6.38.0 P1 线上 Worker VERIFIED；柳柳批准 P2 v0.1 设计后，已在 dev 完成无状态 Session Bootstrap 核心和宿主适配，v6.39.0 候选 E1/E2 通过（21项新合同）；尚未发布 main、未完成真实 ChatGPT/Operit E3 跨宿主冷启动。细节与发布门禁见 §5.P2。
+> **当前状态覆盖（2026-11-05，v1.16）**：v6.39.0 P2 Session Bootstrap v0.1 经柳柳逐版本批准、PR #325 rebase 合并 main、Cloudflare Worker Build 成功并部署 #531 `verify_main=VERIFIED`。`main=dev=580fa4b0f02617b6b1adafa0b3e6aa9962d07baa`（此后 Bridge 纯文档提交可能让 dev 单独领先）。代码及 E1/E2 已收口，但 ChatGPT/Operit 真实新会话自动触发和完整接续 **E3 NOT RUN**，P2 项目不标完全 DONE。细节见 §5.P2。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
 > **历史覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
 
-### 5.P2 P2 · Session Bootstrap v0.1（dev 实现与 E1/E2 完成；线上未发布）
+### 5.P2 P2 · Session Bootstrap v0.1（v6.39.0 发布/Cloudflare VERIFIED；宿主冷启动 E3 待验收）
 
-- **批准与范围**：柳柳同意以“统一无状态只读恢复核心 → 宿主适配 → 来源/状态/权限证据 → ChatGPT/Operit 冷启动验收”为 P2 v0.1 原型。P2 设计先写入 `governance/整体架构.md` v1.4，然后代码只在 mcp-memory/dev 施工；未批准合 main、Cloudflare 部署或生产数据库/聊天室/Agent Runtime 修改。
-- **P2-A**：新增 `src/modules/session/bootstrap.js`；复用 Memory Core `getCurrentMemoryByKey` 和 `getMemoryStats`，精确读取身份根 `🧬/我是谁`、柳柳唯一主档 `💕/关于柳柳`、真实导航 key、`⚙️/当前工作检查点`、SB-1.0 协议，检查 current-only 与真实记忆统计。以 `SB-RUNTIME-0.1` JSON 合同返回 `READY|DEGRADED|BLOCKED`、来源/updated_at/version、`workflow_state`、`active_focus`、`next_action`、`do_not_repeat`、host capability 声明和“无新授权”标识；独立字段优先于同一行内的附带提及、历史检查点不参与当前字段；时间戳无效或超30天标 DEGRADED。禁止将缺失权威记录用同名模糊搜索提升为成功。身份/私人主档全文不出现在统一返回中，宿主需要时另经权限精确 recall 装载。
-- **P2-B**：`src/modules/mcp_router.js` 仅接线静态 `session_bootstrap` 的工具名/固定 Schema/分发/工具声明，**不重写 Router、CHAT_TOOL_DEFS 或唤醒**；唯一 `session_bootstrap` 从 `autoIncrementUsage` 中豁免，避免该入口主动打点写入。工具内部只走 GET，不调用有副作用的 Worker `tools/list`；原有 `tools/list` 会调用 `syncChatTools` 的问题仍然存在，未修复/未主动探测。既有 `换框流程` Skill 增加宿主适配与降级说明：宿主有新工具则先调用，再独立装载人格/授权；没有则按 SB-FRAME-1.0 旧路径。工具名存在不保证第三方 App 自动启动，startup_hook 需要每个宿主真实证据。
-- **测试与验收证据**：新增 `tests/session_bootstrap_contract_test.mjs`、`npm run test:bootstrap`、GitHub Actions E2 bootstrap 质量闸；**21/21 PASS**，覆盖 current/历史快照、缺失/过期/冲突、错误 key、时间校验、schema、GET-only、路由跳过 usage、副作用拒绝及不泄露 profile 文本。原 Router/Patch **154/154 PASS**，Memory Core **60/60 PASS**，其余 Contents、Webhook/Agnes、Search、Release Guard、Learning 与 E1 syntax/import 全绿。实现及测试 dev SHA `528023a344aa4c3317bd94edcf38f2e0ab694d78` 的 run `41977763884` SUCCESS；包版本 `6.39.0`、CHANGELOG 完善后 SHA `652b4f1849c59ffefd03370678516414857d147e` 的 run `41977889395` SUCCESS。最初 `41977048140` E2 失败暴露 “同一行 next_action 与明确字段选取” 问题，修复后 2 个后续完整 run PASS，失败历史保留。
-- **范围差异**：本次相对部署中的 v6.38.0 main `ccb0eb16f03817209e3862815f1cc79e9d0eaa2b`，dev 目前 ahead15/behind0、8 个变更路径：`.github/workflows/learning-regression.yml`、`CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`（上版遗留纯文档提交）、`package.json`、`src/modules/mcp_router.js`、`src/modules/session/bootstrap.js`、`src/skills/process/huan-kuang-liu-cheng/SKILL.md`、`tests/session_bootstrap_contract_test.mjs`。最终 Bridge 新交接提交后 SHA/ahead 会变化，以最终 CI 独立回读为准。
-- **未验证与下一步**：v6.39.0 目前是 **dev 发布候选**，非已上线能力；完整 ChatGPT/Operit 宿主首次自动启动、真实 MCP endpoint、新工具跨宿主暴露/刷新、全人格内容加载、A6/A7 本版本端到端恢复 **E3 NOT RUN**。不能以 mock CI 当真实跨宿主验收，也不能把 READY 视为获得写入/部署审批。下一步补最新 Bridge 与工作检查点；完整报告版本和 CI、风险/部署边界，柳柳明确逐版本授权后才可以 PR 合 main。上线后若需要 E3 真实宿主测试，应按宿主能力及暂停边界单独制定非破坏性验收；Operit 测试消耗用户 API token，应避免重复。
- 
+- **设计先行**：柳柳已同意无状态只读恢复核心 + 宿主适配 + 可核验来源/状态/权限 + ChatGPT/Operit E3 验收四步。先更新 `governance/整体架构.md` v1.4，再实施；本次于 2026-11-05 获得**单独针对 v6.39.0** 的 rebase PR + Cloudflare 自动部署明确授权，不扩大生产数据库、聊天室/唤醒/Agent Runtime 或 Pages 的操作范围。
+- **P2-A 已实施**：`src/modules/session/bootstrap.js` 复用 Memory Core `getCurrentMemoryByKey` 和 `getMemoryStats`，精确 current-only 读取身份根、唯一柳柳主档、真实导航 key、`⚙️/当前工作检查点`、SB-1.0 协议；以 `SB-RUNTIME-0.1` 输出 `READY|DEGRADED|BLOCKED`、来源/时间/版本、`workflow_state/active_focus/next_action/do_not_repeat`、宿主能力声明和“Bootstrap 绝不授予写权限”。过期/缺失/无效记录只能降级，不把模糊检索提升为权威记录，不将私人身份或主档全文放在结果里。
+- **P2-B 已实施**：`src/modules/mcp_router.js` 最小添加静态 `session_bootstrap` Schema/工具声明/路由，并只为此工具豁免 usage 计数；未调用或修改有 `syncChatTools` 注册副作用的 Worker `tools/list` 路径。现有 `换框流程` Skill 加入 ChatGPT/Operit 适配、首轮证据与 SB-FRAME-1.0 精确 recall 旧入口回退。MCP 服务器无法单方面强制所有第三方 App 在对话第一条自动调用工具；必须分别实测启动钩子。
+- **测试与发布范围**：本次相对线上 v6.38.0 main `ccb0eb16f03817209e3862815f1cc79e9d0eaa2b`，批准候选 dev `5ef7e0bf62529f0229dacf00a8bcf4a6f0cc060a`，ahead16/behind0、8 个文件（`.github/workflows/learning-regression.yml`、`CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`、`package.json`、`src/modules/mcp_router.js`、`src/modules/session/bootstrap.js`、`src/skills/process/huan-kuang-liu-cheng/SKILL.md`、`tests/session_bootstrap_contract_test.mjs`）。新增 21 项 Bootstrap mock 合同并进入 GitHub Actions E2；Router/Patch 154、Memory 60 与其余 E1/E2 全绿。候选 Actions `41978314023` SUCCESS；PR Actions `41979052742` SUCCESS；main Actions `41979169037` SUCCESS。最初 `41977048140` 曾发现 next_action 混读问题并已修复，历史保留。
+- **独立恢复/发布证据**：合并前候选 SHA `5ef7e0bf62529f0229dacf00a8bcf4a6f0cc060a` 已保护于 `recovery/v6.39.0-premerge-20261105` 并回读。PR [#325](https://github.com/wovowx/mcp-memory/pull/325) 以 `head=dev/base=main`、changed_files=8、commits=16，GitHub `mergeable_state=clean` 与 PR CI 全绿后使用 **rebase**，独立回读 `merged=true`、`merged_at=2026-11-05T06:15:07Z`。合并后 `main=dev=580fa4b0f02617b6b1adafa0b3e6aa9962d07baa`，无强制重置。
+- **Cloudflare Workers 真实部署**：Build UUID `1f24b9a1-b94e-4363-9474-0d6d3ed7dce8`，`status=stopped`、`build_outcome=success`、commit 与 main `580fa4b0f02617b6b1adafa0b3e6aa9962d07baa` 完全相符；部署 `dd219cbc`，Worker version **#531**，时间 `2026-11-05T06:16:21Z`；`cloudflare_deploy_status(verify_main=true)` 返回 **VERIFIED**。main package.version `6.39.0` 已回读。部署后原有 MCP memory(action=recall) 只读 smoke 通过。
+- **注意未完成**：目前 **P2-A/P2-B 代码与 E1/E2、PR 发布与 Cloudflare 部署均完成**；但新 `session_bootstrap` 在实际 ChatGPT/Operit 工具连接中是否可见、是否被显式或自动调用、人格/工作是否真的在新框首轮被完整恢复，**E3 NOT RUN**。当前工具清单可能是连接时快照，不能把工具已上线等同宿主必然可见。老 Worker `tools/list` 副作用仍存在；未更改聊天室/唤醒或 Pages。独立 GitHub Pages Actions `41979169100` 历史废弃 artifact 依赖失败，与 Workers 部署无关，继续冻结。
+- **下一唯一有效行动**：同步 Bridge 和唯一云端工作检查点（将令 dev 多一个纯文档提交）；随后设计最小非破坏性 E3 真实跨宿主验收。先在已连接的 ChatGPT 读工具能力快照、无需额外权限时直接验证；若 Operit 需要特殊启动动作/消耗 API token，则按真实必要性评估，不派重复测试。P2 完整闭环需柳柳验收实际新框接续效果，不能提前标记 P2 整体 DONE。
+
 ### 5.P1 P1 · v6.38.0 Domain Boundaries（代码发布、部署 VERIFIED；生产写入 E3 仍未执行）
 
 - **原型与实施**：柳柳先确认 P1 方案，`governance/整体架构.md` v1.3 和 Roadmap 先于编码更新。新增 `src/modules/github/branch_pr.js`（约376行），统一迁入 PR/Branch 八个既有工具工作流、exact dev SHA 恢复、`merged=true && head=dev && base=main` 的自动同步校验；新增 `src/modules/patch_workflow.js`（约133行），承接 proposal→validate→claim→GitHub PUT→applied/partial/unknown。Patch 原子能力继续使用 `src/modules/patch_engine.js`；`src/tools/github_v64.js` 约807→343行但继续持有工具注册、Facade、Schema、token/repo allowlist、外部响应与发布门禁。
