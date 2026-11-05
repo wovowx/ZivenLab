@@ -11,7 +11,7 @@
 - 完成一个完整、可验收的垂直切片，就评估一次 main 发布，不长期累积无关改动。
 - 常规发布沿用现有 `dev` 作为 PR head；只有 dev 混有未完成工作、需要提前单独发布修复或分支已分叉导致整支发布不安全时，才建立一次性 scoped release 分支。临时分支不是每个阶段的固定流程，发布闭环后清理。
 - 柳柳已确认上述长期节奏；这不等于批准本次四文件 v6.36.2 临时分支/PR。当前未创建分支/PR、未合并 main、未部署。
-- 本次只读回核：mcp-memory main `f74c36cb3f96928df292160745cf61a41951e312`，Cloudflare `[d639e1df]` VERIFIED；mcp-memory/dev HEAD `4aa0cd0360466743ca8ace7a79841efc0cdcc205`，`main...dev` diverged（ahead 432 / behind 20），禁止整支合并。ZivenLab/dev HEAD `5e8a2614fa898b8534dedaf039c705af497d4e10`，相对 main ahead 1304 / behind 0（18 个治理文档文件），未执行发布。
+- 本轮治理文档提交前的只读快照：mcp-memory main `f74c36cb3f96928df292160745cf61a41951e312`，Cloudflare `[d639e1df]` VERIFIED；mcp-memory/dev HEAD `4aa0cd0360466743ca8ace7a79841efc0cdcc205`，`main...dev` diverged（ahead 432 / behind 20），禁止整支合并。ZivenLab/dev 当时相对 main ahead 1304 / behind 0（18 个治理文档文件）；随后本轮治理更新继续提交到同一 dev，未发布 main。
 - 同步 roadmap v1.4、协作协议 v4.7、差距矩阵 v4.51、驾驶舱 version 142、导航表 v3.72。仅治理文档更新 ZivenLab/dev；未修改 mcp-memory 代码、main、DB/schema/权限/生产数据或部署；未触碰聊天室/唤醒链；未派发 Operit。
 
 
