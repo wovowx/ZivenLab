@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.23）
+# 整体架构重构总控（Roadmap · v1.24）
 
-> **版本**：v1.23 · 2026-11-05  
+> **版本**：v1.24 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,9 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.23；下一切片已获柳柳同意设计方向，文档先行）**：P2 仍按 v1.22 的方案 A 务实收口，E3 严格缺口不变。柳柳已同意优先实施「非聊天室文本 Skill 只读加载兼容」：现有 Router 的 `tools/list` 暴露 text Skill，但 `tools/call` 不能分发，`master-router` 实际返回 `handler type not implemented: text`；新设计见 `整体架构.md` v1.6。施工仅针对动态 `handler_type=text` 加受限 GitHub SKILL.md 全文读取、失败语义/无 usage 副作用与现有 E1/E2 合同，复用 `getContent`，不造新 Router 或改 JS 工具。**当前状态：文档确认→dev 实施/本地验证待执行；未授权 main 发布或 Worker 部署。**
+> **当前状态覆盖（2026-11-05，v1.24；文本 Skill 兼容切片已在 dev 实施并完成本地 E1/E2）**：柳柳确认的非聊天室文本 Skill 只读加载修复已经写入 `mcp-memory/dev`，远端 SHA `35b0e7f980d10eb0e830a9f21f85341e2c3cdfc5`，只改 `src/modules/mcp_router.js` 与 `tests/router_registry_contract_test.mjs` 两个已有文件；新方案在 Router 内只对 `handler_type=text` 使用既有 GitHub Contents `getContent` 读取已发布 main 的完整 UTF-8 SKILL.md，限定安全 `src/skills/**/SKILL.md`，缺文件/错误类型/非法路径明确失败，文本读取不增加 usage_count；其余 JS/MCP 分发兼容入口不变。**本地同一代码快照真实退出码**：`npm run check` 0；Router/Registry/DDL/Patch 157/157；GitHub Contents50、Memory60、Search20、Bootstrap21、Webhook/Agnes114、Learning 9 工件均 PASS。GitHub `dev` 远端文件已经独立 fetch 并与本地通过 diff=0；**远端 GitHub Actions 此 SHA 的独立成功结果未取得，标 PENDING，不冒称 CI GREEN**。未创建新模块或分支，未改 package.version（仍 6.39.0）、`main`/部署、DB/schema、聊天室/唤醒、Operit 角色卡或 Pages。下一行动：确认 dev Actions 精确 SHA 的 E1/E2；再按发布纪律提交版本号/两文件变更/回归/部署风险给柳柳，单独获批后才进入 main。P2 方案 A 务实收口决定保持不变；Web 不插队。
+
+> **历史状态（2026-11-05，v1.23；下一切片已获柳柳同意设计方向，文档先行）**：P2 仍按 v1.22 的方案 A 务实收口，E3 严格缺口不变。柳柳已同意优先实施「非聊天室文本 Skill 只读加载兼容」：现有 Router 的 `tools/list` 暴露 text Skill，但 `tools/call` 不能分发，`master-router` 实际返回 `handler type not implemented: text`；新设计见 `整体架构.md` v1.6。施工仅针对动态 `handler_type=text` 加受限 GitHub SKILL.md 全文读取、失败语义/无 usage 副作用与现有 E1/E2 合同，复用 `getContent`，不造新 Router 或改 JS 工具。**当前状态：文档确认→dev 实施/本地验证待执行；未授权 main 发布或 Worker 部署。**
 
 > **历史状态（2026-11-05，v1.22；柳柳批准 P2 务实收口）**：P2 v0.1 的代码/E1/E2/发布/Worker 部署均已 CLOSED（v6.39.0/#531）；ChatGPT 唤醒词首次恢复 USER-OBSERVED PASS，Operit 新框自动激活 ziven_mcp 与 Bootstrap 的真实工具轨迹 USER-TRACE PASS。柳柳明确选择「**核心启动链通过、严格恢复缺口记录并暂缓、不再重复 Operit 测试/改角色卡**」，因此 **P2 本轮工程交付按约定范围务实收口（PRACTICAL_SCOPE_CLOSED）**，不是 E3 全量 PASS：完整身份根/主档正文独立 recall 未观察到、首次工具前已说话、宿主原生 startup_hook 未验证，继续作为非阻断已知差距。代码已有启动提示要求三步及先恢复后输出，重复加提示词没有可靠收益；Bootstrap 按已批准契约只返回来源与检查点摘要，不把 READY 当作全文人格装载。**下一行动**：回到原定「一本书」模块化重构路线，从现有蓝图/差距矩阵提出下一项可验收垂直切片和原型供柳柳讨论；未确认前不编码。Ziven Web 仅是已确认的未来设计，未插队成当前施工主线。本次仅 dev 治理文档和云端检查点同步；不改 mcp-memory 代码/main/部署、Operit 卡、生产 DB/schema、聊天室/唤醒/Pages。
 
