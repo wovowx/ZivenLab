@@ -176,7 +176,7 @@
 - Core 是启动必需的稳定核心/动态工作指针引用视图；Long-term 是权威记忆主体；Reflection 是带来源和验证状态的候选学习工作流；Archive 是历史记录与来源的按需视图。
 - Category、Type、Layer、Validity、Maturity、Provenance 六维正交；Category 前缀不推导 Layer/Type。
 - 不新增 layer 字段、layer-membership 表或其它数据库表；不批量搬迁/重标真实记忆；不因低频使用自动删除。
-- agreement 目标上只用于柳柳明确确认；未验证判断标 inference；此规则尚未同步到当前 Memory Management Skill/运行时。
+- agreement 仅用于柳柳明确确认；未验证判断标 inference。该规则已同步到 mcp-memory/dev Memory Management Skill 与 handler；由于 Worker text Skill loader 固定读取 main，生产 Skill/运行时尚未随 dev 候选生效。
 
 **L0 文档交付（本轮完成）**：
 - `governance/记忆层存量归位规范.md` v2.1：唯一详细设计源，含四层准入/退出、检索合同、L1 Type 原型 v0.1、L1-L6 实施路线；旧 Category 规则保留为附录。
