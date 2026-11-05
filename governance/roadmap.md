@@ -376,7 +376,7 @@
 ### 6.4 当前发布与分支快照（2026-11-05 本轮回读）
 
 - `wovowx/mcp-memory/main`：v6.41.0，HEAD `5e4cf739a5ffd21c0434db96217267edb2af57bd`；Cloudflare Worker #535 / deployment `fb40fed3`，`verify_main=VERIFIED`。
-- `wovowx/mcp-memory/dev`：HEAD `e58c8e9ec64fcffd964c941a46f12ebd5cbba20a`，GitHub Actions [42044490914](https://github.com/wovowx/mcp-memory/actions/runs/42044490914) SUCCESS；相对 main ahead13/behind0，6个差异路径={`.github/workflows/learning-regression.yml`、`CROSS-HOST-BRIDGE.md`、`package.json`、两份 benchmark Fixture/baseline JSON、benchmark runner}。
+- `wovowx/mcp-memory/dev`：HEAD `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8`，GitHub Actions [42048224495](https://github.com/wovowx/mcp-memory/actions/runs/42048224495) SUCCESS；相对 main ahead14/behind0，6个差异路径={`.github/workflows/learning-regression.yml`、`CROSS-HOST-BRIDGE.md`、`package.json`、两份 benchmark Fixture/baseline JSON、benchmark runner}。
 - package 版本仍为 v6.41.0；本切片仅测试/CI基础设施，不改 `src/` 检索算法、MCP Schema、数据库/schema/业务记忆、main 或 Worker；未创建 PR/合 main/部署。
 - ZivenLab/dev 治理文档 Commit 与 mcp-memory 产品代码版本分开记录；不能将前者当作产品发布或部署。
 
