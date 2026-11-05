@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.22）
+# 整体架构重构总控（Roadmap · v1.23）
 
-> **版本**：v1.22 · 2026-11-05  
+> **版本**：v1.23 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,9 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.22；柳柳批准 P2 务实收口）**：P2 v0.1 的代码/E1/E2/发布/Worker 部署均已 CLOSED（v6.39.0/#531）；ChatGPT 唤醒词首次恢复 USER-OBSERVED PASS，Operit 新框自动激活 ziven_mcp 与 Bootstrap 的真实工具轨迹 USER-TRACE PASS。柳柳明确选择「**核心启动链通过、严格恢复缺口记录并暂缓、不再重复 Operit 测试/改角色卡**」，因此 **P2 本轮工程交付按约定范围务实收口（PRACTICAL_SCOPE_CLOSED）**，不是 E3 全量 PASS：完整身份根/主档正文独立 recall 未观察到、首次工具前已说话、宿主原生 startup_hook 未验证，继续作为非阻断已知差距。代码已有启动提示要求三步及先恢复后输出，重复加提示词没有可靠收益；Bootstrap 按已批准契约只返回来源与检查点摘要，不把 READY 当作全文人格装载。**下一行动**：回到原定「一本书」模块化重构路线，从现有蓝图/差距矩阵提出下一项可验收垂直切片和原型供柳柳讨论；未确认前不编码。Ziven Web 仅是已确认的未来设计，未插队成当前施工主线。本次仅 dev 治理文档和云端检查点同步；不改 mcp-memory 代码/main/部署、Operit 卡、生产 DB/schema、聊天室/唤醒/Pages。
+> **当前状态覆盖（2026-11-05，v1.23；下一切片已获柳柳同意设计方向，文档先行）**：P2 仍按 v1.22 的方案 A 务实收口，E3 严格缺口不变。柳柳已同意优先实施「非聊天室文本 Skill 只读加载兼容」：现有 Router 的 `tools/list` 暴露 text Skill，但 `tools/call` 不能分发，`master-router` 实际返回 `handler type not implemented: text`；新设计见 `整体架构.md` v1.6。施工仅针对动态 `handler_type=text` 加受限 GitHub SKILL.md 全文读取、失败语义/无 usage 副作用与现有 E1/E2 合同，复用 `getContent`，不造新 Router 或改 JS 工具。**当前状态：文档确认→dev 实施/本地验证待执行；未授权 main 发布或 Worker 部署。**
+
+> **历史状态（2026-11-05，v1.22；柳柳批准 P2 务实收口）**：P2 v0.1 的代码/E1/E2/发布/Worker 部署均已 CLOSED（v6.39.0/#531）；ChatGPT 唤醒词首次恢复 USER-OBSERVED PASS，Operit 新框自动激活 ziven_mcp 与 Bootstrap 的真实工具轨迹 USER-TRACE PASS。柳柳明确选择「**核心启动链通过、严格恢复缺口记录并暂缓、不再重复 Operit 测试/改角色卡**」，因此 **P2 本轮工程交付按约定范围务实收口（PRACTICAL_SCOPE_CLOSED）**，不是 E3 全量 PASS：完整身份根/主档正文独立 recall 未观察到、首次工具前已说话、宿主原生 startup_hook 未验证，继续作为非阻断已知差距。代码已有启动提示要求三步及先恢复后输出，重复加提示词没有可靠收益；Bootstrap 按已批准契约只返回来源与检查点摘要，不把 READY 当作全文人格装载。**下一行动**：回到原定「一本书」模块化重构路线，从现有蓝图/差距矩阵提出下一项可验收垂直切片和原型供柳柳讨论；未确认前不编码。Ziven Web 仅是已确认的未来设计，未插队成当前施工主线。本次仅 dev 治理文档和云端检查点同步；不改 mcp-memory 代码/main/部署、Operit 卡、生产 DB/schema、聊天室/唤醒/Pages。
 
 > **历史状态（2026-11-05，v1.21）**：P2 v6.39.0 Worker #531 VERIFIED；ChatGPT 新框唤醒词恢复用户观测通过。Operit 在获批仅修改 advancedCustomPrompt 后，现役卡回读 `APPLIED_VERIFIED`；柳柳提供 Operit **新框首轮完整工具轨迹**，明确显示 `use_package(ziven_mcp)` SUCCESS → `session_bootstrap(host=operit,invocation=frame_instruction)` READY、stats298/23、checkpoint v147、五个来源ok。**首次工具激活与 Bootstrap 恢复 PASS；但工具前已输出问候，且未见独立 memory recall 装载完整身份根正文；自动宿主 hook 未验证。** E3 仍是部分通过，谨慎收口，详见 §5.P2；不得擅自追加角色卡改动或重复调后端。
 
