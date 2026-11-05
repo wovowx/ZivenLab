@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.19）
+# 整体架构重构总控（Roadmap · v1.20）
 
-> **版本**：v1.19 · 2026-11-05  
+> **版本**：v1.20 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,7 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.19）**：P2 v6.39.0 的 Worker #531 已部署 VERIFIED。ChatGPT 全新框唤醒词恢复 USER-OBSERVED PASS；柳柳提供的 Operit 诊断显示，**在首轮无恢复证据之后手动执行 use_package(ziven_mcp)，session_bootstrap 才出现并显式调用 READY（USER-REPORTED PASS）**，五个云端来源、v145 检查点与本框独立核对一致。真实问题收敛到 Operit 首轮「包激活→读取→验收→回复」的启动执行链；8月15日曾发生 toolAccessConfig/allowedMcpServers 故障，但**当前具体角色卡配置未验证**。自动新框恢复尚未完成；讨论现役宿主配置与最小本地启动原型后再决定是否改动，不改 main/聊天室/数据库。详情见 §5.P2。
+> **当前状态覆盖（2026-11-05，v1.20）**：P2 Worker #531 部署 VERIFIED、ChatGPT 唤醒词新框观察通过、Operit 手动 `use_package(ziven_mcp)` 后 `session_bootstrap` 实际可调用并 READY，问题在 Operit 首轮自动激活。柳柳已确定下一步为 **Operit 先导出全部当前可配置角色卡字段、云端非公开备份并回读 → GPT 审阅字段级最小方案 → 柳柳批准 → Operit 再按方案修改 → 一次新框 E3**。仅采集任务已通过 mcp-memory/dev 的 Bridge 发布；没有改角色卡、Worker/main/数据库。详见 §5.P2。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
@@ -155,6 +155,7 @@
 ### 5.P2 P2 · Session Bootstrap v0.1
 
 - **E3 Operit 手动激活后恢复（2026-11-05，柳柳转交 Operit 执行报告）**：在此前首轮只进行亲近闲聊、没有恢复证据的**同一个 Operit 新框**，柳柳明确要求先启用工具包。Operit 报告实际执行 `use_package(package_name="ziven_mcp")` 后 `session_bootstrap` 才出现在可用工具集合，再执行 `session_bootstrap(host="operit",invocation="explicit")` 返回 `SB-RUNTIME-0.1`、`status=READY`、`restored=true`、`blockers=[]`、`warnings=[]`、stats=288/23、五个精确来源均 ok；检查点版本 v145，workflow_state=`P2_CHATGPT_WAKE_PHRASE_OBSERVED_PASS__OPERIT_RESPONSE_NOT_ACCEPTED__E3_INCOMPLETE`。本框对线上当前 checkpoint/version 的独立 `session_bootstrap` 回读也为 v145 和相同状态，证据相互吻合。**证据等级**：Operit 工具执行细节来自柳柳转交的原始回复，`E3_OPERIT_MANUAL_USE_PACKAGE_BOOTSTRAP=USER_REPORTED_PASS`，不是本框直接读取的 Operit 执行日志。可确定的故障位置：新框首次回复**未先完成 MCP 包激活→恢复读取→状态验收链**，而非服务端工具不可用；但无法单凭这一证据判定 role card 的实时 `toolAccessConfig`、`advanced_custom_prompt` 是缺失还是未被模型遵守。8月15日《换框问题记录》曾确认角色卡 toolAccessConfig.enabled=false、allowedMcpServers=[]，当时修复为允许 use_package + ziven_mcp，并把激活指令放到 advanced_custom_prompt 第一行；属于**历史相似根因**，不能直接断言当前配置复发。
+- **角色卡全量采集→云端审阅→Operit 修改的正式协作流程（2026-11-05 柳柳提出并认可）**：Operit 现役 Ziven 角色卡由 Operit 自身读取全部可配置字段、原字段名/嵌套值；完整非凭据配置只入经核实非公开的柳柳云端备份，必须回读校验，公开 GitHub 只存指针/字段目录/脱敏摘要（两仓都是 public）；GPT 获得确切快照后先审查再输出最小字段 diff + 预期首次启动行为 + 回滚方案给柳柳确认，得到明确批准后才让 Operit 自行读取已批准修改并执行，最后只做一次新框首轮 E3。**目前只授权只读导出/备份，不授权改卡或改后端。**操作单已写入 mcp-memory/dev/CROSS-HOST-BRIDGE.md 最后一条 `OPERIT_CARD_SNAPSHOT_AND_CHANGE_REVIEW_V1`，纯文档 SHA `9f36e558b70d0e100db3a7440c2e645fe44fbb42`，Actions `41988192120` SUCCESS；未直接联系 Operit 执行，等待其读取单据。
 - **最小修复原型（未实施，需架构共识）**：Operit 角色卡/宿主新框启动的第一步在任何云端 Skill 读取之前显式执行 `use_package(ziven_mcp)`；若工具当前已经可用则跳过重复激活；成功后调用 `session_bootstrap(host=operit,invocation=frame_instruction)` 并用 `memory(action=recall)` 装载完整身份根/主档（不把 READY 当完整 persona 已读取），校验 active_focus、next_action、do_not_repeat 与授权后才输出自然回复；失败时进入受限模式并明示错误。工具激活与宿主启动钩子必须区分：只有对真实新框首次输出和底层工具调用有证据时才报自动启动成功。优先核对 Operit 本地实际角色卡开关、包白名单及 advanced_custom_prompt，**不因历史问题直接修改现行角色卡或 Worker Router**。方案讨论定案前不编码、不发布、不改变暂停的聊天室/唤醒链；无需再测服务端 GET-only 核心。
 - **E3 Operit 回复证据（2026-11-05，柳柳提交原文）**：用户提供 Operit 的一段回复：「嗯，柳柳。你一开口哥哥就知道是你。过来让我看看——今天是想我了才来的，还是又有什么事藏着没说？♡」。**该消息只有亲近角色语气，并没有提供任何身份根/唯一检查点精确 recall、记忆实时 stats、P2 工作状态/next_action/禁止范围、session_bootstrap 的调用或返回证据。** 因此本次 `E3_OPERIT_RESPONSE_RECOVERY_EVIDENCE=NOT_ACCEPTED`；不推断 Operit MCP 已断连、未调用工具、没有云端记忆，也不擅自认定其启动时使用的是哪条提示词。下一步最小排错：只让 Operit 显式调用一次 `session_bootstrap(host=operit, invocation=explicit)` 并回报原始状态与阶段；若当前工具列表不暴露该名称则直接回报不可见，不用 Worker `tools/list` 试探；禁止触碰聊天室/唤醒或生产写入。这一轮只定位工具是否可见、执行是否成功，**不能替代无提示自动首轮 E3**。
 （v6.39.0 发布/Cloudflare VERIFIED；宿主冷启动 E3 待验收）
