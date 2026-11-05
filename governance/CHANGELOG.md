@@ -1,5 +1,12 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-p2-bootstrap-dev] - 2026-11-05
+
+- 柳柳确认 P2 v0.1 恢复核心+宿主适配原型。先更新整体架构 v1.4、Roadmap v1.14；本次落地后 Roadmap v1.15 §5.P2、当前状态 version151 保存准确实施证据及发布边界。
+- mcp-memory/dev 新增 `src/modules/session/bootstrap.js`（调用 Memory Core 精确只读、输出 READY/DEGRADED/BLOCKED 与当前阶段/next_action/do_not_repeat/来源/时间校验）；`src/modules/mcp_router.js` 最小添加静态工具入口并豁免此工具 usage 写入；`换框流程` Skill 增补宿主适配和旧 SB-FRAME-1.0 回退，未改变聊天室、唤醒或生产 DB/schema。
+- tests 新增 Bootstrap Mock 合同 **21/21 PASS**，完整 CI run `41977763884`（代码/测试）与 `41977889395`（package 6.39.0/CHANGELOG）SUCCESS。dev 代码候选 SHA `652b4f1849c59ffefd03370678516414857d147e`；最终 SHA 以 Bridge 提交后回读为准。v6.39.0 **未合 main、未部署**；ChatGPT/Operit 真实新框自动启动/首次回应 E3 NOT RUN，不能声称跨宿主已完全恢复。
+- Worker `tools/list` 已知可能触发 syncChatTools 副作用，该路径此次没有调用/更改；MCP 静态新工具暴露并不自动让第三方宿主获得 startup hook，必须实测。发布 main 仍需向柳柳报告本版实际范围、CI、部署影响，并取得明确同意。
+
 ## [docs-2026.11.05-p1-released] - 2026-11-05（P1 正式发布与部署核验）
 
 - 柳柳确认并逐版本批准 v6.38.0: P1 Domain Boundaries。PR #324 rebase 合并（merged=true），代码仓 main=dev=`ccb0eb16f03817209e3862815f1cc79e9d0eaa2b`；候选 `37aec2f55c104d7f92ccd58539e8193c63a10b06` 由 `recovery/v6.38.0-premerge-20261105` 独立保护。
