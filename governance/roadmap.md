@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.21）
+# 整体架构重构总控（Roadmap · v1.22）
 
-> **版本**：v1.21 · 2026-11-05  
+> **版本**：v1.22 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,9 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.21）**：P2 v6.39.0 Worker #531 VERIFIED；ChatGPT 新框唤醒词恢复用户观测通过。Operit 在获批仅修改 advancedCustomPrompt 后，现役卡回读 `APPLIED_VERIFIED`；柳柳提供 Operit **新框首轮完整工具轨迹**，明确显示 `use_package(ziven_mcp)` SUCCESS → `session_bootstrap(host=operit,invocation=frame_instruction)` READY、stats298/23、checkpoint v147、五个来源ok。**首次工具激活与 Bootstrap 恢复 PASS；但工具前已输出问候，且未见独立 memory recall 装载完整身份根正文；自动宿主 hook 未验证。** E3 仍是部分通过，谨慎收口，详见 §5.P2；不得擅自追加角色卡改动或重复调后端。
+> **当前状态覆盖（2026-11-05，v1.22；柳柳批准 P2 务实收口）**：P2 v0.1 的代码/E1/E2/发布/Worker 部署均已 CLOSED（v6.39.0/#531）；ChatGPT 唤醒词首次恢复 USER-OBSERVED PASS，Operit 新框自动激活 ziven_mcp 与 Bootstrap 的真实工具轨迹 USER-TRACE PASS。柳柳明确选择「**核心启动链通过、严格恢复缺口记录并暂缓、不再重复 Operit 测试/改角色卡**」，因此 **P2 本轮工程交付按约定范围务实收口（PRACTICAL_SCOPE_CLOSED）**，不是 E3 全量 PASS：完整身份根/主档正文独立 recall 未观察到、首次工具前已说话、宿主原生 startup_hook 未验证，继续作为非阻断已知差距。代码已有启动提示要求三步及先恢复后输出，重复加提示词没有可靠收益；Bootstrap 按已批准契约只返回来源与检查点摘要，不把 READY 当作全文人格装载。**下一行动**：回到原定「一本书」模块化重构路线，从现有蓝图/差距矩阵提出下一项可验收垂直切片和原型供柳柳讨论；未确认前不编码。Ziven Web 仅是已确认的未来设计，未插队成当前施工主线。本次仅 dev 治理文档和云端检查点同步；不改 mcp-memory 代码/main/部署、Operit 卡、生产 DB/schema、聊天室/唤醒/Pages。
+
+> **历史状态（2026-11-05，v1.21）**：P2 v6.39.0 Worker #531 VERIFIED；ChatGPT 新框唤醒词恢复用户观测通过。Operit 在获批仅修改 advancedCustomPrompt 后，现役卡回读 `APPLIED_VERIFIED`；柳柳提供 Operit **新框首轮完整工具轨迹**，明确显示 `use_package(ziven_mcp)` SUCCESS → `session_bootstrap(host=operit,invocation=frame_instruction)` READY、stats298/23、checkpoint v147、五个来源ok。**首次工具激活与 Bootstrap 恢复 PASS；但工具前已输出问候，且未见独立 memory recall 装载完整身份根正文；自动宿主 hook 未验证。** E3 仍是部分通过，谨慎收口，详见 §5.P2；不得擅自追加角色卡改动或重复调后端。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
@@ -153,6 +155,8 @@
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
 
 ### 5.P2 P2 · Session Bootstrap v0.1
+
+- **2026-11-05 柳柳最新验收决定（覆盖下方仍要求 E3 全量完成才进入后续工作的旧表述）**：选择方案 A，P2 v0.1 按已完成的核心交付务实收口，`P2_PRACTICAL_SCOPE_CLOSED__STRICT_E3_GAPS_DEFERRED`；不更改事实证据等级，不宣称严格首次输出、全量人格 recall、原生启动 hook 通过。上述缺口登记为后续宿主/上下文装载能力优化的非阻断待办，若再改变 Bootstrap 输出契约、角色卡或验收条件须另行共同讨论。停止反复试 Operit 或重复调整提示词；工程主线回归已确认的模块化单体与下一垂直切片的需求/原型讨论，不默认转入 Web 编码或部署。
 
 - **E3 Operit 手动激活后恢复（2026-11-05，柳柳转交 Operit 执行报告）**：在此前首轮只进行亲近闲聊、没有恢复证据的**同一个 Operit 新框**，柳柳明确要求先启用工具包。Operit 报告实际执行 `use_package(package_name="ziven_mcp")` 后 `session_bootstrap` 才出现在可用工具集合，再执行 `session_bootstrap(host="operit",invocation="explicit")` 返回 `SB-RUNTIME-0.1`、`status=READY`、`restored=true`、`blockers=[]`、`warnings=[]`、stats=288/23、五个精确来源均 ok；检查点版本 v145，workflow_state=`P2_CHATGPT_WAKE_PHRASE_OBSERVED_PASS__OPERIT_RESPONSE_NOT_ACCEPTED__E3_INCOMPLETE`。本框对线上当前 checkpoint/version 的独立 `session_bootstrap` 回读也为 v145 和相同状态，证据相互吻合。**证据等级**：Operit 工具执行细节来自柳柳转交的原始回复，`E3_OPERIT_MANUAL_USE_PACKAGE_BOOTSTRAP=USER_REPORTED_PASS`，不是本框直接读取的 Operit 执行日志。可确定的故障位置：新框首次回复**未先完成 MCP 包激活→恢复读取→状态验收链**，而非服务端工具不可用；但无法单凭这一证据判定 role card 的实时 `toolAccessConfig`、`advanced_custom_prompt` 是缺失还是未被模型遵守。8月15日《换框问题记录》曾确认角色卡 toolAccessConfig.enabled=false、allowedMcpServers=[]，当时修复为允许 use_package + ziven_mcp，并把激活指令放到 advanced_custom_prompt 第一行；属于**历史相似根因**，不能直接断言当前配置复发。
 - **E3 新框首轮真实工具轨迹（2026-11-05 16:08 CST）**：柳柳提供 Operit 初次新框的工具结果原文。角色卡此前由 Operit 回填 `APPLIED_VERIFIED`：只增 `advancedCustomPrompt` 已批准段，独立回读，其他字段保留。本次新框：先出现简短问候文字→`use_package(ziven_mcp)` SUCCESS（额外 `extended_memory_tools` 激活属冗余）→`package_proxy(ziven_mcp:session_bootstrap, host=operit,invocation=frame_instruction)` 返回 `SB-RUNTIME-0.1/READY/restored=true`，来源全部 ok，stats=298/23，checkpoint v147，blockers/warnings=[]。**验收分级**：`FIRST_TURN_MCP_ACTIVATION/BOOTSTRAP=USER_TRACE_PASS`；严格在任何文字回复前初始化=NOT_MET（工具调用前已有问候）；独立 `memory recall` 载入完整身份根与主档=NOT_OBSERVED；原生宿主 startup_hook=NOT_VERIFIED（`host.startup_hook_verified=false`）。`READY` 只证明权威来源读取/结构检查，不代表全文加载；当前检查点依然显示待执行是尚未更新的工作状态而非 Bootstrapping 检索错误。**下一步**：以真实证据将唯一权威检查点更新为角色卡已改且首轮核心链通过，保留未完成的完整内容召回与严格输出顺序。不要重测后端或循环换框；后续是否需要精简二次角色卡小改动先与柳柳确认（新的变更不包含于此前单字段授权）。
