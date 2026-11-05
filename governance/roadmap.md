@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.43）
+# 整体架构重构总控（Roadmap · v1.44）
 
-> **版本**：v1.43 · 2026-11-06  
+> **版本**：v1.44 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **当前状态**：Memory Retrieval Reliability v0.1 代码、E1/E2 与跨宿主 Bridge 交接均已完成；代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` PASS，Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` PASS，最新文档-only commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` PASS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead51/behind0；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。2026-11-06 新增双方确认的长期方向：**主动探索外部技术生态并吸收优秀 Skill/开源方案**，作为贯穿所有领域的横向能力；Technology Scout 工具化方向已纳入长期规划，已写入整体架构 v1.21。具体数据源、触发方式、结果结构和自动化边界仍待需求/原型验收；本次不代表自动安装、代码复制/修改或具体第三方依赖获批。下一步仍按「一本书」总路线选取真实差距，先讨论需求与原型，不凭新方向插队。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`，相对 main ahead51/behind0。代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` SUCCESS；最新 Bridge 版本号同步 commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` SUCCESS，源码与测试未变。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
@@ -166,7 +166,42 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态（2026-11-06 · v1.43）**：Memory Retrieval Reliability v0.1 代码、E1/E2 与跨宿主 Bridge 交接均已完成。代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Memory Core 86/86、Session Bootstrap/Context 38/38、benchmark 与全量 E1/E2 通过。Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` SUCCESS；mcp-memory/dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`，相对 main ahead51/behind0，最新文档-only run `42063093543` SUCCESS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。整体架构 v1.21、Roadmap v1.43、差距矩阵 v4.59、当前项目状态 version175 已同步。已确认的长期横向方向是主动探索外部技术生态并吸收优秀 Skill/开源方案；Technology Scout 工具化方向已纳入规划，具体数据源、触发方式、探索深度、输出结构和自动化边界仍待独立需求/原型验收。下一步仍需从真实架构差距中选择垂直切片，先查成熟方案、梳理需求与原型；不凭新想法擅自改变施工顺序。
+> **当前状态（2026-11-06 · v1.44）**：Memory Retrieval Reliability v0.1 的代码、E1/E2 与跨宿主 Bridge 交接保持完成；mcp-memory/main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED，dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`、相对 main ahead51/behind0；本轮未改 mcp-memory 仓库。柳柳已明确同意 Memory Layering v0.1：Core/Long-term/Reflection/Archive 四种逻辑视图 + 单一权威正文。ZivenLab/dev 已完成 L0 治理文档定案：整体架构 v1.22、详细设计 v2.0、Roadmap v1.44、差距矩阵 v4.60、导航表 v3.74、需求 v0.3、数据库设计 v1.7、Memory 域 v1.7 与 README/CHANGELOG 同步。**本轮仅治理文档；没有 Worker/Skill/代码、Schema、真实记忆数据、main、生产部署或聊天室/唤醒改动。** 下一实施顺序为 L1 Type 写入规则 → L2 Core 上下文组装 → L3 Reflection → L4 Archive → L5 只读存量映射；L6 生命周期写入保障只作为依赖自动状态迁移时的前置门禁。Technology Scout 仍是已确认长期横向方向，不插队替代当前记忆切片。
+
+### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 治理文档完成）
+
+**用户实际收益**：新会话只加载真正必需的核心上下文；日常工作从权威长期记忆按需召回；从失败/纠正中形成有证据的经验；历史信息可查但不会冒充当前事实。四层共用一份权威正文，避免四套存储与重复副本。
+
+**已确认的架构决定**：
+- Core 是启动必需的稳定核心/动态工作指针引用视图；Long-term 是权威记忆主体；Reflection 是带来源和验证状态的候选学习工作流；Archive 是历史记录与来源的按需视图。
+- Category、Type、Layer、Validity、Maturity、Provenance 六维正交；Category 前缀不推导 Layer/Type。
+- 不新增 layer 字段、layer-membership 表或其它数据库表；不批量搬迁/重标真实记忆；不因低频使用自动删除。
+- agreement 目标上只用于柳柳明确确认；未验证判断标 inference；此规则尚未同步到当前 Memory Management Skill/运行时。
+
+**L0 文档交付（本轮完成）**：
+- `governance/记忆层存量归位规范.md` v2.0：唯一详细设计源，含准入/退出、检索合同、合成样例、实施路线；旧 Category 规则保留为附录。
+- `governance/整体架构.md` v1.22：更新目标蓝图。
+- `governance/治理与记忆_最终需求.md` v0.3：保留原始需求并补充四层解释。
+- `governance/database/记忆两表设计.md` v1.7 与 `governance/database/domains/memory.md` v1.7：说明逻辑层映射和 Schema 不变。
+- `governance/架构差距矩阵.md` v4.60、`当前项目状态.md` version176、`真相源导航表.md` v3.74、README 与 CHANGELOG 已同步。
+
+**L1-L6 实施计划**：
+1. **L1 Type 写入规则收敛**：更新 Memory Management Skill；核对实际注册 Schema；贯通 type 参数到 remember/update/lifecycle；缺失 type 不再伪显示为 fact；补合同测试。agreement 仅显式确认，quote 保留原话，fact 有来源，模型未验证判断用 inference；无法分类则暂缓，历史数据不自动重标。
+2. **L2 Core 视图与上下文组装**：复用 SB-1.0 已核实的五个精确来源 key；区分稳定核心/动态指针；先做只读最小上下文组装、预算/缺失/降级测试；Bootstrap READY 不等于全文 persona 已装入宿主，必须单独取证。
+3. **L3 Reflection 工作流**：复用 lesson、tests/learning 与治理文档；标准化 pending/validated/rejected/deferred、source_refs、evidence、target、decision_reason；只有 validated 才晋升。
+4. **L4 Archive 历史视图**：复用现有 history/events/对话归档；默认当前检索不混入历史；明确历史意图时返回带时间/来源/当时状态的结果；不补造缺失事件。
+5. **L5 存量只读映射**：先用合成样例，再对真实数据做只读 dry-run，输出 id/key/category/type/status/建议视图/理由/不确定项；零写入、可复核；柳柳验收后才考虑极小试点，且多数记录不需要物理搬动。
+6. **L6 生命周期写入保障**：只在某个功能确实依赖自动状态迁移/多步写入时，针对性解决 create/revoke/rename/move 事件覆盖、update new_value/version、事务一致性、CAS、幂等与 source→target 原子迁移；不重新激活已移出主线的宽泛生产 DB 安全审计。
+
+**L1 根因基线（mcp-memory/dev 静态源码）**：
+- `src/tools/memory_unified.js` 的 remember 构造 data 时没有传入 `safeArgs.type`；update 也没有显式修改 type。
+- `src/modules/memory/lifecycle.js` 新增时仅在收到 `data.type` 才写入；更新分支不更新 type。
+- Skill 要求把 type 写在 value 内，但正文文字不会自动填充数据库 type 列；search 展示层又把缺失 type 回退显示为 fact。
+- 对外注册 Schema 是否暴露 type 尚未核实。L1 必须一起收敛 Schema→handler→lifecycle→display，不是只改 Skill 文案；若需写入注册元数据，先确认授权路径，不绕过注册表。
+
+**实施门禁与验收**：每个代码切片仍先形成可验收原型，再由柳柳确认后进入 dev；E1/E2 绑定精确 SHA。必须证明：一份正文多视图引用；pending 不冒充事实；Archive 不污染当前检索；Core 有真实装载证据；现有 current-only、检索四态、别名、一跳关联和来源解释不退化。任何 DB/schema/真实数据写入、main 发布、Worker 部署均不包含在本次 L0 授权内。
+
+**下一行动**：开始准备 L1 的最小行为契约与 Skill diff；先核对当前 Skill 的真实写入规则，再提出精确修改与合同测试范围，不顺手改运行时或真实记忆。
 
 > **前一状态快照（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
 
