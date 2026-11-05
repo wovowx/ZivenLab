@@ -1,5 +1,13 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-v6.37.0-released] - 2026-11-05（治理收口，仅 ZivenLab/dev）
+
+- 柳柳明确批准 `v6.37.0: P0 Core Modules Recovery`，代码仓 PR #323 `merged=true`，2026-11-05T04:41:08Z rebase；main=dev=`08d065b66061043f9a4766184176df10cfa7c05b`。预发布候选 `98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c` 独立保护于 `recovery/v6.37.0-premerge-20261105`。
+- 发版范围相对于 v6.36.2：33 文件（main...dev 合并前 ahead40/behind0），Memory Core、Agnes、Storage、DDL Parser、Cloudflare Provider、Patch Engine、非聊天室 Router 七项、合同测试、Skill/文档等；无聊天室/唤醒源码或数据库 schema 变更。
+- 候选 CI `41967892278`、PR CI `41969220275`、main CI `41969331209` 均 SUCCESS（E1/E2）。Cloudflare Worker build `a3232a8e-51fb-465f-a8ce-c22d8cea4558` SUCCESS；部署 `27806f1a` / version #529；`verify_main=VERIFIED`，MCP 记忆只读读取和 PR 查询通过；生产写操作/真实第三方 E3 NOT RUN。
+- Pages run `41969331221` 独立 FAILURE（废弃的 `actions/upload-artifact@v3`，旧版已失败），不影响 Worker，此阶段不修改 Pages。
+- P0 发布闭环 CLOSED。Roadmap v1.10 §5.0、驾驶舱 version148、唯一云端检查点与桥接文件同步记录。后续 P1 核心职责稳定需需求/原型讨论确认后才编码；ZivenLab/dev 治理变更未推 ZivenLab/main。
+
 ## [docs-2026.11.05-p0-release-candidate] - 2026-11-05（dev 发布候选准备，未获 main 授权）
 
 - `mcp-memory/dev` 已准备 `v6.37.0: P0 Core Modules Recovery`（package 6.37.0 + CHANGELOG），候选完整 SHA `98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c`；相对 main `e145651bb579d5e6a7b0fedba6a304e70f1ed05a` ahead40/behind0，共33个文件，无聊天室/唤醒源码差异。
