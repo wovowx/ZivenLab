@@ -186,7 +186,7 @@
 - `governance/架构差距矩阵.md` v4.62、`当前项目状态.md` version178、`真相源导航表.md` v3.76、README 与 CHANGELOG 已同步。
 
 **L1-L6 实施计划**：
-1. **L1 Type 写入规则收敛**：原型 v0.1 已形成，等待柳柳验收；建议使用 optional 顶层 type enum，由 Worker 代码层 helper 同步扩展 tools/list 暴露与 dispatchGuard 校验，不写 Supabase skills 注册表；贯通 remember/update/lifecycle/history/search display 与 Skill。agreement 仅显式确认，quote 保留原话，fact 有来源，inference 明示不确定；无法分类则暂缓，旧调用可省略并保留 NULL，历史数据不自动重标。
+1. **L1 Type 写入规则收敛（DEV_CODE_E1_E2=CLOSED）**：柳柳已验收原型并授权 dev 实施。`mcp-memory/dev` SHA `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / CI run `42125896297` SUCCESS；共享 helper 同步 tools/list 与 dispatchGuard optional enum；remember/update/lifecycle、Recall/Search/History、Transfer import/export 与 Memory Management Skill 已贯通；Memory Core 101/101。未写 Supabase 注册表/DB Schema/真实记忆。生产 main 仍 v6.41.0，Worker text Skill loader 固定读取 main，故 v6.42.0 dev 候选尚未在线生效；PR/main/Worker E3/部署需独立版本单与授权。
 2. **L2 Core 视图与上下文组装**：复用 SB-1.0 已核实的五个精确来源 key；区分稳定核心/动态指针；先做只读最小上下文组装、预算/缺失/降级测试；Bootstrap READY 不等于全文 persona 已装入宿主，必须单独取证。
 3. **L3 Reflection 工作流**：复用 lesson、tests/learning 与治理文档；标准化 pending/validated/rejected/deferred、source_refs、evidence、target、decision_reason；只有 validated 才晋升。
 4. **L4 Archive 历史视图**：复用现有 history/events/对话归档；默认当前检索不混入历史；明确历史意图时返回带时间/来源/当时状态的结果；不补造缺失事件。
