@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.35）
+# 整体架构重构总控（Roadmap · v1.36）
 
-> **版本**：v1.35 · 2026-11-05  
+> **版本**：v1.36 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **分支范围**：本轮已按柳柳确认的 v0.1 原型先更新 ZivenLab/dev 设计，再仅在 mcp-memory/dev 实施关联检索代码/测试并通过 CI；不改数据库、权限、生产数据、main 或部署。  
+> **分支范围**：v6.41.0 记忆关联召回经柳柳逐版本批准，已由 mcp-memory/dev→main PR #329 发布 Cloudflare Worker #535 并 VERIFIED；本轮文档归档仅更新 dev，不再次部署或修改 main。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
@@ -144,6 +144,10 @@
 ---
 
 ## 5. 当前主线与下一步
+
+> **最新发布收口（2026-11-05 · v1.36）**：**v6.41.0 真实使用效果**：当柳柳提到某段记忆或一个具体项目时，原 `memory.search` 可在直接命中后，从既有显式关系/共同业务实体中补充最多3条相关记忆，并给出关联来源；不再只是孤立检索。**实际发布**：柳柳在收到具体作用、六文件范围、测试、main/dev SHA、部署/回滚说明后明确批准。发布前保留唯一恢复 ref `recovery/v6.41.0-premerge-20261105`→dev `3ef6472e63665b340b87fba77923166fd6342114`；PR [#329](https://github.com/wovowx/mcp-memory/pull/329) head=dev/base=main、仅六文件、squash merged=true；main=dev=`5e4cf739a5ffd21c0434db96217267edb2af57bd`。主分支 [learning-regression #42028203531](https://github.com/wovowx/mcp-memory/actions/runs/42028203531) SUCCESS，Cloudflare Worker deployment `fb40fed3` / version **#535**，`verify_main=VERIFIED`。Pages workflow [#42028203674](https://github.com/wovowx/mcp-memory/actions/runs/42028203674) FAILURE 延续既有冻结问题，不影响 Worker 部署。真实 ChatGPT 专用 `session_context({host:'chatgpt',invocation:'explicit',topic:'记忆星球 星系 锚点'})` 只读调用返回 `related_status=matched_best_effort`、3条相关记忆；此入口只证明关联主题上下文召回有结果，**不等于真实 memory.search 的额外关联输出已独立 E3 验证**；检查点旧决策字段尚未刷新时状态 DEGRADED，须更新权威检查点并复核。未更改 DB/schema/生产业务数据、聊天室、Operit/Web、DNS、密钥；常规 `memory.search` 既有 search_history 写入行为未改变，未用它做“只读”线上验收。
+
+**与旧「记忆星球」的关系（仅研究发现，非新实施授权）**：2026-10-20 云端 `⚙️/参考-GPT讨论·记忆星系数据支撑` 与 `⚙️/认知-记忆星球·权限分工+幸福碎片` 指明，记忆星球是共同回忆的星系可视化/回顾体验；其底层同样需要可信、有界的一跳关联。此次发布是可复用检索底座，但没有实现“一个正式主星系归属”、锚点组织/关系证据审核、纠错/批注、可视化、随机幸福碎片、时间轴；**联想关联不等于星系归属，不能根据共享实体自动把两颗星定为一组**。未来要恢复星球需先讨论与验收原型、更新主线后再施工；不自动替换当前主线或重启聊天室。 **后续 next_action**：该版本发布/CI/Worker 验证闭环后，以已确认的一本书架构为主线；记忆星球整合只是后续可讨论的呈现层候选，不自动进入编码。
 
 > **当前工程闭环（2026-11-05 · v1.35；Memory Association v0.1 dev 施工＋最终 HEAD CI PASS）**：柳柳在 v0.1「显式 ID 关联＋共享业务实体、直接命中优先、至多3条、来源、当前态、无图谱/DB/聊天室扩张」需求与文字原型后明确回复「同意」。已先更新蓝图 v1.12、Roadmap v1.34 再在 mcp-memory/dev 实施。实际源代码只修改既有 src/modules/memory/retrieval.js 和 src/tools/memory_unified.js，增 tests/memory_core_contract_test.mjs 8项合同、package.json 版本 v6.41.0 与 CHANGELOG，追加仅 Bridge 文档。独立本地 E1 check exit0、Memory69/69、Router162/162、Session/Context36/36、Contents50、Search20、Learning9均 PASS。五文件候选 SHA=89aa2f05197c847734504ac232bcf9e0cddbca99 的 GitHub Actions [42025476524](https://github.com/wovowx/mcp-memory/actions/runs/42025476524) SUCCESS；追加 Bridge-only 回执后**最终 dev=3ef6472e63665b340b87fba77923166fd6342114**，其精确 GitHub Actions [42025993378](https://github.com/wovowx/mcp-memory/actions/runs/42025993378) completed SUCCESS，validate 17/17 steps success。main=c9324b4f2e4013ed1e7edcd455bb40450a5b8dfe，dev 相对 main ahead8/behind0，六文件仅属 v6.41.0 Memory Association 候选与 Bridge，Worker仍 v6.40.1/#534。**DEV_CODE_E1_E2_CI=CLOSED；MAIN_RELEASE/E3=NOT AUTHORIZED/NOT RUN**。下一步：依发布 Skill 向柳柳提交准确 v6.41.0 发版单（精确 main/dev SHA、六路径、测试/已知风险/部署影响/合并策略与回滚）并等待本版本逐项授权；未获许可绝不创建 PR/合 main/部署。Web A/Operit 严格新框仍不是本切片。
 
@@ -327,6 +331,7 @@
 - 不为代码整洁强行拆模块；保持基础能力可复用、工作流内聚、Facade 稳定。
 - Operit 本机测试会消耗柳柳 API token；优先用现有 GitHub Actions/可用验证能力，确实需要本地 Node 时才提出 Operit 执行。
 - 无需柳柳判断时持续推进；目标、边界、外部契约、权限或风险变化时回到协作讨论。
+- **发布说明先交代柳柳真正能得到的效果（2026-11-05 柳柳明确要求，后续各版本强制遵循）**：先用通俗语言说明此版解决了什么痛点、发布前后有什么不同、她可以怎么感受到、没有解决什么；再附版本号、变更文件/模块、精确 SHA、测试、风险、部署/回滚清单供技术核验。不得只列文件名就要求批准，也不得把历史通用的「好」当成具体发布授权。
 - **每个候选版本合入 main 前，必须先向柳柳提交完整版本说明并取得她对该版本的明确批准。** 说明必须列出版本号/名称、目标与行为变化、准确文件/模块和纳入/排除范围、main/dev 完整 SHA 与 compare/diff、精确 SHA 的 CI/测试命令及 Run ID/结果（区分 E1/E2/E3）、未验证项/风险/兼容性、Worker/Pages 等生产部署影响、回滚基线与方式；未知信息明确标 UNKNOWN / NOT RUN。
 - 发布说明必须明确询问是否批准该版本合入 main，并等待明确肯定答复。沉默、“收到/明白了”及对长期发布节奏的认可不构成本次版本授权；未获批准不得推送/合并 main。阶段完成只触发发布评估，不自动授权发布。
 - PR 创建、main 合并、手动部署仍是不同授权边界；批准仅覆盖发布说明所列版本和范围。若实际 diff、验证、风险或部署影响发生变化，重新说明并取得对应确认。
