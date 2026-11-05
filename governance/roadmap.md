@@ -166,7 +166,7 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态（2026-11-06 · v1.45）**：Memory Retrieval Reliability v0.1 的代码、E1/E2 与跨宿主 Bridge 交接保持完成；mcp-memory/main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED，dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`、相对 main ahead51/behind0；本轮未改 mcp-memory 仓库。柳柳已明确同意 Memory Layering v0.1：Core/Long-term/Reflection/Archive 四种逻辑视图 + 单一权威正文。L0 已 CLOSED；L1 Type 写入链原型 v0.1 已写入唯一详细设计源 `governance/记忆层存量归位规范.md` v2.1，等待柳柳验收。ZivenLab/dev 同步：整体架构 v1.23、Roadmap v1.45、差距矩阵 v4.61、导航表 v3.75、当前项目状态 version177、数据库设计 v1.8、Memory 域 v1.8。只读 Supabase 注册表确认 memory input_schema 无 type；main/dev 源码与 Router 合同测试确认 tools/list 是只读，旧副作用判断已纠正。**本轮仅 ZivenLab/dev 治理文档：没有 Worker/Skill/代码、Supabase 注册表、DB Schema、真实记忆、main、E3 或部署改动。** 下一实施顺序仍为 L1 Type → L2 Core → L3 Reflection → L4 Archive → L5 只读映射；L6 仅作为依赖自动状态迁移时的前置门禁。Technology Scout 保留为长期横向方向。
+> **当前状态（2026-11-06 · v1.46）**：Memory Layering v0.1 四层逻辑视图 + 单一权威正文已确认；L0 治理文档 CLOSED；L1 Type 写入链已按柳柳验收的 v0.1 原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / package v6.42.0，main...dev ahead100/behind0；`learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤通过。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未改 main/注册表/DB Schema/真实记忆。ZivenLab/dev 同步整体架构 v1.24、详细设计 v2.2、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、数据库设计 v1.9、Memory 域 v1.9。**L1 dev 实施与 E1/E2 CLOSED；PR/main/Worker E3/部署未授权且未执行。** 下一施工切片为 L2 Core 只读上下文组装；L3 Reflection、L4 Archive、L5 只读存量映射后续推进；L6 仅在依赖自动状态迁移时解决事务/CAS/事件一致性。Technology Scout 保留为长期横向方向。
 
 ### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 CLOSED；L1 Type 原型待验收）
 
