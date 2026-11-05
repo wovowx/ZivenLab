@@ -168,7 +168,7 @@
 
 > **当前状态（2026-11-06 · v1.46）**：Memory Layering v0.1 四层逻辑视图 + 单一权威正文已确认；L0 治理文档 CLOSED；L1 Type 写入链已按柳柳验收的 v0.1 原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / package v6.42.0，main...dev ahead100/behind0；`learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤通过。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未改 main/注册表/DB Schema/真实记忆。ZivenLab/dev 同步整体架构 v1.24、详细设计 v2.2、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、数据库设计 v1.9、Memory 域 v1.9。**L1 dev 实施与 E1/E2 CLOSED；PR/main/Worker E3/部署未授权且未执行。** 下一施工切片为 L2 Core 只读上下文组装；L3 Reflection、L4 Archive、L5 只读存量映射后续推进；L6 仅在依赖自动状态迁移时解决事务/CAS/事件一致性。Technology Scout 保留为长期横向方向。
 
-### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 CLOSED；L1 Type 原型待验收）
+### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 CLOSED；L1 Type dev 实施与 E1/E2 CLOSED）
 
 **用户实际收益**：新会话只加载真正必需的核心上下文；日常工作从权威长期记忆按需召回；从失败/纠正中形成有证据的经验；历史信息可查但不会冒充当前事实。四层共用一份权威正文，避免四套存储与重复副本。
 
