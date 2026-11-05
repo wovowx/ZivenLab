@@ -1,5 +1,11 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-v6.36.2-closure] - 2026-11-05（ZivenLab/dev 文档状态同步，未发布）
+
+- 经柳柳确认，仅校正 Roadmap v1.6、驾驶舱 version144、现状架构、差距矩阵与跨宿主交接，保留旧快照为历史，不变更生产代码或架构目标。
+- 2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
+- 当前下一步是 Branch/PR 领域职责研究与原型讨论；单模块 branch_pr.js + 独立合同测试只是待讨论方案，尚未获得架构定案/编码授权。真实 PR/ref E3 NOT RUN。
+
 ## [docs-2026.11.05] - 2026-11-05（dev 草稿，未发布）
 
 ### Branch/PR merge-helper dev 修复证据复核
