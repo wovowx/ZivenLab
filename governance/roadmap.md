@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.42）
+# 整体架构重构总控（Roadmap · v1.43）
 
-> **版本**：v1.42 · 2026-11-06  
+> **版本**：v1.43 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：Memory Retrieval Reliability v0.1 代码、E1/E2 与跨宿主 Bridge 交接均已完成；代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` PASS，Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` PASS，最新文档-only commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` PASS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead51/behind0；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。2026-11-06 新增双方确认的长期方向：**主动探索外部技术生态并吸收优秀 Skill/开源方案**，作为贯穿所有领域的横向能力，已写入整体架构 v1.20；本次仅规划文档更新，不代表独立 Scout 工具或具体第三方依赖已获实施批准。下一步仍按「一本书」总路线选取真实差距，先讨论需求与原型，不凭新方向插队。
+> **当前状态**：Memory Retrieval Reliability v0.1 代码、E1/E2 与跨宿主 Bridge 交接均已完成；代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` PASS，Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` PASS，最新文档-only commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` PASS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead51/behind0；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。2026-11-06 新增双方确认的长期方向：**主动探索外部技术生态并吸收优秀 Skill/开源方案**，作为贯穿所有领域的横向能力；Technology Scout 工具化方向已纳入长期规划，已写入整体架构 v1.21。具体数据源、触发方式、结果结构和自动化边界仍待需求/原型验收；本次不代表自动安装、代码复制/修改或具体第三方依赖获批。下一步仍按「一本书」总路线选取真实差距，先讨论需求与原型，不凭新方向插队。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`，相对 main ahead51/behind0。代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` SUCCESS；最新 Bridge 版本号同步 commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` SUCCESS，源码与测试未变。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -87,7 +87,7 @@
 5. **可追溯沉淀**：记录来源、仓库/版本/Commit、License、设计要点、差异、验证证据、采用理由和维护风险；经过实践验证后再沉淀为 Lesson/Skill。
 6. **与内部学习闭环衔接**：外部探索产生候选知识，Ziven 的真实实践负责适配和验证；只有被证明有价值的内容才晋升为稳定能力。
 
-**自主边界**：允许 Ziven 自主搜索、阅读、比较和提出建议；引入依赖、复制/改造代码、架构变更或正式环境影响，仍须先需求梳理与原型验收，并检查许可证。暂不批准自动安装、自动改写生产代码或常驻自动爬取。先复用现有搜索/GitHub/Skill 能力，只有重复需求和收益明确后才讨论专门 Scout 工具。
+**工具化方向与自主边界**：Technology Scout 是已纳入长期规划的工具化方向；首版优先编排现有 Web 搜索、GitHub 阅读和 Skill 能力，具体数据源、触发方式（按需/主动）、探索深度、输出结构和自动化程度待独立需求/原型验收。允许 Ziven 自主搜索、阅读、比较和提出建议；引入依赖、复制/改造代码、架构变更或正式环境影响，仍须检查许可证并经过需求梳理与原型验收。自动安装、自动复制代码、自动改写正式代码和未经确认的持续后台爬取不在当前授权内。
 
 ---
 
@@ -378,7 +378,7 @@
 | GitHub Contents 真实文件读写 E3 | NOT RUN | 否 | 当前已有 E1/E2 fetch-mock；未来确有必要且获准再安排真实 endpoint 验收 |
 | Branch/PR 领域模块边界评估 | **已存在实现：`src/modules/github/branch_pr.js` 已在 main；旧拆分候选关闭** | 否 | 不重复拆分；只在出现明确新需求/边界问题时再评估 |
 | Pages Source / 真实 URL | UNKNOWN；PR #319 不主动推动 | 否 | 仅未来实际发布 Pages 前核验；保留决定不等于合并/部署授权 |
-| 外部技术探索与吸收能力 | **方向已确认；作为横向工程能力纳入规划** | 是，贯穿所有切片 | 先复用现有 Web/GitHub/Skill 能力；主动发现、源码级评估、License/安全/维护审查、隔离验证、来源沉淀；专门 Scout 自动化工具尚未批准/未建设 |
+| 外部技术探索与吸收能力 | **方向已确认；作为横向工程能力纳入规划** | 是，贯穿所有切片 | 先复用现有 Web/GitHub/Skill 能力；主动发现、源码级评估、License/安全/维护审查、隔离验证、来源沉淀；Technology Scout 工具化方向已纳入长期规划，具体工具范围/自动化程度尚待需求与原型验收；尚未建设 |
 | GPT memory tool description 的动态 connector/host 来源 | UNKNOWN、非阻塞 | 否 | 不调用 Worker `tools/list`；不为追查文案触碰聊天室注册副作用 |
 
 ### 6.2 明确移出当前主线的范围
