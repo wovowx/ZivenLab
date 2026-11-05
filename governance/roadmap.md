@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.11）
+# 整体架构重构总控（Roadmap · v1.12）
 
-> **版本**：v1.11 · 2026-11-05  
+> **版本**：v1.12 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,20 +145,23 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.11）**：P0 已发布闭环；柳柳已验收 P1 Branch/PR → Patch Engine 的模块职责与接口原型。权威蓝图 `governance/整体架构.md` 升至 v1.3，按 §5.P1 在 dev 先编码/测试，未获本阶段任何 main 发布授权。以下 P0 发布事实仍有效。
+> **当前状态覆盖（2026-11-05，v1.12）**：P0 v6.37.0 已发布/部署 VERIFIED；P1 经柳柳原型验收后已在 dev 完成 Branch/PR + Patch workflow 模块收敛，代码/回归 E1/E2 全绿，v6.38.0 发布候选已在 dev，尚无 main 发布批准或 E3 真端点写入。详见 §5.P1。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
 > **历史覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
 
-### 5.P1 P1 · 核心职责收敛（2026-11-05 已获原型验收，dev-only 实施）
+### 5.P1 P1 · 核心职责收敛（v6.38.0 dev 候选；E1/E2 已通过，未发布）
 
-- **共同定案依据**：柳柳确认哥哥提供的 P1 原型：保留现有 Router/Contents/Memory/Agnes/Database 模块与全部外部工具契约，先在单一 `src/modules/github/branch_pr.js` 收敛 Branch & PR primitives/workflows，再将 Patch Engine 的申请/校验/条件认领/内容变更/状态写回场景工作流独立编排；不新增独立 Router、微服务或笼统 Session Runtime。上层主线蓝图已升级 `governance/整体架构.md` v1.3。
-- **施工 P1-A**：保持 `src/tools/github_v64.js` 的 GITHUB_TOOL_DEFS、allowlist、tool_name/Schema/响应结构和路由；把 branch/create/sync/compare、PR create/read/close/merge、`github_merge_to_main` 复合场景和 `tryAutoSyncDev` 限定条件逻辑迁入一个 Branch/PR 领域模块。通过 facade 传递经校验上下文，拒绝跨域绕过主分支发布门禁。真实 PR #323 事故教训要求精确保留 premerge ref、metadata fail-closed 与只有已确认 `head=dev,base=main,merged=true` 才允许同步。
-- **施工 P1-B**：复用 `src/modules/patch_engine.js` 原子校验/应用；将 `github_apply_patch` 长执行流程提到专属 workflow，保留 proposal 状态机和历史成功/失败/未确认语义；不得顺带修改数据库或工具参数。
-- **完成条件**：更新单一主线文档，E1 静态/import 全绿；E2 Contents、Branch/PR 相关 metadata/ref、Router/schema、Patch proposal/partial-success 及完整 learning-regression 全绿并绑定精确 dev SHA；E3 未运行则写 NOT RUN。每个切片 dev 先落地，无 main 合并；交付完整后按逐版本发布门槛向柳柳预告并另行批准。
-- **当前状态**：架构原型已由柳柳确认、文档已先行同步；**代码编写和运行验证以随后 GitHub dev 提交和 CI 为准，不能提前标成完成**。
+- **共同决策**：柳柳连续确认 P1 已验收原型：保留 Router、Contents、Memory/Agnes/Database 等既有边界；单一 Branch/PR 模块内部复用 primitives + workflows，再独立收敛 Patch workflow；不重写 Worker、不引入新框架。总架构蓝图 `governance/整体架构.md` 已先于编码升级 v1.3。
+- **P1-A 代码**：新增 `src/modules/github/branch_pr.js`（约376行）；迁入 `restoreBranchReference` 精确 SHA ref 恢复、`tryAutoSyncDev` 仅合并 dev→main 才同步的 PR metadata fail-closed 守门，以及 8 个既有 Branch/PR 工具场景。对外 `GITHUB_TOOL_DEFS`、Schema、repo/token allowlist、返回字符串仍留在 `src/tools/github_v64.js` Facade；`restoreBranchReference` 通过原路径 re-export，避免测试和调用方改名。
+- **P1-B 代码**：新增 `src/modules/patch_workflow.js`（约133行），将 `github_apply_patch` 的 proposal 读取、diff 校验、原子 claim、GitHub PUT、applied 状态确认及失败/部分成功/未知结果的完整场景编排下沉；复用 `src/modules/patch_engine.js` 的 `validatePatch`、`applyPatch`、`resolvePatchTargetPolicy`、`validatePatchTargetFile` 原子能力。原 Facade 保持同名入口且传递已有编码适配方法。
+- **兼容/规模**：`src/tools/github_v64.js` 从约807行收敛至约343行；未触及 `src/modules/mcp_router.js`、聊天室/唤醒、生产 DB/schema、Worker 配置或 main。新增三项 Branch/PR 直接边界合同与三项 Patch 前置权限/无网络副作用合同；并保留原 11 项 PR metadata、Patch 部分成功等全链回归。
+- **E1/E2 证据**：dev 代码+新增测试 SHA `158cdc036f48f80ca86730a03a6a087e3fd36cd0` 的 Actions `41971350369` SUCCESS。升级 package 为 `6.38.0`、补齐代码 CHANGELOG 后 dev SHA `b762546810ec183112c95337b64f6fcf7d7a9715` 的 Actions `41971533005` 再次 SUCCESS：Static syntax/import、GitHub Contents、Webhook/Agnes、Memory Core 60、Search 20、Release Guard、Learning artifacts、Router/Registry/Patch 154/154 PASS。E2 均为 mock/合同，不等同真实 GitHub ref/PR、Patch Supabase 变更 E3。
+- **当前分支差异**：相对 main `08d065b66061043f9a4766184176df10cfa7c05b`，dev `b762546810ec183112c95337b64f6fcf7d7a9715` ahead11/behind0，8 个文件（包含单独的历史 Bridge 纯文档提交）。main 上线 v6.37.0 未更改，本次 P1 dev 候选仅内部代码组织、合同回归、版本/文档，无聊天室模块路径。
+- **遗留与发布纪律**：P1 一些早期 dev 实施提交标题仍为 `v6.37.0`，虽然本批 package/CHANGELOG 已定为 v6.38.0；发布审核时需明确历史 commit-label 不一致风险，不能以会自动改写为依据。严禁未经柳柳逐版本批准而合 main；审批前需报告精确最终 SHA/CI、文件范围、合并策略及 Cloudflare 自动部署/回滚。真实 PR/ref 与 Patch 写入 E3 NOT RUN。
+- **下一步**：先同步唯一 Bridge 与云端当前工作检查点，核对最终 dev SHA 的 CI，然后提交完整 `v6.38.0` 发版信息给柳柳决策。P2 跨宿主状态连续性后续另行按原型确认，不因 P1 完成自动转入编码。
 
 ### 5.0 P0 Core Modules Recovery（v6.37.0 已发布并验证 Worker 部署）
 
