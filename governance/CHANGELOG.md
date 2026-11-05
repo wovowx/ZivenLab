@@ -1,5 +1,15 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.06-memory-type-dev-implemented-v0.1] - 2026-11-06
+
+- 柳柳验收 L1 Type 原型后，已在 `mcp-memory/dev` 实施 v6.42.0 候选：共享 Memory Type helper 同时驱动 tools/list Schema 暴露与 dispatchGuard；remember/update/lifecycle 持久化语义；Recall/Search/History 展示；Transfer import/export；Memory Management Skill 规则。
+- 显式 type 修改沿用既有 `memory_events.old_value/new_value` JSONB 保存 `{value,type}` 快照；旧 string 快照兼容；省略 type 不覆盖，NULL 显示未标注，未知历史值显式标注。没有修改 Supabase skills 注册表、数据库 Schema 或真实记忆。
+- 精确 `mcp-memory/dev` SHA `ad62fbeae23ae1591fc39f17cb6d345f0572584b` 的 `learning-regression` run `42125896297` SUCCESS；E1 `npm run check` PASS，Memory Core 101/101，Router/registry/Patch Engine、GitHub Contents、Webhook、Retrieval Benchmark、Search History、Release Guard、Learning artifacts、Session Bootstrap/Context 全部通过。
+- 生产 `mcp-memory/main` 仍 v6.41.0 / SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Cloudflare Worker #535 / deployment `fb40fed3` 未变。Worker `loadTextSkill` 固定从 main 读取 Skill，因此 dev 候选尚未在线生效。
+- 同步整体架构 v1.24、Roadmap v1.46、详细设计 v2.2、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、记忆三表设计 v1.9、Memory 域 v1.9。
+- 本切片仅修改 mcp-memory/dev 代码/Skill/Mock 测试与 ZivenLab/dev 治理文档；未创建 PR、未合 main、未部署 Worker、未执行 E3。下一步 L2 Core 先做只读上下文组装原型，待柳柳验收后再编码。
+
+
 ## [docs-2026.11.06-memory-type-contract-prototype-v0.1] - 2026-11-06
 
 - 在唯一详细设计源 `governance/记忆层存量归位规范.md` v2.1 新增 L1 Type 写入链原型 v0.1：optional 顶层 type enum、代码层 Schema augmentation、remember/update 持久化语义、NULL 未标注展示、JSONB 历史快照兼容、Skill 规则与 E1/E2 测试矩阵；等待柳柳验收，未编码。
