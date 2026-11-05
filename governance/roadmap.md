@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.9）
+# 整体架构重构总控（Roadmap · v1.10）
 
-> **版本**：v1.9 · 2026-11-05  
+> **版本**：v1.10 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,22 +145,21 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.9）**：P0 恢复代码的 E1/E2 全部通过；v6.37.0 候选已在 dev 准备完毕（`98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c`，run `41967892278` SUCCESS），**尚未批准/合并 main，真实端点 E3 NOT RUN**。下一步是逐版本发布审批而非再次审计或 Branch/PR 拆分。详见 §5.0。
+> **当前状态覆盖（2026-11-05，v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
 > **历史覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
 
-### 5.0 P0 恢复旧 dev 有效成果（2026-11-05；E1/E2 全绿，待发布评估与真实端点验收）
+### 5.0 P0 Core Modules Recovery（v6.37.0 已发布并验证 Worker 部署）
 
-- **共同决策与范围**：柳柳批准整体模块化单体方向及 P0「先保护恢复前 dev，再按领域恢复旧 dev 有效代码」，随后明确批准限定在非聊天室范围的 mcp_router.js 七项 Router/Schema/tools-list/usage/注册校验修复。未授权 main/生产部署、生产 DB/schema 或聊天室/唤醒链变更。
-- **版本基线与分支保护**：mcp-memory/main=`e145651bb579d5e6a7b0fedba6a304e70f1ed05a`（v6.36.2）；P0 完成代码的 mcp-memory/dev=`d298162cca89c938d15a8f63b3c9dbb609830d61`（未发布）。恢复前 dev=`512519efbdbb828a9881447fd4c2e218d04fb8a1`，已保护为 `recovery/p0-preintegration-20261105` 并独立回读；旧 dev=`4aa0cd0360466743ca8ace7a79841efc0cdcc205` GitHub API 当前仍可按 SHA 读取，但 GitHub App 403 / MCP create_branch 不接受 SHA，未能创建独立 ref；**不能宣称旧 432 个独有提交已有长期引用保护**。未强制移动 dev。
-- **实施结果**：旧 dev Memory Core repository/lifecycle/retrieval/transfer + 兼容 Facade；Agnes、Storage、DDL Parser、Cloudflare worker status、Patch Engine、release_guard、search/response、相应 Skill 与 E2 合同按领域恢复；保留 v6.36.2 GitHub Contents、PR metadata guard 和精确 dev SHA restore；github_v64.js 仅接回 Cloudflare provider 与 Patch Engine guarded apply。新增 mcp_router.js 7 项精确调整恢复非聊天室工具校验、schema、tools/list 与 usage 统计。未修改任何聊天室/唤醒源码。
-- **最终 CI E1/E2，精确证据**：GitHub Actions learning-regression `41967030788`（run #872）对应代码 SHA `d298162cca89c938d15a8f63b3c9dbb609830d61`，workflow/job `conclusion=success`。E1 Static syntax/import SUCCESS；E2 GitHub Contents（47 checks）、Webhook/Agnes（114/114）、Memory Core（60/60）、Search（20/20）、Release Guard、Learning artifacts、Router/Registry/Patch Engine 全部 SUCCESS。先前 7 项 FAIL 已通过受限 Router 精确修复消除，未移除测试。以上仅 E1/E2，真实端点 E3（Supabase/Agnes/Cloudflare/PR-ref）、生产运行行为均 NOT RUN。
-- **发布候选（已在 dev 准备，仍待柳柳逐版本批准）**：`v6.37.0: P0 Core Modules Recovery`；`package.json` 已由 6.36.2 更新为 6.37.0，`CHANGELOG.md` 已加入 P0 范围、回归、E3 未验证项。main=`e145651bb579d5e6a7b0fedba6a304e70f1ed05a`，完整 dev 候选=`98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c`，main...dev `ahead 40 / behind 0`，**33 个文件**，无聊天室/唤醒源码路径。GitHub Actions learning-regression `41967892278` 对候选精确 SHA `98ea1b54` 的 workflow/job 为 SUCCESS：E1 Static、E2 Contents47、Webhook/Agnes114、Memory Core60、Search20、Release Guard、Learning artifacts、Router/Registry/Patch 全部 PASS。此 CI 是候选最终 Bridge 提交后的完整回归；不是 E3 或生产验证。
-- **发布授权与风险**：这是发布候选准备完成，不是 main 发布授权。先提供柳柳准确版本/完整范围/测试/风险/部署与回滚信息；获明确批准后才允许 PR 合并 main。main push 会由 Cloudflare 自动部署 Worker，真实 Supabase/Agnes/Cloudflare/GitHub PR-ref E3 NOT RUN；运行中工具行为可能受影响，需部署后验证并保留可逆回退方案。旧 SHA `4aa0cd0` 仍未建立长期 ref 保护、历史呈现代码没有纳入本次 P0。
-
-- **未关闭事项**：旧 432 个独有提交没有独立保护 ref；历史 `Pages` 工作流、记忆宇宙呈现文件等旧开发差异不在本次 P0 恢复范围（归档/呈现阶段再处理），不得宣称旧分支历史被整体恢复。Branch/PR 独立领域模块候选属于 P1 讨论，不在 P0 编码范围。
-- **权威交接**：mcp-memory/dev `CROSS-HOST-BRIDGE.md` 末尾与云端唯一 `⚙️/当前工作检查点` 更新当前工作阶段。下方 §5.1–5.4 的 v6.36.1/v6.36.2 发布前“OPEN/等待发布”是历史证据，不再决定下一动作。
+- **柳柳分段授权**：确认「模块化单体 + 领域能力 + 跨宿主恢复」目标，批准 P0 按领域恢复旧 dev；单独批准 mcp_router.js 七项非聊天室 Router 修复；2026-11-05 又明确批准 `v6.37.0: P0 Core Modules Recovery` 以 PR 合 main 并触发 Cloudflare Workers Builds 自动部署。没有授权 DB/schema 或聊天室/唤醒改动。
+- **实现与精确范围**：按领域恢复 Memory Core repository/lifecycle/retrieval/transfer + memory/category/data Facade、Agnes/Storage、受限 DDL Parser、Cloudflare Worker Status Provider、Patch Engine、release guard、search/response、相关 Skill 与 E1/E2 tests，恢复非聊天室 Router Schema/tools-list/usage/registry 守门；保留 v6.36.2 GitHub Contents、PR metadata fail-closed guard、精确 dev SHA 恢复能力。相对 v6.36.2 main 基线的发版范围是 **33 个文件，ahead 40 / behind 0（合并前）**，不含聊天室或唤醒源码。
+- **发布前保护**：旧候选 dev `98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c` 已在 `recovery/v6.37.0-premerge-20261105` 单独建 Git ref 并回读；更早的恢复前 dev `512519efbdbb828a9881447fd4c2e218d04fb8a1` 在 `recovery/p0-preintegration-20261105`。原始旧 dev `4aa0cd0360466743ca8ace7a79841efc0cdcc205` 曾通过 GitHub 按 SHA 读取，但无法建立长期 ref（GitHub App 403，MCP create_branch 仅接受源分支名），不宣称其 432 个独有提交完整保存/恢复。
+- **正式发布**：PR [#323](https://github.com/wovowx/mcp-memory/pull/323) `v6.37.0: P0 Core Modules Recovery`，head=dev、base=main，rebase 合并；已独立回读 `state=closed, merged=true`、`merged_at=2026-11-05T04:41:08Z`。发布前 main `e145651bb579d5e6a7b0fedba6a304e70f1ed05a`；合并后 `main=dev=08d065b66061043f9a4766184176df10cfa7c05b`。rebase 后 dev 按受保护的生产 Worker 合并入口自动对齐 main，预合并候选仍由独立分支保留。独立 GitHub App 创建 PR / 合并调用被 403 拒绝，改用已发布 v6.36.2 的 MCP PR 入口完成，两者均按成功/拒绝事实记录。
+- **E1/E2**：候选 SHA `98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c` 的 dev Actions `41967892278` SUCCESS；PR CI `41969220275` SUCCESS；main rebase HEAD `08d065b66061043f9a4766184176df10cfa7c05b` Actions `41969331209` SUCCESS。含 Static、GitHub Contents 47、Webhook/Agnes 114、Memory 60、Search 20、Router/Registry/Patch、Release Guard 与 Learning artifacts。过去 7 项 Router FAIL 已按柳柳授权精确修复，没有删除/跳过回归。
+- **Worker 部署正式验证**：Cloudflare Workers Builds build_uuid `a3232a8e-51fb-465f-a8ce-c22d8cea4558`，trigger commit `08d065b6`、build_outcome=success；Cloudflare Worker deployment `[27806f1a]`，version `#529`，时间 `2026-11-05T04:42:32Z`；`cloudflare_deploy_status(verify_main=true)` 返回 **VERIFIED**。部署后的非破坏性运行检查：MCP memory recall 与 github_get_pull_request(323) 正常。真实第三方/写操作 E3（Supabase 写、Agnes 生成、Cloudflare 变更、GitHub ref 破坏性场景）NOT RUN；不得将只读 smoke 夸大为完整 E3。
+- **分离的历史 Pages 故障**：在 main SHA `08d065b6`，GitHub Actions “Deploy to GitHub Pages” run `41969331221` FAILURE：`actions/upload-pages-artifact@v2` 依赖已停用的 `actions/upload-artifact@v3`；此前 v6.36.2 的 Pages run `41947805194` 亦 FAILURE。该工作流在 P0 范围外且已暂停，不影响 Worker build/deploy，**不在此次 P0 范围内擅自修**。
+- **P0 状态与下一步**：P0 代码恢复、E1/E2、PR 合并、Cloudflare Worker 部署验证均 CLOSED。原旧 dev 432 个独有提交长期引用与历史 Pages/记忆宇宙呈现仍是开放边界，不视为 P0 已处理。下一项主线依照已批准整体架构选择 P1「核心职责边界稳定」，先讨论/验收 Branch/PR 等候选模块的界面与测试原型，取得显式架构决策后编码；P2 跨宿主恢复与 P3 记忆完整闭环仍按蓝图后续推进。任何新版本 main 发布继续逐版本请示。
 
 ### 5.1 已完成的 dev 代码修复（历史发布前快照；生产已于 v6.36.2 关闭）
 
