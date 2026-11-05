@@ -168,7 +168,7 @@
 
 > **当前状态（2026-11-06 · v1.45）**：Memory Retrieval Reliability v0.1 的代码、E1/E2 与跨宿主 Bridge 交接保持完成；mcp-memory/main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED，dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`、相对 main ahead51/behind0；本轮未改 mcp-memory 仓库。柳柳已明确同意 Memory Layering v0.1：Core/Long-term/Reflection/Archive 四种逻辑视图 + 单一权威正文。L0 已 CLOSED；L1 Type 写入链原型 v0.1 已写入唯一详细设计源 `governance/记忆层存量归位规范.md` v2.1，等待柳柳验收。ZivenLab/dev 同步：整体架构 v1.23、Roadmap v1.45、差距矩阵 v4.61、导航表 v3.75、当前项目状态 version177、数据库设计 v1.8、Memory 域 v1.8。只读 Supabase 注册表确认 memory input_schema 无 type；main/dev 源码与 Router 合同测试确认 tools/list 是只读，旧副作用判断已纠正。**本轮仅 ZivenLab/dev 治理文档：没有 Worker/Skill/代码、Supabase 注册表、DB Schema、真实记忆、main、E3 或部署改动。** 下一实施顺序仍为 L1 Type → L2 Core → L3 Reflection → L4 Archive → L5 只读映射；L6 仅作为依赖自动状态迁移时的前置门禁。Technology Scout 保留为长期横向方向。
 
-### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 治理文档完成）
+### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 CLOSED；L1 Type 原型待验收）
 
 **用户实际收益**：新会话只加载真正必需的核心上下文；日常工作从权威长期记忆按需召回；从失败/纠正中形成有证据的经验；历史信息可查但不会冒充当前事实。四层共用一份权威正文，避免四套存储与重复副本。
 
@@ -179,11 +179,11 @@
 - agreement 目标上只用于柳柳明确确认；未验证判断标 inference；此规则尚未同步到当前 Memory Management Skill/运行时。
 
 **L0 文档交付（本轮完成）**：
-- `governance/记忆层存量归位规范.md` v2.0：唯一详细设计源，含准入/退出、检索合同、合成样例、实施路线；旧 Category 规则保留为附录。
-- `governance/整体架构.md` v1.22：更新目标蓝图。
+- `governance/记忆层存量归位规范.md` v2.1：唯一详细设计源，含四层准入/退出、检索合同、L1 Type 原型 v0.1、L1-L6 实施路线；旧 Category 规则保留为附录。
+- `governance/整体架构.md` v1.23：更新目标蓝图与 L1 当前差距。
 - `governance/治理与记忆_最终需求.md` v0.3：保留原始需求并补充四层解释。
-- `governance/database/记忆两表设计.md` v1.7 与 `governance/database/domains/memory.md` v1.7：说明逻辑层映射和 Schema 不变。
-- `governance/架构差距矩阵.md` v4.60、`当前项目状态.md` version176、`真相源导航表.md` v3.74、README 与 CHANGELOG 已同步。
+- `governance/database/记忆两表设计.md` v1.8 与 `governance/database/domains/memory.md` v1.8：说明逻辑层映射、live registry 证据和 L1 Type 原型；数据库 Schema 不变。
+- `governance/架构差距矩阵.md` v4.61、`当前项目状态.md` version177、`真相源导航表.md` v3.75、README 与 CHANGELOG 已同步。
 
 **L1-L6 实施计划**：
 1. **L1 Type 写入规则收敛**：原型 v0.1 已形成，等待柳柳验收；建议使用 optional 顶层 type enum，由 Worker 代码层 helper 同步扩展 tools/list 暴露与 dispatchGuard 校验，不写 Supabase skills 注册表；贯通 remember/update/lifecycle/history/search display 与 Skill。agreement 仅显式确认，quote 保留原话，fact 有来源，inference 明示不确定；无法分类则暂缓，旧调用可省略并保留 NULL，历史数据不自动重标。
