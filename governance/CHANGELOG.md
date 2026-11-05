@@ -1,5 +1,12 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-v6.39.0-p2-released] - 2026-11-05（P2-A/B 发布、Worker 通过；E3 未验证）
+
+- 柳柳逐版本批准 `v6.39.0 · P2 Session Bootstrap v0.1` 的 8 文件、16 commits、rebase PR→main→Cloudflare 自动部署；将候选 dev `5ef7e0bf62529f0229dacf00a8bcf4a6f0cc060a` 独立保护于 `recovery/v6.39.0-premerge-20261105` 并核验。
+- PR [#325](https://github.com/wovowx/mcp-memory/pull/325) 真实 `merged=true`，2026-11-05T06:15:07Z，rebase 后 main=dev=`580fa4b0f02617b6b1adafa0b3e6aa9962d07baa`（Bridge 追加后可能 dev 领先一条文档提交）。候选 CI `41978314023`、PR CI `41979052742`、main CI `41979169037` 均 SUCCESS，Bootstrap 21/21、Router/Patch154/154、Memory60/60 与全部 E1/E2 通过。
+- Cloudflare Worker 官方 Build `1f24b9a1-b94e-4363-9474-0d6d3ed7dce8` success，部署 `dd219cbc`、version #531；`verify_main=VERIFIED` 且精确 commit 匹配。线上 MCP memory 只读 recall PASS；新 `session_bootstrap` 的真实宿主可见性与自动冷启动 E3 NOT RUN，不能声称跨宿主换框完全恢复。
+- 无生产数据库/schema 写入或聊天室/唤醒/Pages 代码改动；GitHub Pages `41979169100` 历史 deprecated artifact workflow 独立失败，Worker 部署正常。下一步以最小非破坏性 E3 分别验收 ChatGPT/Operit 宿主真实入口/首次回应，绝不利用 Worker `tools/list` 探测副作用。治理依据 Roadmap v1.16 §5.P2、当前项目状态 version152、架构 v1.4、云端唯一检查点。
+
 ## [docs-2026.11.05-p2-bootstrap-dev] - 2026-11-05
 
 - 柳柳确认 P2 v0.1 恢复核心+宿主适配原型。先更新整体架构 v1.4、Roadmap v1.14；本次落地后 Roadmap v1.15 §5.P2、当前状态 version151 保存准确实施证据及发布边界。
