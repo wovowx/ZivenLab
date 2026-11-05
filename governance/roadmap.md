@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.16）
+# 整体架构重构总控（Roadmap · v1.17）
 
-> **版本**：v1.16 · 2026-11-05  
+> **版本**：v1.17 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,7 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.16）**：v6.39.0 P2 Session Bootstrap v0.1 经柳柳逐版本批准、PR #325 rebase 合并 main、Cloudflare Worker Build 成功并部署 #531 `verify_main=VERIFIED`。`main=dev=580fa4b0f02617b6b1adafa0b3e6aa9962d07baa`（此后 Bridge 纯文档提交可能让 dev 单独领先）。代码及 E1/E2 已收口，但 ChatGPT/Operit 真实新会话自动触发和完整接续 **E3 NOT RUN**，P2 项目不标完全 DONE。细节见 §5.P2。
+> **当前状态覆盖（2026-11-05，v1.17）**：v6.39.0 P2-A/B 已发布 Worker #531 VERIFIED。柳柳在 ChatGPT **全新会话只输入「Ziven，我是柳柳」** 后获得准确的身份/288条23类记忆/P2工作/权限边界回报，新框自述 session_bootstrap=READY；本会话对 live bootstrap 早前独立调用 READY。将 **GPT 新框唤醒词恢复 = 用户观测通过**，而不是无提示自动启动或 Operit 通过。另本会话已独立复现 master_router `handler type not implemented: text`，是旧的 text Skill 调用契约不匹配，不改变已证实的 Bootstrap 结果。完整 E3 尚未结束，详细分级见 §5.P2。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
@@ -160,6 +160,9 @@
 - **测试与发布范围**：本次相对线上 v6.38.0 main `ccb0eb16f03817209e3862815f1cc79e9d0eaa2b`，批准候选 dev `5ef7e0bf62529f0229dacf00a8bcf4a6f0cc060a`，ahead16/behind0、8 个文件（`.github/workflows/learning-regression.yml`、`CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`、`package.json`、`src/modules/mcp_router.js`、`src/modules/session/bootstrap.js`、`src/skills/process/huan-kuang-liu-cheng/SKILL.md`、`tests/session_bootstrap_contract_test.mjs`）。新增 21 项 Bootstrap mock 合同并进入 GitHub Actions E2；Router/Patch 154、Memory 60 与其余 E1/E2 全绿。候选 Actions `41978314023` SUCCESS；PR Actions `41979052742` SUCCESS；main Actions `41979169037` SUCCESS。最初 `41977048140` 曾发现 next_action 混读问题并已修复，历史保留。
 - **独立恢复/发布证据**：合并前候选 SHA `5ef7e0bf62529f0229dacf00a8bcf4a6f0cc060a` 已保护于 `recovery/v6.39.0-premerge-20261105` 并回读。PR [#325](https://github.com/wovowx/mcp-memory/pull/325) 以 `head=dev/base=main`、changed_files=8、commits=16，GitHub `mergeable_state=clean` 与 PR CI 全绿后使用 **rebase**，独立回读 `merged=true`、`merged_at=2026-11-05T06:15:07Z`。合并后 `main=dev=580fa4b0f02617b6b1adafa0b3e6aa9962d07baa`，无强制重置。
 - **Cloudflare Workers 真实部署**：Build UUID `1f24b9a1-b94e-4363-9474-0d6d3ed7dce8`，`status=stopped`、`build_outcome=success`、commit 与 main `580fa4b0f02617b6b1adafa0b3e6aa9962d07baa` 完全相符；部署 `dd219cbc`，Worker version **#531**，时间 `2026-11-05T06:16:21Z`；`cloudflare_deploy_status(verify_main=true)` 返回 **VERIFIED**。main package.version `6.39.0` 已回读。部署后原有 MCP memory(action=recall) 只读 smoke 通过。
+- **E3 新框唤醒词场景（2026-11-05 用户提供首次回应文本）**：柳柳在 ChatGPT 全新对话**只发送**「Ziven，我是柳柳」，新框首轮回应准确说明 Ziven/柳柳、288 条/23 分类、P0/P1 已完成、P2 v6.39.0 已部署、当前 E3、聊天室/唤醒/Pages 暂停、未获新发版/生产数据库授权，并自述成功调用 `session_bootstrap` 返回 `READY`。**证据分级**：本次为柳柳提供的首次回应原文（USER-OBSERVED），不能从本对话独立查看新框内部调用日志；但本对话此前已独立成功调用正式线上 `session_bootstrap` 得到 `READY`，验证了服务端接口实际可用。故 `E3_CHATGPT_NEW_FRAME_WAKE_PHRASE=OBSERVED_PASS`，且 `E3_CHATGPT_BOOTSTRAP_TOOL_LIVE=PASS`；不等同无唤醒词自动启动 / 全宿主通过。新框该次还自报 `master-router` handler error，**本框实际重复调用 `master_router` 已独立复现** `handler type not implemented: text`；mcp_router 仅当 skill.handler_config.handler 在 handlerMap 存在才可执行，否则直接以此字符串拒绝，而 master-router SKILL.md 明确其为 text 型流程指引。此问题不是 Bootstrap 失败，属于“文本 Skill 被调用成可执行 MCP 工具”的注册/分发契约不匹配；应先确认现役 text Skill 的客户端/服务端语义，再讨论最小兼容修复，禁止凭错误直接整体重构 Router 或修改生产 skills 表。
+- **剩余 E3**：ChatGPT 没有唤醒词的新对话、换设备、Operit 首轮恢复/新工具可见性均未证实；Operit 相关验证尽量只跑一次非破坏性测试并记录真正 startup_hook 证据。ChatGPT 新框此次通过的是**唤醒词触发**，不是 App 无提示自动自举。
+
 - **注意未完成**：目前 **P2-A/P2-B 代码与 E1/E2、PR 发布与 Cloudflare 部署均完成**；但新 `session_bootstrap` 在实际 ChatGPT/Operit 工具连接中是否可见、是否被显式或自动调用、人格/工作是否真的在新框首轮被完整恢复，**E3 NOT RUN**。当前工具清单可能是连接时快照，不能把工具已上线等同宿主必然可见。老 Worker `tools/list` 副作用仍存在；未更改聊天室/唤醒或 Pages。独立 GitHub Pages Actions `41979169100` 历史废弃 artifact 依赖失败，与 Workers 部署无关，继续冻结。
 - **下一唯一有效行动**：同步 Bridge 和唯一云端工作检查点（将令 dev 多一个纯文档提交）；随后设计最小非破坏性 E3 真实跨宿主验收。先在已连接的 ChatGPT 读工具能力快照、无需额外权限时直接验证；若 Operit 需要特殊启动动作/消耗 API token，则按真实必要性评估，不派重复测试。P2 完整闭环需柳柳验收实际新框接续效果，不能提前标记 P2 整体 DONE。
 
