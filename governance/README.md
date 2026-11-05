@@ -19,6 +19,7 @@
 | 项目治理状态 / 系统现状 | `governance/当前项目状态.md` | 治理驾驶舱摘要；当前工作状态与下一步的唯一权威仍是云端 `⚙️/当前工作检查点` |
 | 当前实现 / 入口依赖 / 证据边界 | `governance/现状架构.md` | 真实实现地图；与目标蓝图分开读取 |
 | 架构差距 / 处理顺序 / 验收条件 | `governance/架构差距矩阵.md` | 目标—现状—证据—处理—验收矩阵 |
+| 记忆四层模型 / 准入退出 / 存量归位 | `governance/记忆层存量归位规范.md` | Core/Long-term/Reflection/Archive 逻辑视图与实施路线；Category 分类规则作为附录 |
 | 现在做什么 / 做到哪 | `governance/roadmap.md` | 行动总控台（路线源） |
 | 怎么协作 / 怎么讨论 | `governance/协作协议.md` | 协作规则（规则源） |
 | 版本记录 | `governance/CHANGELOG.md` | 变更历史 |
