@@ -1,6 +1,6 @@
 # 整体架构重构总控（Roadmap · v1.45）
 
-> **版本**：v1.45 · 2026-11-06  
+> **版本**：v1.46 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **当前状态**：Memory Retrieval Reliability v0.1 的 dev 代码、E1/E2 与跨宿主 Bridge 交接保持完成（代码 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577`；Bridge `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668`；mcp-memory/dev HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543`）。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；本轮没有修改 mcp-memory。Memory Layering v0.1 四层逻辑视图已由柳柳确认；ZivenLab/dev 已完成 L0 文档定案并新增 L1 Type 原型 v0.1：整体架构 v1.23、详细设计 v2.1、Roadmap v1.45、差距矩阵 v4.61、当前项目状态 version177、导航表 v3.75、数据库设计 v1.8、Memory 域 v1.8、CHANGELOG 已同步。只读核对确认 Supabase 启用的 memory 注册 Schema 无 type；`tools/list` 在 main/dev 源码和 Router 测试中均为只读，旧副作用判断已纠正。**本轮仅 ZivenLab/dev 治理文档：没有 Worker/Skill/代码、Supabase 注册表、Schema、真实记忆、main、E3 或部署改动。** 当前停在 L1 原型验收，不进入编码；Technology Scout 保留长期横向方向，不插队替代当前主线。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`，相对 main ahead51/behind0。代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` SUCCESS；最新 Bridge 版本号同步 commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` SUCCESS，源码与测试未变。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
