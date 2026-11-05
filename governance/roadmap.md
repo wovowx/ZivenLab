@@ -2,7 +2,7 @@
 
 > **版本**：v1.41 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI；当前无未完成代码动作。下一步回到「一本书」架构主线，下一可复用切片仍须先讨论需求与可验收原型；本次不含 PR/main/Worker E3/部署/生产数据授权。
+> **当前状态**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI；当前无未完成代码动作。唯一交接待办是将最终证据追加到现有 `CROSS-HOST-BRIDGE.md`；当前大文件写入接口返回 HTTP 500，GitHub Connector 写入返回 403，故不得声称 Bridge 已同步。完成后回到「一本书」架构主线，下一可复用切片仍须先讨论需求与可验收原型；本次不含 PR/main/Worker E3/部署/生产数据授权。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成，最终 HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b`，相对 main ahead44/behind0；GitHub Actions run `42060784577` SUCCESS（精确 HEAD E1/E2）。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -148,7 +148,7 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态（2026-11-05 · v1.41）**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI。最终 HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / GitHub Actions run `42060784577` SUCCESS；Memory Core 86/86、Session Bootstrap/Context 38/38，benchmark、全量 E1/E2 与 learning-regression 均通过。四态合同已落地：OK 双源成功且命中；EMPTY 双源成功无匹配；PARTIAL 别名失败但保留主记忆结果；ERROR 主记忆失败且不伪空。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead44/behind0。仅 dev 代码与 E1/E2/CI；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。整体架构 v1.19、Roadmap v1.41、差距矩阵 v4.58、当前项目状态 version173 将同步。下一步回到「一本书」主线，下一可复用切片须先讨论并验收需求/原型。
+> **当前状态（2026-11-05 · v1.41）**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI。最终 HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / GitHub Actions run `42060784577` SUCCESS；Memory Core 86/86、Session Bootstrap/Context 38/38，benchmark、全量 E1/E2 与 learning-regression 均通过。四态合同已落地：OK 双源成功且命中；EMPTY 双源成功无匹配；PARTIAL 别名失败但保留主记忆结果；ERROR 主记忆失败且不伪空。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead44/behind0。仅 dev 代码与 E1/E2/CI；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。整体架构 v1.19、Roadmap v1.41、差距矩阵 v4.58、当前项目状态 version173 已同步。**Bridge 尚未同步**：现有 `CROSS-HOST-BRIDGE.md` 写入接口 HTTP 500，GitHub Connector 写入 403；唯一待办是恢复该文件写入后补交最终证据。完成后回到「一本书」主线，下一可复用切片须先讨论并验收需求/原型。
 
 > **前一状态快照（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
 
