@@ -1,4 +1,4 @@
-# Memory 域数据模型 · v1.8 · 2026-11-06（补充实际 Type 注册/写入差距与 L1 原型；Schema 不变）
+# Memory 域数据模型 · v1.9 · 2026-11-06（记录 L1 Type dev 写入链；Schema 不变）
 
 > 记忆系统：Agent 的长期记忆 + 文件存储。
 > 语义：记忆是 key-value + 分类的语义条目，文件是媒体/文档的元数据表。
@@ -7,12 +7,12 @@
 
 ## 2026-11-06 逻辑分层模型映射（不改变数据库 Schema）
 
-四层逻辑视图已由柳柳确认，详细准入/退出、检索与实施路线以 `governance/记忆层存量归位规范.md` v2.1 为准：
+四层逻辑视图已由柳柳确认，详细准入/退出、检索与实施路线以 `governance/记忆层存量归位规范.md` v2.2 为准：
 - Long-term 是权威记忆主体，由现有 `memories` 承载；当前有效读取仍是 `status='active' AND valid_to IS NULL`。
 - Core 是启动必需记录的精选引用视图，初始复用 SB-1.0 已有精确来源；当前 Bootstrap READY 不代表完整 persona 正文已装入所有宿主。
 - Reflection 是带来源/验证状态的候选学习工作流，先复用 lesson / tests/learning，不新增表。
 - Archive 是历史记录与来源的按需视图，默认不进入 current-only 检索；现有 history 主要按精确 key 读取，事件覆盖仍不完整。
-- Type 写入链只读证据：Supabase 启用的 `skills.name='memory'` input_schema 无 type；remember handler 不传 safeArgs.type，update 不读取新 type，lifecycle update 忽略 data.type，search 对 NULL type 显示为 fact；Memory Management Skill 仍把 type 写在 value 内并默认 agreement。`tools/list` 在 main/dev 源码及 Router 合同测试中均为只读，旧副作用判断已纠正。L1 原型建议通过 Worker 代码层 Schema augmentation 增加 optional enum，不写注册表/不改数据库 Schema；详细合同见归位规范 v2.1 §2.3，等待柳柳验收，尚未编码。
+- Type 写入链的 dev 实施证据：Supabase 启用的 `skills.name='memory'` input_schema 仍无 type；`memories.type` 为 nullable text，`memory_events.old_value/new_value` 为既有 JSONB。mcp-memory/dev v6.42.0 以共享 helper 同步 tools/list optional enum 暴露与 dispatchGuard 校验；remember/update/lifecycle、Recall/Search/History、Transfer import/export 和 Memory Management Skill 已贯通。显式 type 修改用既有 JSONB 记录 `{value,type}` 快照；省略 type 保留原值，NULL 显示未标注。精确 SHA `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / CI run `42125896297` SUCCESS，Memory Core 101/101。未改 registry/DB Schema/真实数据；生产 main v6.41.0 / Worker #535 未变，dev Skill 尚未被 main-only loader 加载。
 
 Category、Type、Layer、Validity、Maturity、Provenance 相互独立。**不新增 layer 列/关系表，不迁移真实数据，不改变当前代码/Schema。**
 
