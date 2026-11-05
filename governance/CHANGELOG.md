@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.06-memory-type-contract-prototype-v0.1] - 2026-11-06
+
+- 在唯一详细设计源 `governance/记忆层存量归位规范.md` v2.1 新增 L1 Type 写入链原型 v0.1：optional 顶层 type enum、代码层 Schema augmentation、remember/update 持久化语义、NULL 未标注展示、JSONB 历史快照兼容、Skill 规则与 E1/E2 测试矩阵；等待柳柳验收，未编码。
+- 只读核对 Supabase live registry：启用的 `skills.name='memory'` input_schema 无 type；`memories.type` nullable text；`memory_events.old_value/new_value` JSONB。`skills.name='记忆管理'` 是独立 text Skill，Worker loader 固定读取 GitHub main。
+- 纠正 tools/list 安全性判断：main/dev `mcp_router.js` tools/list 只 GET 读取并返回工具 Schema；现有 Router 合同测试断言无 skills/usage/business 写入；`syncChatTools` 只在调用聊天工具时触发。此前检查点的相反判断已被源码/测试推翻。
+- 同步整体架构 v1.23、Roadmap v1.45、差距矩阵 v4.61、当前项目状态 version177、导航表 v3.75、记忆三表设计 v1.8、Memory 域 v1.8。
+- 本次仅更新 ZivenLab/dev 治理文档；未修改 mcp-memory Worker/Skill/代码、Supabase 注册表、DB Schema、真实记忆；未创建 PR、未合 main、未部署、未执行 E3。
+
+
 ## [docs-2026.11.06-memory-layering-model-v0.1] - 2026-11-06
 
 - 柳柳明确同意「Core / Long-term / Reflection / Archive 四种不同职责的逻辑视图 + 单一权威正文」；本次将该决定细化为可执行的准入/退出、Type/Validity/Provenance 边界、上下文检索合同与分阶段实施路线。
