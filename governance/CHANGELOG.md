@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.06-memory-layering-model-v0.1] - 2026-11-06
+
+- 柳柳明确同意「Core / Long-term / Reflection / Archive 四种不同职责的逻辑视图 + 单一权威正文」；本次将该决定细化为可执行的准入/退出、Type/Validity/Provenance 边界、上下文检索合同与分阶段实施路线。
+- `governance/记忆层存量归位规范.md` 升为 v2.0，成为记忆分层与存量归位的唯一详细设计真相源；原 v1.0 分类体系保留为 Category 附录，不再把 📦 分类等同 Archive。
+- 同步整体架构 v1.22、Roadmap v1.44、架构差距矩阵 v4.60、当前项目状态 version176、真相源导航表 v3.74、治理与记忆最终需求 v0.3、记忆三表设计 v1.7、Memory 域文档 v1.7 与 README 导航。
+- 明确不增加 layer 字段/关系表、不新增数据库表、不修改 Worker/Skill/检索代码、不写入或迁移真实记忆；现有 Core 全文装载、Reflection 候选管理、Archive 通用历史搜索、Type 写入链与 lifecycle 事件完整性仍是后续实施差距。
+- 下一步实施顺序：L1 收敛 Type 写入规则与 Schema→handler→lifecycle→display 传递链；L2 Core 只读上下文组装；L3 Reflection 验证闭环；L4 Archive 历史检索；L5 只读存量映射；依赖自动状态迁移的功能须先解决对应生命周期一致性门槛。当前仅完成治理文档定案，未编码/部署/合 main。
+
+
 ## [docs-2026.11.05-memory-retrieval-benchmark-v0.1-implemented] - 2026-11-05
 
 - 柳柳委托哥哥按已讨论的 v1.7 详细原型作技术判断并实施；记忆检索质量基准 v0.1 已在 mcp-memory/dev 落地，当前为 dev-only、未发布。
