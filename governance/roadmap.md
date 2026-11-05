@@ -2,7 +2,7 @@
 
 > **版本**：v1.44 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：Memory Retrieval Reliability v0.1 代码、E1/E2 与跨宿主 Bridge 交接均已完成；代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` PASS，Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` PASS，最新文档-only commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` PASS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead51/behind0；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。2026-11-06 新增双方确认的长期方向：**主动探索外部技术生态并吸收优秀 Skill/开源方案**，作为贯穿所有领域的横向能力；Technology Scout 工具化方向已纳入长期规划，已写入整体架构 v1.21。具体数据源、触发方式、结果结构和自动化边界仍待需求/原型验收；本次不代表自动安装、代码复制/修改或具体第三方依赖获批。下一步仍按「一本书」总路线选取真实差距，先讨论需求与原型，不凭新方向插队。
+> **当前状态**：Memory Retrieval Reliability v0.1 的 dev 代码、E1/E2 与跨宿主 Bridge 交接保持完成（代码 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577`；Bridge `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668`；最新 dev HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543`）。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；本轮没有修改 mcp-memory。柳柳已确认 Memory Layering v0.1 的四种逻辑视图与单一权威正文；ZivenLab/dev 的 L0 治理文档定案已完成：整体架构 v1.22、详细设计 v2.0、Roadmap v1.44、差距矩阵 v4.60、当前项目状态 version176、导航表 v3.74、需求 v0.3、数据库设计 v1.7、Memory 域 v1.7、README 与 CHANGELOG 均已同步。**本轮仅治理文档：没有 Worker/Skill/代码、Schema、真实记忆、main、E3 或部署改动。** 下一施工切片是 L1 Type 写入链：先核对公开注册 Schema，再对 Skill→Schema→handler→lifecycle→search display 做最小可验收原型与合同测试；Technology Scout 保留为长期横向方向，不插队替代当前主线。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb`，相对 main ahead51/behind0。代码验收 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` SUCCESS；最新 Bridge 版本号同步 commit `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` SUCCESS，源码与测试未变。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -201,7 +201,7 @@
 
 **实施门禁与验收**：每个代码切片仍先形成可验收原型，再由柳柳确认后进入 dev；E1/E2 绑定精确 SHA。必须证明：一份正文多视图引用；pending 不冒充事实；Archive 不污染当前检索；Core 有真实装载证据；现有 current-only、检索四态、别名、一跳关联和来源解释不退化。任何 DB/schema/真实数据写入、main 发布、Worker 部署均不包含在本次 L0 授权内。
 
-**下一行动**：开始准备 L1 的最小行为契约与 Skill diff；先核对当前 Skill 的真实写入规则，再提出精确修改与合同测试范围，不顺手改运行时或真实记忆。
+**下一行动**：L1 的 Skill 与 Worker 源码已完成只读核对；剩余唯一前置事实是实际对外注册 memory Schema 是否暴露 type 参数。先通过不触发 tools/list 注册副作用的只读来源确认该 Schema；随后提交 L1 可验收原型（参数契约、remember/update 持久化、缺失 type 展示、兼容性与合同测试），由柳柳验收后再改 dev。不得直接写 Supabase skills 注册元数据，不顺手改真实记忆。
 
 > **前一状态快照（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
 
