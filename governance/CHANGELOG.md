@@ -5,8 +5,8 @@
 - 柳柳委托哥哥按已讨论的 v1.7 详细原型作技术判断并实施；记忆检索质量基准 v0.1 已在 mcp-memory/dev 落地，当前为 dev-only、未发布。
 - 新增16条纯合成 Fixture、GET-only Node runner、`test:memory-retrieval-benchmark` npm script、learning-regression E2 step；第二批冻结首轮实测 baseline，runner 校验 Fixture Git blob SHA 并执行只读非退化比较，CI 不自动覆盖 baseline。
 - 首轮实测（CI run `42043430775`，冻结于 commit `9146d3c920d6d3816238083f1538002024f8d5ab`）：Recall@1 0.9000、Recall@3 1.0000、MRR 1.0000、Direct Precision@3 0.9091、Negative False-Hit Rate 0、Stale Hit Rate 0、Association Recall@3 1.0000、Association Provenance Accuracy 1.0000。
-- 最终 HEAD `e58c8e9ec64fcffd964c941a46f12ebd5cbba20a` 的 GitHub Actions [42044490914](https://github.com/wovowx/mcp-memory/actions/runs/42044490914) SUCCESS；E1 静态检查、Memory Core、benchmark、Search History、Release Guard、Learning artifacts、Router/Patch Engine、Session Bootstrap 等全部步骤通过。最终 runner 已校验 baseline SHA、执行非退化比较，最新 CI 只读通过。
-- 相对 main v6.41.0 / SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，dev ahead13/behind0、6个差异路径：workflow、Bridge、package script、fixture、baseline、runner；package 版本仍 v6.41.0。未改检索算法、生产 `src/`、数据库/schema/业务记忆、main 或 Cloudflare Worker #535；未使用真实历史/Operit 数据、未执行生产 E3。
+- 最终 HEAD `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` 的 GitHub Actions [42048224495](https://github.com/wovowx/mcp-memory/actions/runs/42048224495) SUCCESS；E1 静态检查、Memory Core、benchmark、Search History、Release Guard、Learning artifacts、Router/Patch Engine、Session Bootstrap 等全部步骤通过。最终 runner 已校验 baseline SHA、执行非退化比较，最新 CI 只读通过。
+- 相对 main v6.41.0 / SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，dev ahead14/behind0、6个差异路径：workflow、Bridge、package script、fixture、baseline、runner；package 版本仍 v6.41.0。未改检索算法、生产 `src/`、数据库/schema/业务记忆、main 或 Cloudflare Worker #535；未使用真实历史/Operit 数据、未执行生产 E3。
 - 同步记忆检索质量测试集 v1.8、整体架构 v1.17、Roadmap v1.39、架构差距矩阵 v4.56、当前项目状态 version171。下一步回到「一本书」主线，选下一可复用垂直切片并先完成需求/原型讨论；不自动启动记忆星球、情绪语音或 Web 项目。
 
 ## [docs-2026.11.05-memory-retrieval-benchmark-v1.7] - 2026-11-05
