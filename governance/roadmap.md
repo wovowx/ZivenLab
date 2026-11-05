@@ -179,11 +179,11 @@
 - agreement 仅用于柳柳明确确认；未验证判断标 inference。该规则已同步到 mcp-memory/dev Memory Management Skill 与 handler；由于 Worker text Skill loader 固定读取 main，生产 Skill/运行时尚未随 dev 候选生效。
 
 **L0 文档交付（本轮完成）**：
-- `governance/记忆层存量归位规范.md` v2.1：唯一详细设计源，含四层准入/退出、检索合同、L1 Type 原型 v0.1、L1-L6 实施路线；旧 Category 规则保留为附录。
-- `governance/整体架构.md` v1.23：更新目标蓝图与 L1 当前差距。
+- `governance/记忆层存量归位规范.md` v2.2：唯一详细设计源，含四层准入/退出、检索合同、L1 Type 原型与 dev 实施/E1-E2 证据、L1-L6 实施路线；旧 Category 规则保留为附录。
+- `governance/整体架构.md` v1.24：更新目标蓝图与 L1 dev 实施边界。
 - `governance/治理与记忆_最终需求.md` v0.3：保留原始需求并补充四层解释。
-- `governance/database/记忆两表设计.md` v1.8 与 `governance/database/domains/memory.md` v1.8：说明逻辑层映射、live registry 证据和 L1 Type 原型；数据库 Schema 不变。
-- `governance/架构差距矩阵.md` v4.61、`当前项目状态.md` version177、`真相源导航表.md` v3.75、README 与 CHANGELOG 已同步。
+- `governance/database/记忆两表设计.md` v1.9 与 `governance/database/domains/memory.md` v1.9：说明逻辑层映射、Type 既有列/JSONB 快照与 dev 写入链；数据库 Schema 不变。
+- `governance/架构差距矩阵.md` v4.62、`当前项目状态.md` version178、`真相源导航表.md` v3.76、README 与 CHANGELOG 已同步。
 
 **L1-L6 实施计划**：
 1. **L1 Type 写入规则收敛**：原型 v0.1 已形成，等待柳柳验收；建议使用 optional 顶层 type enum，由 Worker 代码层 helper 同步扩展 tools/list 暴露与 dispatchGuard 校验，不写 Supabase skills 注册表；贯通 remember/update/lifecycle/history/search display 与 Skill。agreement 仅显式确认，quote 保留原话，fact 有来源，inference 明示不确定；无法分类则暂缓，旧调用可省略并保留 NULL，历史数据不自动重标。
