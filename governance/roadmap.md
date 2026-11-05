@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.6）
+# 整体架构重构总控（Roadmap · v1.7）
 
-> **版本**：v1.6 · 2026-11-05  
+> **版本**：v1.7 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -147,6 +147,15 @@
 
 > **当前状态覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
+
+### 5.0 P0 恢复旧 dev 有效成果（2026-11-05 12:05 CST，尚未验收完成）
+
+- **授权**：柳柳同意整体模块化单体方向及 P0 保护两基线、按领域集成旧成果。该同意不解冻聊天室、Worker tools/list、唤醒链，也不授权 main/部署/DB/schema 改动。
+- **基线与保护**：main=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；恢复前 dev=512519efbdbb828a9881447fd4c2e218d04fb8a1，已在 recovery/p0-preintegration-20261105 形成备份并独立回读。旧 dev=4aa0cd0360466743ca8ace7a79841efc0cdcc205 当前可按 GitHub SHA 读取，但由于 GitHub App refs 写权限 403 以及 MCP create_branch 只支持分支名，未能将旧 SHA 创建成独立保护分支；**禁止声称旧 dev 的 432 个独有提交已有长期 ref 保护**。未执行强制分支重置。
+- **已恢复至 dev（文件写入经 size/SHA 回读验证）**：Memory Core 四模块+合同测试，memory_unified/category/data Facade，Agnes、文件 Storage、DDL Parser、Cloudflare Worker status Provider、Patch Engine、search/response/release guard、有关 Skill、README 和合同测试；保留 v6.36.2 的 GitHub PR metadata guard、exact dev SHA restore；github_v64.js 仅将 Cloudflare/patch handler 定向接回原已验证实现。未触碰聊天/唤醒模块，未更改生产 DB。
+- **最新可复核 E1/E2**：mcp-memory/dev 代码 SHA 521aebe1c99f40b715925ffe062acb94af6d7c4b 的 run 41965364625：Static PASS，GitHub Contents 47 PASS，Webhook/Agnes 114/114 PASS，Memory Core 60/60 PASS，Search history 20/20 PASS；Router/registry/Patch suite 有 7 项 FAIL，全部为当前未更改的 mcp_router.js 缺失逻辑（tools/list schema、proposal usage、未注册 supabase_ 拒绝）。本 run **总体 FAILED**，Release Guard 和 Learning artifact 步骤均 SKIPPED。不是完整 P0 PASS。
+- **当前明确阻塞**：修复剩余 7 项需改 mcp_router.js 的 Router/Schema/tools-list 行为；此前 Worker tools/list 及聊天室相关范围被冻结，必须先确认允许触及这些非聊天室 Router 逻辑。不得因想让 CI 变绿而关闭、跳过或删去测试。确认后做精确最小修改、跑完整 CI；随后按用户既有发布门槛评估（不自动 main 合并）。
+- **交接**：mcp-memory/dev 的唯一 CROSS-HOST-BRIDGE.md 文末追加了精确恢复文件与 CI 记录。下方旧 v6.36.1/v6.36.2 发布候选章节保留历史，不是当前待执行主线。
 
 ### 5.1 已完成的 dev 代码修复（历史发布前快照；生产已于 v6.36.2 关闭）
 
