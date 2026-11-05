@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-p1] - 2026-11-05
+
+- P1 Branch/PR 与 Patch workflow 结构调整已获柳柳原型验收，实施仅在 mcp-memory/dev，未发布 main。
+- 新增 branch_pr.js、patch_workflow.js；github_v64.js 保留工具入口，新增六项回归测试。
+- dev b762546810ec183112c95337b64f6fcf7d7a9715，CI 41971533005 SUCCESS（E1/E2）；生产写操作 E3 未执行。版本候选 6.38.0，待发布审批。
+- 架构依据：整体架构 v1.3；路线与风险：Roadmap v1.12 §5.P1。
+
+
+
 ## [docs-2026.11.05-v6.37.0-released] - 2026-11-05（治理收口，仅 ZivenLab/dev）
 
 - 柳柳明确批准 `v6.37.0: P0 Core Modules Recovery`，代码仓 PR #323 `merged=true`，2026-11-05T04:41:08Z rebase；main=dev=`08d065b66061043f9a4766184176df10cfa7c05b`。预发布候选 `98ea1b543d79f8d20fcd7c04935f5d55a75b1d1c` 独立保护于 `recovery/v6.37.0-premerge-20261105`。
