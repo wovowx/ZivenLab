@@ -1,5 +1,13 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-p1-released] - 2026-11-05（P1 正式发布与部署核验）
+
+- 柳柳确认并逐版本批准 v6.38.0: P1 Domain Boundaries。PR #324 rebase 合并（merged=true），代码仓 main=dev=`ccb0eb16f03817209e3862815f1cc79e9d0eaa2b`；候选 `37aec2f55c104d7f92ccd58539e8193c63a10b06` 由 `recovery/v6.38.0-premerge-20261105` 独立保护。
+- 8 个文件，主要是 Branch/PR 和 Patch workflow 领域收敛、Facade 精简及相应合同测试、版本文件。候选 CI `41971864457`、PR CI `41972458197`、main CI `41972545011` 全 SUCCESS。
+- Cloudflare Workers Build UUID `5695f750-bd93-4184-9e7d-ec5871a7bc56` success；deployment `f774584f` / #530，`verify_main=VERIFIED`。部署后 MCP memory/PR 查询只读 smoke PASS；生产写入类 E3 NOT RUN。无聊天室/唤醒/生产数据库 schema 修改。
+- GitHub Pages workflow `41972544974` 旧版 artifact v3 依赖持续失败，与 Worker 无关，保持冻结边界。本版历史早期 dev commit title 误用 v6.37.0，按柳柳批准的 rebase 保留，无历史强制改写。
+- P1 代码、CI、发行/部署 CLOSED；下一阶段先讨论 P2 跨宿主恢复的可验收原型再实施。权威记录 Roadmap v1.13 §5.P1、当前项目状态 version150、云端唯一工作检查点。
+
 ## [docs-2026.11.05-p1] - 2026-11-05
 
 - P1 Branch/PR 与 Patch workflow 结构调整已获柳柳原型验收，实施仅在 mcp-memory/dev，未发布 main。
