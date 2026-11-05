@@ -193,12 +193,12 @@
 5. **L5 存量只读映射**：先用合成样例，再对真实数据做只读 dry-run，输出 id/key/category/type/status/建议视图/理由/不确定项；零写入、可复核；柳柳验收后才考虑极小试点，且多数记录不需要物理搬动。
 6. **L6 生命周期写入保障**：只在某个功能确实依赖自动状态迁移/多步写入时，针对性解决 create/revoke/rename/move 事件覆盖、update new_value/version、事务一致性、CAS、幂等与 source→target 原子迁移；不重新激活已移出主线的宽泛生产 DB 安全审计。
 
-**L1 根因基线（2026-11-06 只读源码与 live registry）**：
-- Supabase 当前启用的 `skills.name='memory'` input_schema 无 `type`；`memories.type` 是 nullable text，`memory_events.old_value/new_value` 是既有 JSONB。
-- `memory_unified.js` remember 未传 `safeArgs.type`；update 未读取新 type；`lifecycle.js` 新增仅在收到 `data.type` 时写入，更新忽略 `data.type`；search 对缺失 type 显示为 fact。
-- `skills.name='记忆管理'` 是独立 text Skill；Worker `loadTextSkill` 固定从 GitHub main 读取文件，因此 dev Skill 改动需与获批 main 发布配套。
+**L1 根因基线（实施前证据；当前 dev 已修复，生产 main 仍旧）**：
+- Supabase 当前启用的 `skills.name='memory'` input_schema 仍无 `type`；`memories.type` 是 nullable text，`memory_events.old_value/new_value` 是既有 JSONB。L1 没有写 registry 或改数据库 Schema。
+- 实施前 dev 的 `memory_unified.js` remember 未传 `safeArgs.type`、update 读取并展开 existing、lifecycle update 忽略 type、search 缺失 type 显示为 fact；当前 dev 已由 v6.42.0 候选修复：optional enum、显式传递、update 省略保留、NULL 显示未标注、History 结构化快照兼容。
+- `skills.name='记忆管理'` 是独立 text Skill；Worker `loadTextSkill` 固定从 GitHub main 读取文件。因此 dev Skill 与 Worker 代码候选未部署前，生产 main 仍使用旧 Skill/代码，不得宣称线上生效。
 - **tools/list 纠正**：main/dev 的 `mcp_router.js` 中 tools/list 只 GET 读取 skills 并返回 Schema；Router 合同测试明确断言不 POST/PATCH/DELETE skills、不写 usage/business data。真正的 `syncChatTools` 在调用 CHAT_TOOL_DEFS 聊天工具时触发，不在 tools/list。旧检查点中的反向判断已纠正。
-- L1 推荐原型：Worker 代码层共享 Schema augmentation helper，同时用于对外暴露与 dispatchGuard 校验；不写 Supabase skills 注册表；type 为 optional enum；remember 显式传入；update 省略时保留、显式传入才更新；NULL 显示“未标注”而非 fact；History 兼容 legacy string 与新 JSONB `{value,type}` 快照。详细合同见唯一设计源 v2.1 §2.3。
+- **当前 dev 实施证据**：共享 helper 位于 `src/utils/helpers.js`，同时用于 `getExposedInputSchema` 与 `getToolSchema`；remember/update/lifecycle/display/history/transfer/Skill 已贯通。精确 SHA `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / run `42125896297` SUCCESS，Memory Core 101/101。详细实现见 `governance/记忆层存量归位规范.md` v2.2 §2.4。
 
 **实施门禁与验收**：每个代码切片仍先形成可验收原型，再由柳柳确认后进入 dev；E1/E2 绑定精确 SHA。必须证明：一份正文多视图引用；pending 不冒充事实；Archive 不污染当前检索；Core 有真实装载证据；现有 current-only、检索四态、别名、一跳关联和来源解释不退化。任何 DB/schema/真实数据写入、main 发布、Worker 部署均不包含在本次 L0 授权内。
 
