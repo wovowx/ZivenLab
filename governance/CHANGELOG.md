@@ -1,6 +1,6 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
-## [docs-2026.11.04] - 2026-11-04（dev 草稿，未发布）
+## [docs-2026.11.05] - 2026-11-05（dev 草稿，未发布）\n\n### Branch/PR merge-helper dev 修复证据复核与总控状态同步（Roadmap v1.3）\n- 回读 `src/tools/github_v64.js` 最终 blob SHA `a9975bde92b16eae83568e9667e7615c79b48686` 与合同测试 blob SHA `d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；两个 handler 均传递 PR number，helper 仅在 merged dev→main 时 PATCH dev。\n- 回读 learning-regression run `41856598888` / #819 的 Job `126666813336` 与完整日志：所有步骤 SUCCESS；E1 `npm run check` PASS；E2 Router/registry/DDL/Patch Engine contracts `151/151`，其中新增 11 项 Branch/PR 条件合同；Webhook114/114、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。\n- E2 为 fetch-mock；真实 GitHub PR/ref 副作用 E3 NOT RUN。dev 修复 CLOSED；main 生产 helper 仍旧，生产风险 OPEN。\n- 未创建 scoped release 分支/PR，未合并 main，未触发部署。四文件发布方案仍等待柳柳明确批准创建候选 PR；批准创建 PR 不等于批准合并/部署。\n- 同步 roadmap v1.3、差距矩阵 v4.51、驾驶舱 version141、导航表 v3.71。仅治理文档更新 ZivenLab/dev；未改 mcp-memory 代码、DB/schema/权限/生产数据、main 或部署；未触碰聊天室/唤醒链；未派发 Operit。\n\n
 
 ### scoped release 候选版本化与生产影响校准（Roadmap v1.2，2026-11-04）
 - 将 main 发布候选从“两项功能文件”补全为四文件版本化切片：`src/tools/github_v64.js`、现有 `tests/github_contents_contract_test.mjs`、`package.json`（6.36.1→6.36.2）、`CHANGELOG.md`。不新增测试脚本或修改 CI workflow；复用 main 已存在的 `test:github-contents` 与 PR/push learning-regression job。
