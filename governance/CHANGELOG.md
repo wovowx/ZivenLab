@@ -1,5 +1,13 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-memory-retrieval-benchmark-proposal] - 2026-11-05
+
+- 柳柳同意将“记忆检索质量基准”确立为下一项工作；本轮完成需求/原型草案，详细设计仍待柳柳验收，尚未进入编码。
+- 更新 `governance/database/记忆检索质量测试集.md` v1.6：按 mcp-memory/main v6.41.0 实际源码校正旧版 `keywords.every` / created_at-only 判断；提出约14–16条合成查询、GET-only Mock、Recall@1/3、MRR、Direct Precision@3、负向误命中率、过期命中率、一跳关联 Recall@3 与关联溯源准确率。
+- 更新 `governance/整体架构.md` v1.14、`governance/roadmap.md` v1.37、`governance/架构差距矩阵.md` v4.54 与 `governance/当前项目状态.md` version169；明确原型验收前不修改 mcp-memory 代码。
+- v0.1 只使用合成 Fixture，直接测试 searchMemories 原子方法，不调用会写 search_history 的 memory.search Facade；不接真实 Supabase、不导入私人聊天/Operit 数据、不修改检索算法/数据库/生产/Worker/main，不要求 Operit 测试。
+- 当前只完成治理文档提案；未新增 Fixture/runner/npm script/CI，未运行自动化检索指标，未声称 Recall/MRR 已通过。真实历史查询 20–50 条仅作为未来可选 v0.2，需另行讨论脱敏与授权。
+
 ## [docs-2026.11.05-v6.39.0-p2-released] - 2026-11-05（P2-A/B 发布、Worker 通过；E3 未验证）
 
 - 柳柳逐版本批准 `v6.39.0 · P2 Session Bootstrap v0.1` 的 8 文件、16 commits、rebase PR→main→Cloudflare 自动部署；将候选 dev `5ef7e0bf62529f0229dacf00a8bcf4a6f0cc060a` 独立保护于 `recovery/v6.39.0-premerge-20261105` 并核验。
