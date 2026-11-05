@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.37）
+# 整体架构重构总控（Roadmap · v1.38）
 
-> **版本**：v1.37 · 2026-11-05  
+> **版本**：v1.38 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：v6.41.0 Memory Association 已由 PR #329 发布、Worker #535 VERIFIED；本轮只在 ZivenLab/dev 更新架构与检索基准提案，不改 mcp-memory 代码、不动 main/生产/数据库/Worker。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,7 @@
 
 ## 5. 当前主线与下一步
 
-> **当前下一项（2026-11-05 · v1.37）**：柳柳已同意“先建立记忆检索质量基准”的方向。当前处于**详细需求/原型待验收**，不是编码阶段。已提出纯合成 Fixture（约14–16条查询）、直接召回 Recall@1/3 与 MRR、Direct Precision@3、负向误命中率、过期命中率、一跳关联 Recall@3、关联溯源准确率；硬合同包括无伪命中/无过期记录/直接优先/关联≤3且去重/来源理由正确/GET-only。实施候选为新 Fixture、新 benchmark runner、package script 和 learning-regression CI step；直接调用 `searchMemories`，不调用有 search_history 写入的 Facade。详细原型见 `governance/database/记忆检索质量测试集.md` v1.6 与 `governance/整体架构.md` v1.14。**下一步只请柳柳验收 Fixture、指标公式、硬门槛与文件范围；验收前不写 mcp-memory 代码。**方向同意不等于 main/Worker/数据库/真实历史数据授权；真实历史查询 20–50 条留作未来可选 v0.2，需另行讨论脱敏与授权。
+> **当前下一项（2026-11-05 · v1.38）**：柳柳已同意“先建立记忆检索质量基准”的方向。当前处于**详细需求/原型待验收**，不是编码阶段。v0.1 已明确16条纯合成记忆 + 16条查询，覆盖 key/phrase/all-terms/alias/trigger/entity/CJK fallback、负向拒绝、当前/过期冲突、显式/共享实体关联、通用实体排除、关联上限/去重与 stale association 过滤；包含一个刻意的词面误召回样本和一个25% CJK bigram 近似负向样本。指标为 Recall@1/3（micro）、MRR（macro）、Direct Precision@3（micro）、Negative False-Hit Rate、Stale Hit Rate、Association Recall@3、Association Provenance Accuracy。硬合同为负向零命中/无关联扩展、无过期记录、直接优先、关联≤3且去重、来源理由实体证据正确、通用称谓不关联、GET-only。第一批实施仅4个路径：Fixture、GET-only runner、package script、learning-regression E2 step；首轮测量后再单独生成 baseline JSON。直接调用 `searchMemories`，不调用有 search_history 写入的 Facade。详细原型见 `governance/database/记忆检索质量测试集.md` v1.7 与 `governance/整体架构.md` v1.15。**下一步只请柳柳验收 Fixture、指标公式、硬门槛与4路径范围；验收前不写 mcp-memory 代码。**方向同意不等于 main/Worker/数据库/真实历史数据授权；真实历史查询20–50条留作未来可选 v0.2，需另行讨论脱敏与授权。
 
 > **最新发布收口（2026-11-05 · v1.36）**：**v6.41.0 真实使用效果**：当柳柳提到某段记忆或一个具体项目时，原 `memory.search` 可在直接命中后，从既有显式关系/共同业务实体中补充最多3条相关记忆，并给出关联来源；不再只是孤立检索。**实际发布**：柳柳在收到具体作用、六文件范围、测试、main/dev SHA、部署/回滚说明后明确批准。发布前保留唯一恢复 ref `recovery/v6.41.0-premerge-20261105`→dev `3ef6472e63665b340b87fba77923166fd6342114`；PR [#329](https://github.com/wovowx/mcp-memory/pull/329) head=dev/base=main、仅六文件、squash merged=true；main=dev=`5e4cf739a5ffd21c0434db96217267edb2af57bd`。主分支 [learning-regression #42028203531](https://github.com/wovowx/mcp-memory/actions/runs/42028203531) SUCCESS，Cloudflare Worker deployment `fb40fed3` / version **#535**，`verify_main=VERIFIED`。Pages workflow [#42028203674](https://github.com/wovowx/mcp-memory/actions/runs/42028203674) FAILURE 延续既有冻结问题，不影响 Worker 部署。真实 ChatGPT 专用 `session_context({host:'chatgpt',invocation:'explicit',topic:'记忆星球 星系 锚点'})` 只读调用返回 `related_status=matched_best_effort`、3条相关记忆；此入口只证明关联主题上下文召回有结果，**不等于真实 memory.search 的额外关联输出已独立 E3 验证**；旧检查点未记录 decision 行时该次状态曾 DEGRADED；此后云端唯一检查点已更新为 version159，全文九段回读与写入的43371字符逐字一致；从真实 ChatGPT 插件再次调 session_context(topic='记忆星球') 返回 SC-RUNTIME-0.1 / READY、related_status=matched_best_effort、3条相关记忆、warnings=[]。这只证明显式只读主题召回可用，尚不能替代普通 memory.search 入口的新增一跳关联输出 E3。未更改 DB/schema/生产业务数据、聊天室、Operit/Web、DNS、密钥；常规 `memory.search` 既有 search_history 写入行为未改变，未用它做“只读”线上验收。
 
