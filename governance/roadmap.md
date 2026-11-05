@@ -132,7 +132,7 @@
 | Cloudflare Worker Status Provider | `src/modules/cloudflare/worker_status.js` 承接 deployment/build logs/status/verify；`src/tools/github_v64.js` 保留原工具定义、GitHub token/repo 门槛与分派 | ✅ 已在 dev 实施 | SHA `4e4e3145af30954666a7cb2e2871bae556c22606` / run `41783624515`：新增 7 项隔离合同；Router/registry/DDL/Patch Engine 140/140、Webhook 114/114、Memory Core 60/60 | fetch-mock 不代表真实 Cloudflare/GitHub endpoint 通过 |
 | GitHub Contents | `src/modules/github/contents.js` 提供 get/list/tree/put/delete/verify primitives 与 push/edit/delete/copy/move workflows；`src/tools/github_v64.js` 保留稳定 facade、Schema、门槛和兼容入口 | ✅ 已实施并形成独立垂直切片；v6.36.0/v6.36.1 已发布 | SHA `aeb6a8ebed19575e587d3c21dde3fb51e3597a84` / run `41794905599`：E1 check；E2 webhook114/114、Router/registry/DDL/Patch Engine140/140、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts 全成功。PR #321 head SHA `3b15ac0713d7d771f3b86361051a1cde4ce0f101` 的 runs `41810390533`/`41810455092` 均 SUCCESS：check、Contents contracts36、Webhook/Router106/106、learning artifacts PASS | v6.36.0 经 PR #320、v6.36.1 经 PR #321 合入 main；main HEAD `f74c36cb3f96928df292160745cf61a41951e312`；Cloudflare deployment `[d639e1df]` VERIFIED。真实 GitHub Contents 文件读写 E3 未执行；dev refs 精确恢复另有真实 API 独立回读证据 |
 | Patch Engine（独立于 Contents） | `src/modules/patch_engine.js`；集中目标分支/repo/path/patch 形状校验、proposal 条件认领及部分成功状态 | 🟡 已有独立代码与 E1/E2 回归；不是 Contents 切片，也未在本账本认定为独立发布 | run `41783624515` 的 Router/registry/DDL/Patch Engine contracts 140/140 | 不自动并入 Contents 发布；后续变更按自己的边界验收 |
-| Branch/PR merge-helper 条件修复 | `src/tools/github_v64.js` 的 `tryAutoSyncDev()`；两个合并入口共用 PR metadata 守门 | ✅ 已在 dev 实施；不改变工具名/Schema | CI-tested commit `0c5cadde09452359c81198f35a26585b39aec303` / run `41856598888`；E1 check PASS，E2 contracts151/151（含新增11项）、Webhook114/114、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS | 未发布 main；真实 PR/refs auto-sync E3 NOT RUN；不得因测试通过自动发布 |
+| Branch/PR merge-helper 条件修复 | `src/tools/github_v64.js` 的 `tryAutoSyncDev()`；两个合并入口共用 PR metadata 守门 | ✅ v6.36.2 已经 PR #322 合入 main 并完成 Worker 部署验证 | 发布前 CI run `41856598888`（E1/E2 151/151）；PR #322/main 与 Cloudflare 部署验证记录见历史发布收口 | 生产风险 CLOSED；真实 PR/ref auto-sync E3 仍 NOT RUN |
 | Memory Retrieval Quality Benchmark v0.1 | `tests/fixtures/memory_retrieval_benchmark_v0_1.json`、冻结 baseline、`tests/memory_retrieval_benchmark_test.mjs`；package script + learning-regression E2 step | ✅ mcp-memory/dev 已实施并通过最终 HEAD CI | 首轮测量 `9146d3c920d6d3816238083f1538002024f8d5ab` / run `42043430775`；冻结 baseline 后最终 dev `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` / run `42048224495` SUCCESS；16 queries、32 GET-only requests、baseline non-regression PASS | 仅 E1/E2 synthetic CI；未改生产 `src/`、算法、数据库、真实记忆；main v6.41.0 / Worker #535 不变，未获 main/部署授权 |
 
 ### 交付账本规则
@@ -344,14 +344,14 @@
 
 ### 6.1 开放事项
 
-> **v1.6 状态覆盖**：Branch/PR helper 生产风险已通过 PR #322 / main e145651b / Cloudflare [8d83bc9d] VERIFIED 关闭；仅真实 PR/ref E3 NOT RUN。下表中“等待 v6.36.2 候选、生产风险 OPEN”的旧行保留为发布前历史，不是当前阻塞。Branch/PR 模块职责研究现为当前讨论事项，未定案、未编码。
+> **当前状态覆盖（2026-11-05 · v1.39）**：Branch/PR helper 生产风险已由 v6.36.2 / PR #322 发布并在 main/Worker 验证关闭，真实 PR/ref auto-sync E3 仍 NOT RUN；Branch/PR 领域模块 `src/modules/github/branch_pr.js` 已存在于 main，旧拆分候选关闭。记忆检索质量基准 v0.1 已在 dev 实施并通过最终 HEAD CI（详见 §5 顶部与测试集 v1.8），仅 E1/E2 synthetic CI，不是生产 E3/发布。
 
 | 事项 | 状态 | 是否当前主线 | 处理原则 |
 |---|---|---|---|
-| Branch/PR helper 无条件同步 dev | **DEV FIX VERIFIED；DEPLOYED MAIN RISK OPEN；E3 NOT RUN** | ✅ 当前阻塞：等待柳柳批准创建 scoped release 分支/PR | 推荐 v6.36.2 四文件候选；只读可行性已完成；未创建分支/PR。main 仍为旧 helper（blob `371de7e7…`）；合并/部署须另行授权 |
+| Branch/PR helper 无条件同步 dev | **CLOSED：v6.36.2 / PR #322 已发布并在 main/Worker 验证；真实 PR/ref auto-sync E3 仍 NOT RUN** | 否，生产风险已关闭 | 不重复修复；如未来需要真实 E3，另行设计隔离验证并单独授权 |
 | Memory Core 完整事件账本、事务一致性、CAS、rename/move 原子迁移 | 设计/实现差距仍存在 | 否，独立差距 | 依据记忆两表设计、domains/memory 与差距矩阵；未共同确认方案前不改 DB/schema/生产记忆 |
 | GitHub Contents 真实文件读写 E3 | NOT RUN | 否 | 当前已有 E1/E2 fetch-mock；未来确有必要且获准再安排真实 endpoint 验收 |
-| Branch/PR 领域模块边界评估 | CANDIDATE（研究/提案阶段，未定案） | 否，生产修复发布后再评估 | 当前先关闭已部署 Worker 的 merge-helper 生产风险；之后再核对调用链、依赖、复用、错误/测试边界并与柳柳讨论是否拆分 |
+| Branch/PR 领域模块边界评估 | **已存在实现：`src/modules/github/branch_pr.js` 已在 main；旧拆分候选关闭** | 否 | 不重复拆分；只在出现明确新需求/边界问题时再评估 |
 | Pages Source / 真实 URL | UNKNOWN；PR #319 不主动推动 | 否 | 仅未来实际发布 Pages 前核验；保留决定不等于合并/部署授权 |
 | GPT memory tool description 的动态 connector/host 来源 | UNKNOWN、非阻塞 | 否 | 不调用 Worker `tools/list`；不为追查文案触碰聊天室注册副作用 |
 
@@ -373,14 +373,12 @@
 - 不因静态风险清单存在就扩大为全面安全审计；以柳柳确认的个人项目范围为准。
 - 本轮总控整理不派发 Operit；确需本机执行时再明确原因与唯一交接入口。
 
-### 6.4 当前发布与分支快照（2026-11-04 本轮回读）
+### 6.4 当前发布与分支快照（2026-11-05 本轮回读）
 
-- `wovowx/mcp-memory/main` HEAD：`f74c36cb3f96928df292160745cf61a41951e312`；v6.36.1 已发布，Cloudflare deployment `[d639e1df]` VERIFIED。
-- 本轮重新 compare：mcp-memory `main...dev` = **diverged，ahead 432 / behind 20**；当前 dev HEAD=`4aa0cd0360466743ca8ace7a79841efc0cdcc205`；禁止整支合并或强制同步任一方向。
-- v6.36.1 修复 fetch receiver 并提供 dev-only exact-SHA refs restore；dev merge-helper 条件修复已有 E1/E2 证据，但 main 的 `github_v64.js` blob `371de7e7d87f994e2314a931fd0572926bc3b655` 仍是旧版，生产修复尚未发布/部署。
-- 本轮治理文档只更新 ZivenLab/dev，不涉及 main。最新 ZivenLab dev Commit 以 GitHub 分支当前 HEAD 为准；不得把治理文档 Commit 当作 mcp-memory 代码版本。
-
----
+- `wovowx/mcp-memory/main`：v6.41.0，HEAD `5e4cf739a5ffd21c0434db96217267edb2af57bd`；Cloudflare Worker #535 / deployment `fb40fed3`，`verify_main=VERIFIED`。
+- `wovowx/mcp-memory/dev`：HEAD `e58c8e9ec64fcffd964c941a46f12ebd5cbba20a`，GitHub Actions [42044490914](https://github.com/wovowx/mcp-memory/actions/runs/42044490914) SUCCESS；相对 main ahead13/behind0，6个差异路径={`.github/workflows/learning-regression.yml`、`CROSS-HOST-BRIDGE.md`、`package.json`、两份 benchmark Fixture/baseline JSON、benchmark runner}。
+- package 版本仍为 v6.41.0；本切片仅测试/CI基础设施，不改 `src/` 检索算法、MCP Schema、数据库/schema/业务记忆、main 或 Worker；未创建 PR/合 main/部署。
+- ZivenLab/dev 治理文档 Commit 与 mcp-memory 产品代码版本分开记录；不能将前者当作产品发布或部署。
 
 ## 7. 历史档案（旧版路线图原文完整保留）
 
