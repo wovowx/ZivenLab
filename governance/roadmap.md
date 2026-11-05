@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.5）
+# 整体架构重构总控（Roadmap · v1.6）
 
-> **版本**：v1.5 · 2026-11-05  
+> **版本**：v1.6 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,7 +145,10 @@
 
 ## 5. 当前主线与下一步
 
-### 5.1 已完成的 dev 代码修复（生产发布仍开放）
+> **当前状态覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
+> 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
+
+### 5.1 已完成的 dev 代码修复（历史发布前快照；生产已于 v6.36.2 关闭）
 
 **Branch/PR merge-helper 已在 mcp-memory/dev 修复并通过 E1/E2；但已部署 main 的 Worker 仍是旧实现，生产风险尚未关闭。**
 
@@ -158,7 +161,7 @@
 - **生产状态仍 OPEN**：已部署 main v6.36.1 的 `src/tools/github_v64.js` blob SHA `371de7e7d87f994e2314a931fd0572926bc3b655` 仍定义旧版 `tryAutoSyncDev(baseUrl, ghHeaders)`，两个 merge handler 也仍无条件调用它。故 Cloudflare 当前运行面仍可能因 scoped release/hotfix/非 dev PR 合并而移动 dev ref。dev CI PASS 不代表生产修复已生效。
 - 在修复发布并独立验证部署前，不使用当前线上 Worker 的 `github_merge_to_main` / `github_merge_pull_request` 合并 scoped release、hotfix 或其他非 dev-head PR。
 
-### 5.2 scoped release 可行性评估结论（只读完成；等待柳柳批准）
+### 5.2 scoped release 可行性评估结论（历史发布前候选；已执行并关闭）
 
 **结论：可以从 main 精确基线制作一个四文件 scoped release；不需要合并 dev 历史，也不需要搬运 dev 的整套新测试体系。** 四个文件由两项功能变更（源码、回归测试）和两项正常版本元数据（package version、CHANGELOG）组成。这是发布可行性结论，不是发布授权。
 
@@ -233,7 +236,7 @@
 
 **边界**：此项目前仅为研究与原型提案，不是已确认的模块拆分决策；不得先改蓝图、差距矩阵的目标边界或代码。先完成实际调用链与测试边界分析、外部方案对照，再将初始想法/挑战/权衡/推荐方案带给柳柳共同定案。
 
-### 5.4 当前发布闭环与唯一授权门槛
+### 5.4 发布闭环与唯一授权门槛（以下旧候选记录为历史；当前见 §5 顶部）
 
 - Branch/PR merge-helper 修复已在 mcp-memory/dev 完成，E1/E2 CLOSED；CI-tested commit `0c5cadde09452359c81198f35a26585b39aec303`，run `41856598888` 全步骤 SUCCESS。真实 PR/ref 副作用 E3 未运行。
 - 已部署 main 仍是 v6.36.1，Cloudflare deployment `[d639e1df]` 当前回读为 VERIFIED；main helper 仍旧，生产风险 OPEN。
@@ -256,6 +259,8 @@
 ## 6. 未关闭事项与明确边界
 
 ### 6.1 开放事项
+
+> **v1.6 状态覆盖**：Branch/PR helper 生产风险已通过 PR #322 / main e145651b / Cloudflare [8d83bc9d] VERIFIED 关闭；仅真实 PR/ref E3 NOT RUN。下表中“等待 v6.36.2 候选、生产风险 OPEN”的旧行保留为发布前历史，不是当前阻塞。Branch/PR 模块职责研究现为当前讨论事项，未定案、未编码。
 
 | 事项 | 状态 | 是否当前主线 | 处理原则 |
 |---|---|---|---|
