@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.13）
+# 整体架构重构总控（Roadmap · v1.14）
 
-> **版本**：v1.13 · 2026-11-05  
+> **版本**：v1.14 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -145,12 +145,20 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态覆盖（2026-11-05，v1.13）**：P0 v6.37.0 与 P1 v6.38.0 均已获柳柳逐版本批准并经 PR 发布、Cloudflare Worker 部署 VERIFIED。P1：PR #324，`main=dev=ccb0eb16f03817209e3862815f1cc79e9d0eaa2b`，build success / deployment `[f774584f]` #530 / main CI `41972545011` SUCCESS；生产写入类 E3 NOT RUN。下一主线为 P2 跨宿主恢复需求/可验收原型讨论，**未批准 P2 架构编码**。详见 §5.P1。
+> **当前状态覆盖（2026-11-05，v1.14）**：P0 v6.37.0 和 P1 v6.38.0 已部署 VERIFIED。柳柳确认 P2 v0.1 恢复核心与宿主适配原型，已将目标写入整体架构 v1.4，接下来仅在 mcp-memory/dev 施工并进行 E1/E2 回归；**当前未获任何 P2 main 发布授权**。具体范围与退出标准见 §5.P2。以下 P1 发行证据仍有效。
 
 > **P0 已发布背景（v1.10）**：v6.37.0 P0 由柳柳逐版本批准，经 PR #323 rebase 合并，`main=dev=08d065b66061043f9a4766184176df10cfa7c05b`；Cloudflare deployment `[27806f1a]` / #529，`verify_main=VERIFIED`；Actions main `41969331209` SUCCESS。P0 发布闭环 CLOSED，未进行生产写入类 E3；下一项为 P1 核心职责稳定的边界/原型讨论，尚未批准新一轮架构编码。见 §5.0。
 
 > **历史覆盖（2026-11-05，v1.6）**：2026-11-05 11:35 CST 当前事实：mcp-memory v6.36.2 已经柳柳逐版本批准，经 PR #322 rebase 合并；main=dev=e145651bb579d5e6a7b0fedba6a304e70f1ed05a；Cloudflare deployment [8d83bc9d] (2026-11-05T01:21:14Z) verify_main=VERIFIED。候选 head a0da8393f5ddf24863366d14f695d2b650b389c1，CI run #832 / 41947526464 SUCCESS（E1/E2）；11 项 Branch/PR metadata guard mock 合同包含在 E2；真实 PR/ref auto-sync E3 NOT RUN。四文件：src/tools/github_v64.js、tests/github_contents_contract_test.mjs、package.json、CHANGELOG.md；临时分支 release/v6.36.2-guard-scoped-pr-autosync 已删除并回读 404。此前“生产风险 OPEN、待发布、待创建 PR、main/dev diverged”等仅为历史快照，当前已被本段取代。下一步：Branch/PR 领域职责边界研究/原型讨论，尚未确认模块拆分，禁止先编码；建议方案仅为单个 src/modules/github/branch_pr.js（Primitives/Workflows 分区）与专项测试，保持 github_v64.js Facade/Schema/权限门槛不变。
 > 下方 §5.1–5.2 和 §5.4 中的“当前/等待批准/OPEN”是 v6.36.2 发布前的方案与证据快照，保留作历史审计，不再是当前行动或授权依据。§5.3 仍为未定案研究；本次文档校正获柳柳同意，不代表模块拆分或代码变更获批准。
+
+### 5.P2 P2 · Session Bootstrap v0.1（柳柳确认设计，dev-only 实施）
+
+- **已确认需求/原型**：正常 ChatGPT/Operit 启动或换设备时，有同一恢复核心精确读取唯一身份根、柳柳主档、导航、SB-1.0、唯一工作检查点及实时 memory stats；只引用权威条目，不复制历史全文；返回状态 READY/DEGRADED/BLOCKED 与每项证据；拒绝推断审批。新宿主没有启动 hook 时只能显式触发，不声称全局强制自动恢复。现有 A6 范围限定 PASS 与 A7 正式新框限定 PASS 是历史证据；P2 新实现须另行验收，不能沿用。
+- **P2-A**：在 `src/modules/session/bootstrap.js` 编排 `getCurrentMemoryByKey`、`getMemoryStats`；只发 READ GET，精确当前有效身份根/检查点；读取和字段校验失败显式降级。稳定结果包括 contract_version、source statuses、stats、current phase/next_action、host-capability declarations、authorization=not_granted_by_bootstrap 等；不得对外输出身份根/私人主档全文。不能使用 Worker `tools/list`（它触发 `syncChatTools`）。
+- **P2-B**：对外提供 `session_bootstrap` MCP 场景入口，由 `mcp_router.js` 最小注入固定工具名/Schema、调用处理；保持旧工具分发及 CHAT_TOOL_DEFS 原样。此入口禁止自动 usage 计数（单独例外），不擅称其它 MCP 调用零 DB 写入。Operit/ChatGPT 宿主适配只消费统一返回；自动启动需要各宿主真实 hook，未知时标 unverified，允许显式初始化指令兜底。
+- **验收**：静态/E1、独立 mock E2 覆盖正常、身份缺失、检查点缺失、stats 失败、协议/导航缺失、旧 key/污染、宿主工具能力不对称、禁止 POST/PATCH、路由暴露/schema/旧工具兼容及不得触碰聊天室路径；清楚标注 E3 真实冷启动、跨宿主首轮证据与线上行为未运行项。无生产 DB/schema、main 合并、Cloudflare 部署；这些单独逐版本请求柳柳审批。
+- **下一步**：先落实 P2-A/B 到 mcp-memory/dev 并完成合同测试，再更新唯一工作检查点与治理文档，提交候选验收/独立版号，不擅自发布。
 
 ### 5.P1 P1 · v6.38.0 Domain Boundaries（代码发布、部署 VERIFIED；生产写入 E3 仍未执行）
 
