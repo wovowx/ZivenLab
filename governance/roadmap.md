@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.2）
+# 整体架构重构总控（Roadmap · v1.3）
 
-> **版本**：v1.2 · 2026-11-04  
+> **版本**：v1.3 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -153,7 +153,7 @@
 - 修复：helper 按 PR number 读取当前 metadata；只有 `merged === true && head.ref === 'dev' && base.ref === 'main'` 才允许后续 dev 同步；PR metadata 错误/JSON 异常/未确认 merged/head-base 不完整或不匹配/main SHA 无效均 fail closed。
 - 两个入口 `github_merge_pull_request` 与 `github_merge_to_main` 均传递 PR number；保留工具名、Schema、repo/token 门槛与响应接口。
 - 源码 blob SHA：`a9975bde92b16eae83568e9667e7615c79b48686`；测试 blob SHA：`d2c43c49ec4dc40e9522fcd5c8a1036f60c68062`；learning-regression #819 绑定的 dev 代码/测试 commit：`0c5cadde09452359c81198f35a26585b39aec303`；随后仅追加 bridge 文档提交。
-- learning-regression run `41856598888`（#819）绑定上述 dev HEAD，全步骤 SUCCESS。E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine contracts151/151（其中新增11项 Branch/PR 条件合同）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。
+- learning-regression run `41856598888`（#819）绑定上述 dev 代码/测试 commit，全步骤 SUCCESS；Job `126666813336` 所有步骤均 SUCCESS，日志明确输出 11 项新增守门合同与 `151 通过 / 0 失败`。E1 `npm run check` PASS；E2 Webhook114/114、Router/registry/DDL/Patch Engine contracts151/151（其中新增11项 Branch/PR 条件合同）、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts PASS。
 - E2 使用 fetch mock；真实 GitHub PR merge 与 refs auto-sync E3 未执行。修复只在 dev，未发布 main，未部署。
 - **生产状态仍 OPEN**：已部署 main v6.36.1 的 `src/tools/github_v64.js` blob SHA `371de7e7d87f994e2314a931fd0572926bc3b655` 仍定义旧版 `tryAutoSyncDev(baseUrl, ghHeaders)`，两个 merge handler 也仍无条件调用它。故 Cloudflare 当前运行面仍可能因 scoped release/hotfix/非 dev PR 合并而移动 dev ref。dev CI PASS 不代表生产修复已生效。
 - 在修复发布并独立验证部署前，不使用当前线上 Worker 的 `github_merge_to_main` / `github_merge_pull_request` 合并 scoped release、hotfix 或其他非 dev-head PR。
@@ -233,7 +233,7 @@
 
 **边界**：此项目前仅为研究与原型提案，不是已确认的模块拆分决策；不得先改蓝图、差距矩阵的目标边界或代码。先完成实际调用链与测试边界分析、外部方案对照，再将初始想法/挑战/权衡/推荐方案带给柳柳共同定案。
 
-### 5.4 主线运行纪律
+### 5.4 当前唯一待柳柳决定的发布门槛\n\n- dev 代码修复与 E1/E2 已 CLOSED；当前不再有需要 Operit 执行的代码测试任务。\n- 唯一生产闭环缺口是将最小修复安全带入 main 并验证部署。已有只读四文件 scoped release 方案，但尚未创建分支/PR。\n- 是否批准创建四文件 scoped release 分支/PR 是柳柳的发布范围决定；即使批准创建 PR，也不等于批准合并或手动部署。main 发布前须重新核对当前 main 基线、文件清单、CI 与 Pages/Worker 影响。\n\n### 5.5 主线运行纪律
 
 - 不重开全仓库审计；沿候选切片所需调用链做最小范围核查。
 - 不为代码整洁强行拆模块；保持基础能力可复用、工作流内聚、Facade 稳定。
