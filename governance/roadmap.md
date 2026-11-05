@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.34）
+# 整体架构重构总控（Roadmap · v1.35）
 
-> **版本**：v1.34 · 2026-11-05  
+> **版本**：v1.35 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
+> **分支范围**：本轮已按柳柳确认的 v0.1 原型先更新 ZivenLab/dev 设计，再仅在 mcp-memory/dev 实施关联检索代码/测试并通过 CI；不改数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
@@ -144,6 +144,8 @@
 ---
 
 ## 5. 当前主线与下一步
+
+> **当前工程闭环（2026-11-05 · v1.35；Memory Association v0.1 dev 施工＋最终 HEAD CI PASS）**：柳柳在 v0.1「显式 ID 关联＋共享业务实体、直接命中优先、至多3条、来源、当前态、无图谱/DB/聊天室扩张」需求与文字原型后明确回复「同意」。已先更新蓝图 v1.12、Roadmap v1.34 再在 mcp-memory/dev 实施。实际源代码只修改既有 src/modules/memory/retrieval.js 和 src/tools/memory_unified.js，增 tests/memory_core_contract_test.mjs 8项合同、package.json 版本 v6.41.0 与 CHANGELOG，追加仅 Bridge 文档。独立本地 E1 check exit0、Memory69/69、Router162/162、Session/Context36/36、Contents50、Search20、Learning9均 PASS。五文件候选 SHA=89aa2f05197c847734504ac232bcf9e0cddbca99 的 GitHub Actions [42025476524](https://github.com/wovowx/mcp-memory/actions/runs/42025476524) SUCCESS；追加 Bridge-only 回执后**最终 dev=3ef6472e63665b340b87fba77923166fd6342114**，其精确 GitHub Actions [42025993378](https://github.com/wovowx/mcp-memory/actions/runs/42025993378) completed SUCCESS，validate 17/17 steps success。main=c9324b4f2e4013ed1e7edcd455bb40450a5b8dfe，dev 相对 main ahead8/behind0，六文件仅属 v6.41.0 Memory Association 候选与 Bridge，Worker仍 v6.40.1/#534。**DEV_CODE_E1_E2_CI=CLOSED；MAIN_RELEASE/E3=NOT AUTHORIZED/NOT RUN**。下一步：依发布 Skill 向柳柳提交准确 v6.41.0 发版单（精确 main/dev SHA、六路径、测试/已知风险/部署影响/合并策略与回滚）并等待本版本逐项授权；未获许可绝不创建 PR/合 main/部署。Web A/Operit 严格新框仍不是本切片。
 
 > **当前决定（2026-11-05 · v1.34；Memory Association v0.1 已获柳柳验收方案，进入 dev-only 施工）**：v6.40.1 ChatGPT 刷新及显式 Session Context E3 已 CLOSED。柳柳看到「记忆关联召回 v0.1」的目标、六项范围边界与五类文字验收后明确回复「同意」；本轮以 `整体架构.md v1.12` 为前置已确认设计，下一行动是在 `mcp-memory/dev` 复用既有 Memory Repository/Search，补当前一跳显式关联 + 共享业务实体、总共最多3条、来源/关联理由、不过期不胡乱联想，沿用现有 `memory.search` 工具名和 Schema；然后做本地 E1/E2、精确 HEAD CI 和跨宿主 Bridge/权威检查点同步。先对现有源码与学习回归做最小范围复用检查，不重开全仓审计。**不得自行推 main、部署或更改生产数据库/聊天室；下一次发布须提供版本号、文件、精确 SHA/diff、CI/E3 与部署影响，再获柳柳单独批准。**此前本节下方日期早于 v1.34 的「当前」措辞均视为历史快照。
 
