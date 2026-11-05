@@ -2,7 +2,7 @@
 
 > **版本**：v1.41 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI；当前无未完成代码动作。唯一交接待办是将最终证据追加到现有 `CROSS-HOST-BRIDGE.md`；当前大文件写入接口返回 HTTP 500，GitHub Connector 写入返回 403，故不得声称 Bridge 已同步。完成后回到「一本书」架构主线，下一可复用切片仍须先讨论需求与可验收原型；本次不含 PR/main/Worker E3/部署/生产数据授权。
+> **当前状态**：Memory Retrieval Reliability v0.1 代码与 Bridge 交接均已完成。代码 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / CI `42060784577` PASS；Bridge commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / CI `42061816668` PASS。最新 dev HEAD `8877bd6e678288060f85b8956f76d645eed5736e`（ahead50/behind0）仅含文档文字修正；其 CI `42061853255` QUEUED，源码与测试未变。待文档-only CI 收口后回到「一本书」主线，下一可复用切片须先讨论需求与原型；不含 PR/main/Worker E3/部署/生产数据授权。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成，最终 HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b`，相对 main ahead44/behind0；GitHub Actions run `42060784577` SUCCESS（精确 HEAD E1/E2）。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
