@@ -1,5 +1,12 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-p0-e1e2-closed] - 2026-11-05（dev 治理同步，未发布 main）
+
+- 柳柳同意 P0 按领域恢复旧 dev 有效代码，并单独放行 `src/modules/mcp_router.js` 仅非聊天室七项 Router/Schema/tools-list/usage 修复；不改聊天室/唤醒、生产 DB/schema/main/部署。
+- mcp-memory/main=`e145651b`，恢复后的代码基线 dev=`d298162cca89c938d15a8f63b3c9dbb609830d61`；main...dev ahead36/behind0，32 文件。E1/E2 GitHub Actions run `41967030788` SUCCESS：Static、Contents47、Webhook/Agnes114、Memory60、Search20、Release Guard、Learning artifacts、Router/Registry/Patch 全部成功。真实端点 E3 NOT RUN；未发布线上。
+- 已在 Roadmap v1.8 §5.0、驾驶舱 version146 和唯一跨宿主 Bridge 更新；仍需按正式版本说明与批准门槛评估 v6.37.0 候选。旧 dev `4aa0cd0` 可通过 SHA 读取但没有长期 ref 保护；本次只恢复 P0 指定领域，不代表全量恢复旧 432 个独有提交。发布授权与 P1 模块拆分均未取得。
+
+
 ## [docs-2026.11.05-v6.36.2-closure] - 2026-11-05（ZivenLab/dev 文档状态同步，未发布）
 
 - 经柳柳确认，仅校正 Roadmap v1.6、驾驶舱 version144、现状架构、差距矩阵与跨宿主交接，保留旧快照为历史，不变更生产代码或架构目标。
