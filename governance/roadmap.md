@@ -3,7 +3,7 @@
 > **版本**：v1.40 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **当前批准切片**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；先同步治理文档，再仅在 mcp-memory/dev 实施；不含 PR/main/Worker E3/部署/生产数据授权。
-> **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；记忆检索质量基准 v0.1 已在 mcp-memory/dev 完成，最终 dev SHA `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` / CI run `42048224495` SUCCESS。本轮只在 ZivenLab/dev 对齐治理文档，不改 mcp-memory 代码或生产环境；不合 main、不部署。  
+> **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；记忆检索质量基准 v0.1 已在 mcp-memory/dev 完成，最终 dev SHA `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` / CI run `42048224495` SUCCESS。本轮已在 ZivenLab/dev 对齐治理文档，下一步仅改 mcp-memory/dev；不合 main、不部署、不触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
