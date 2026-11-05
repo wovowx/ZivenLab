@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.05-memory-retrieval-benchmark-v1.7] - 2026-11-05
+
+- 继续完善记忆检索质量基准 v0.1 需求原型；本次仍是 ZivenLab/dev 治理文档修改，详细原型尚待柳柳验收，未进入 mcp-memory 编码。
+- 将 `governance/database/记忆检索质量测试集.md` 升至 v1.7：明确16条合成记忆与16条查询的逐项 Fixture，修正 Q09 近似负向查询（4/16 bigrams=25%，低于当前30% fallback 阈值），修正 Q11 仅旧记录样本，并加入 M16 词面误召回 decoy 测量 Precision@3。
+- 细化 Recall@1/3（micro）、MRR（macro）、Direct Precision@3（micro）、Negative False-Hit Rate、Stale Hit Rate、Association Recall@3、Association Provenance Accuracy 的统计范围与公式；明确 Q12/Q13 关联指标与 Q14/Q15 结构合同的 scope，Q16 覆盖 stale association 过滤。
+- 明确第一批仅4个实施路径：纯合成 Fixture、GET-only Node runner、package.json script、learning-regression E2 step；首轮实测核对后再保存 baseline JSON，不由 CI 自动覆盖。
+- 同步 `governance/整体架构.md` v1.15、`governance/roadmap.md` v1.38、`governance/架构差距矩阵.md` v4.55、`governance/当前项目状态.md` version170。
+- 未改 mcp-memory 源码/测试/package/CI、数据库/schema/业务记忆、main、Worker/生产、聊天室/唤醒、Operit、Web/DNS 或密钥；未运行 benchmark/E1/E2/E3，未生成实际指标基线。
+
 ## [docs-2026.11.05-memory-retrieval-benchmark-proposal] - 2026-11-05
 
 - 柳柳同意将“记忆检索质量基准”确立为下一项工作；本轮完成需求/原型草案，详细设计仍待柳柳验收，尚未进入编码。
