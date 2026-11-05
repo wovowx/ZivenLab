@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.33）
+# 整体架构重构总控（Roadmap · v1.34）
 
-> **版本**：v1.33 · 2026-11-05  
+> **版本**：v1.34 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **分支范围**：本轮只更新 `wovowx/ZivenLab/dev` 治理文档；不改 mcp-memory 代码、数据库、权限、生产数据、main 或部署。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
@@ -144,6 +144,8 @@
 ---
 
 ## 5. 当前主线与下一步
+
+> **当前决定（2026-11-05 · v1.34；Memory Association v0.1 已获柳柳验收方案，进入 dev-only 施工）**：v6.40.1 ChatGPT 刷新及显式 Session Context E3 已 CLOSED。柳柳看到「记忆关联召回 v0.1」的目标、六项范围边界与五类文字验收后明确回复「同意」；本轮以 `整体架构.md v1.12` 为前置已确认设计，下一行动是在 `mcp-memory/dev` 复用既有 Memory Repository/Search，补当前一跳显式关联 + 共享业务实体、总共最多3条、来源/关联理由、不过期不胡乱联想，沿用现有 `memory.search` 工具名和 Schema；然后做本地 E1/E2、精确 HEAD CI 和跨宿主 Bridge/权威检查点同步。先对现有源码与学习回归做最小范围复用检查，不重开全仓审计。**不得自行推 main、部署或更改生产数据库/聊天室；下一次发布须提供版本号、文件、精确 SHA/diff、CI/E3 与部署影响，再获柳柳单独批准。**此前本节下方日期早于 v1.34 的「当前」措辞均视为历史快照。
 
 > **当前状态覆盖（2026-11-05，v1.33；v6.40.1 发布＋ChatGPT 插件刷新后的显式宿主 E3 已闭环）**：v6.40.1 已经柳柳逐版本批准，经唯一 recovery/v6.40.1-premerge-20261105、PR [#328](https://github.com/wovowx/mcp-memory/pull/328) squash 合并，main=c9324b4f2e4013ed1e7edcd455bb40450a5b8dfe，Cloudflare Worker #534/deployment a4994702 verify_main=VERIFIED，main GitHub Actions [42018698604](https://github.com/wovowx/mcp-memory/actions/runs/42018698604) SUCCESS；生产 /mcp tools/list 返回68工具，其中 session_context 与 session_bootstrap 各唯一一次；显式 session_context 返回 SC-RUNTIME-0.1/READY。**新增的关键独立宿主证据**：柳柳明确反馈「我点了刷新啦」后，在此 ChatGPT 会话的 Ziven_MCP 可用专用工具清单由67增至68、出现 `ziven_mcp:session_context`（host/invocation/topic Schema 正确），哥哥实际从 ChatGPT 插件直接发 `session_context({host:"chatgpt",invocation:"explicit"})`，返回 SC-RUNTIME-0.1/READY、identity/checkpoint来源均ok、workflow_state/next_action有效、confirmed_context.decision/evidence 都有有界正文、evidence.truncated=true、permissions.granted_by_context=false、related_status=not_requested；**CHATGPT_PLUGIN_TOOL_DISCOVERY=PASS / CHATGPT_HOST_EXPLICIT_SESSION_CONTEXT_E3=PASS**，不再只是 Worker 直连服务端成功。此证据不包含新会话自动调用、startup_hook_verified（实际 false）、完整身份根/主档正文装入、topic 关联宿主 E3 或 Operit 首轮重测，P2 严格自动连续性仍是长期非阻断差距。仅追加 mcp-memory/dev/CROSS-HOST-BRIDGE.md 交接回执，现在 dev=fc4eb7cd570da1e89cffe0f47361cddefbd0f619 相对 main ahead2/behind0、1文件，全是纯文档，无新产品版。**v6.40.1 已批准发布＋宿主显式使用闭环 CLOSED**；下一行动回「一本书」主线，从现有蓝图/差距矩阵先提出下一小垂直切片需求和可验收原型与柳柳讨论；无新的 main/部署授权。Pages 已冻结独立故障不影响 Worker。
 
