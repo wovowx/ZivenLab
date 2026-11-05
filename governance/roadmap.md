@@ -1,9 +1,9 @@
-# 整体架构重构总控（Roadmap · v1.40）
+# 整体架构重构总控（Roadmap · v1.41）
 
-> **版本**：v1.40 · 2026-11-05  
+> **版本**：v1.41 · 2026-11-05  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前批准切片**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；先同步治理文档，再仅在 mcp-memory/dev 实施；不含 PR/main/Worker E3/部署/生产数据授权。
-> **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；记忆检索质量基准 v0.1 已在 mcp-memory/dev 完成，最终 dev SHA `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` / CI run `42048224495` SUCCESS。本轮已在 ZivenLab/dev 对齐治理文档，下一步仅改 mcp-memory/dev；不合 main、不部署、不触生产环境。  
+> **当前状态**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI；当前无未完成代码动作。下一步回到「一本书」架构主线，下一可复用切片仍须先讨论需求与可验收原型；本次不含 PR/main/Worker E3/部署/生产数据授权。
+> **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成，最终 HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b`，相对 main ahead44/behind0；GitHub Actions run `42060784577` SUCCESS（精确 HEAD E1/E2）。本轮只改 dev；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
@@ -134,7 +134,7 @@
 | GitHub Contents | `src/modules/github/contents.js` 提供 get/list/tree/put/delete/verify primitives 与 push/edit/delete/copy/move workflows；`src/tools/github_v64.js` 保留稳定 facade、Schema、门槛和兼容入口 | ✅ 已实施并形成独立垂直切片；v6.36.0/v6.36.1 已发布 | SHA `aeb6a8ebed19575e587d3c21dde3fb51e3597a84` / run `41794905599`：E1 check；E2 webhook114/114、Router/registry/DDL/Patch Engine140/140、Contents31/31、search_history20/20、Memory Core60/60、Release Guard15/15、learning artifacts 全成功。PR #321 head SHA `3b15ac0713d7d771f3b86361051a1cde4ce0f101` 的 runs `41810390533`/`41810455092` 均 SUCCESS：check、Contents contracts36、Webhook/Router106/106、learning artifacts PASS | v6.36.0 经 PR #320、v6.36.1 经 PR #321 合入 main；main HEAD `f74c36cb3f96928df292160745cf61a41951e312`；Cloudflare deployment `[d639e1df]` VERIFIED。真实 GitHub Contents 文件读写 E3 未执行；dev refs 精确恢复另有真实 API 独立回读证据 |
 | Patch Engine（独立于 Contents） | `src/modules/patch_engine.js`；集中目标分支/repo/path/patch 形状校验、proposal 条件认领及部分成功状态 | 🟡 已有独立代码与 E1/E2 回归；不是 Contents 切片，也未在本账本认定为独立发布 | run `41783624515` 的 Router/registry/DDL/Patch Engine contracts 140/140 | 不自动并入 Contents 发布；后续变更按自己的边界验收 |
 | Branch/PR merge-helper 条件修复 | `src/tools/github_v64.js` 的 `tryAutoSyncDev()`；两个合并入口共用 PR metadata 守门 | ✅ v6.36.2 已经 PR #322 合入 main 并完成 Worker 部署验证 | 发布前 CI run `41856598888`（E1/E2 151/151）；PR #322/main 与 Cloudflare 部署验证记录见历史发布收口 | 生产风险 CLOSED；真实 PR/ref auto-sync E3 仍 NOT RUN |
-| Memory Retrieval Reliability v0.1 | `repository.js` explicit source errors; `retrieval.js` detailed status result + array compatibility wrapper; `memory_unified.js` search_status; `session/bootstrap.js` status mapping | 🟡 柳柳已验收需求/原型；整体架构 v1.18 已更新，代码待 dev 实施 | OK/EMPTY/PARTIAL/ERROR；alias failure preserves primary results; primary failure cannot masquerade as empty; Memory Core/Session/benchmark + E1/E2/CI pending | dev only；不改 scoring/order/CJK/association、tool name/Schema、DB/schema/data、chatroom/wake；无 PR/main/Worker E3/deploy authorization |
+| Memory Retrieval Reliability v0.1 | `repository.js` 显式区分 HTTP/网络/JSON/结构错误；`retrieval.js` 详细四态结果 + 数组兼容入口；`memory_unified.js` 输出 `search_status` 并显式报告 stats 源故障；`session/bootstrap.js` 区分 `no_matches/partial/unavailable` | ✅ mcp-memory/dev 已实施；最终 HEAD E1/E2 CI PASS | HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` SUCCESS；Memory Core 86/86、Session Bootstrap/Context 38/38、benchmark 与完整 learning-regression 工作流通过 | 仅 dev；未改评分/排序/CJK/关联算法、工具名/Schema、DB/schema/数据；无 PR/main/Worker E3/部署授权 |
 | Memory Retrieval Quality Benchmark v0.1 | `tests/fixtures/memory_retrieval_benchmark_v0_1.json`、冻结 baseline、`tests/memory_retrieval_benchmark_test.mjs`；package script + learning-regression E2 step | ✅ mcp-memory/dev 已实施并通过最终 HEAD CI | 首轮测量 `9146d3c920d6d3816238083f1538002024f8d5ab` / run `42043430775`；冻结 baseline 后最终 dev `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` / run `42048224495` SUCCESS；16 queries、32 GET-only requests、baseline non-regression PASS | 仅 E1/E2 synthetic CI；未改生产 `src/`、算法、数据库、真实记忆；main v6.41.0 / Worker #535 不变，未获 main/部署授权 |
 
 ### 交付账本规则
@@ -148,7 +148,9 @@
 
 ## 5. 当前主线与下一步
 
-> **当前状态（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
+> **当前状态（2026-11-05 · v1.41）**：Memory Retrieval Reliability v0.1 已在 mcp-memory/dev 完成并通过精确 HEAD E1/E2 CI。最终 HEAD `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / GitHub Actions run `42060784577` SUCCESS；Memory Core 86/86、Session Bootstrap/Context 38/38，benchmark、全量 E1/E2 与 learning-regression 均通过。四态合同已落地：OK 双源成功且命中；EMPTY 双源成功无匹配；PARTIAL 别名失败但保留主记忆结果；ERROR 主记忆失败且不伪空。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；main...dev ahead44/behind0。仅 dev 代码与 E1/E2/CI；未创建 PR、未合 main、未运行 E3、未部署、未触生产数据。整体架构 v1.19、Roadmap v1.41、差距矩阵 v4.58、当前项目状态 version173 将同步。下一步回到「一本书」主线，下一可复用切片须先讨论并验收需求/原型。
+
+> **前一状态快照（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
 
 
 > **前一状态快照（2026-11-05 · v1.39）**：记忆检索质量基准 v0.1 已按确认的详细原型在 `mcp-memory/dev` 完成；16条纯合成记忆、16条固定查询、GET-only Node runner、npm script、learning-regression E2 step 与冻结 baseline 均已落地。最终 dev SHA `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` 的 CI run `42048224495` SUCCESS；16条查询/32次 Mock GET、Fixture blob SHA 校验及冻结基线非退化比较全部通过。首轮指标：Recall@1 0.90、Recall@3 1.00、MRR 1.00、Direct Precision@3 0.9091、Negative False-Hit Rate 0、Stale Hit Rate 0、Association Recall@3 1.00、Association Provenance Accuracy 1.00。Precision@3 未达100%是 Q01 刻意保留的词面 decoy M16，不以单个样本直接触发算法修改。**本切片仅 E1/E2 synthetic CI，不是生产 E3**；mcp-memory/main 仍 v6.41.0 / SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未改检索算法、生产 `src/`、数据库、真实记忆或 Operit Token，未创建 PR/合并 main/部署。真实历史查询20–50条仅为可选 v0.2，须另行讨论脱敏、来源与授权。**下一步回到「一本书」架构主线，按已验收的 Memory Retrieval Reliability v0.1 原型仅在 mcp-memory/dev 实施与回归；本次基准完成不自动授权新代码、main 或部署。**
