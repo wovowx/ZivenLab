@@ -215,7 +215,7 @@ M0–M4 仅作交付解释，不新增平行施工状态。L2 Core v0.2 已验�
 
 **实施门禁与验收**：每个代码切片仍先形成可验收原型，再由柳柳确认后进入 dev；E1/E2 绑定精确 SHA。必须证明：一份正文多视图引用；pending 不冒充事实；Archive 不污染当前检索；Core 有真实装载证据；现有 current-only、检索四态、别名、一跳关联和来源解释不退化。任何 DB/schema/真实数据写入、main 发布、Worker 部署均不包含在本次 L0 授权内。
 
-**下一行动**：L1 Type dev 实施与 E1/E2 已 CLOSED，唯一详细设计与精确证据见 `governance/记忆层存量归位规范.md` v2.2 §2.3–2.4。进入 L2 Core 之前，先沿用已确认的五个 BOOTSTRAP_KEYS 精确来源，梳理当前 Session Bootstrap/Context 已有读取和宿主注入边界，形成只读最小上下文组装原型（稳定核心/动态指针分离、token 预算、缺失/错误/部分结果降级），由柳柳验收后再实施 dev。L2 不复制权威正文、不新增 DB 表/字段、不触碰聊天室/唤醒。v6.42.0 main 发布、Worker 部署与真实 E3 仍需单独版本单和明确授权；dev Skill 由 main loader 加载的边界继续保留。
+**下一行动**：L2 Core v0.2 服务端代码与隔离 E1/E2 已 CLOSED；唯一详细设计与精确实现证据见 `governance/记忆层存量归位规范.md` v2.4 §3.1.1。先对 v6.43.0 dev 候选做 scoped diff、依赖、兼容和回滚评估，形成只说明用户可感知收益的独立发布单；未获柳柳对该版本明确批准，不创建 PR、不合 main、不部署。生产版本就绪后分别验证 ChatGPT/Operit 的 include_core 返回、正文进入当轮上下文、冷启动触发、工作连续性与相处连续性；未通过宿主证据前不宣布 M1 全部完成。L2 不复制权威正文、不新增 DB 表/字段、不触碰聊天室/唤醒。
 
 > **前一状态快照（2026-11-05 · v1.40）**：Memory Retrieval Reliability v0.1 已获柳柳需求/原型验收；整体架构 v1.18、Roadmap v1.40、差距矩阵 v4.57、当前项目状态 version172 已同步。下一步仅在 mcp-memory/dev 实施四态检索可靠性并完成 E1/E2/精确 HEAD CI；不含 PR/main/Worker E3/部署/生产数据。
 
