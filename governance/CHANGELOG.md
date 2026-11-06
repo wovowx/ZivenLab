@@ -1,5 +1,13 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.06-core-v02-dual-continuity] - 2026-11-06
+
+- 柳柳已确认可靠性优先（A为主，C仅保留可选小范围Web验证，不提前正式开发Web）；工作与相处连续性同等验收。L2 Core v0.2 原型已完成，详见 governance/记忆层存量归位规范.md v2.3 §3.1.1；仍待技术原型验收，未编码。当前顺序继续 L2→L3→L4→按需L5，自动写入依赖相应L6保障。
+- 整体架构v1.25、roadmap v1.47、记忆详细设计v2.3、驾驶舱version179、导航v3.77、差距矩阵v4.63、现状架构当前摘要同步；历史状态与当前调度区分，原始证据保留。
+- L2提案保留旧调用，新模式显式返回核心正文；完整块预算与补读，宿主接收证据和服务端组装证据分开。仅提案，不代表代码或冷启动验收完成。
+- 无main发布、部署或业务数据变更；交接文件结果以其实际回读及云端检查点为准。
+
+
 ## [docs-2026.11.06-memory-type-dev-implemented-v0.1] - 2026-11-06
 
 - 柳柳验收 L1 Type 原型后，已在 `mcp-memory/dev` 实施 v6.42.0 候选：共享 Memory Type helper 同时驱动 tools/list Schema 暴露与 dispatchGuard；remember/update/lifecycle 持久化语义；Recall/Search/History 展示；Transfer import/export；Memory Management Skill 规则。
