@@ -1,9 +1,9 @@
-# 整体架构重构总控（Roadmap · v1.66）
+# 整体架构重构总控（Roadmap · v1.67）
 
-> **版本**：v1.66 · 2026-11-06  
+> **版本**：v1.67 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态（2026-11-06）**：v6.46.0 已经柳柳批准并发布 main SHA `2c94f0444ee5d56c39739beca73abd7496921610` / Cloudflare Worker #540 deployment `f710f2b7` VERIFIED。柳柳刷新后，ChatGPT 可合法调用 `cloudflare_logs_query`，两次真实查询最近15分钟均 `EMPTY`（各0条）；之间 `memory(recall,虚构不存在key)` 正常执行，排除了工具不可用和明显的 Token 401/403，但**没有证明存储未开启**。Cloudflare 官方文档区分 Live Tail 与已存储 Workers Logs；当前生产 Wrangler 未显式配置 Observability，Dashboard 是否已开启仍 UNKNOWN。柳柳认可先准备日志存储设置，哥哥已在 **dev** 写入 `[observability] enabled=true`、`[observability.logs] invocation_logs=true,head_sampling_rate=1` 与合成测试，**v6.47.0 DEV CANDIDATE** 最终含 Bridge 交接 SHA `36057a0234f37281d20e2ca1ac10840964ef5848` / CI `42183836123` SUCCESS（此前版本文件 CI `42183524024` 也通过）。**生产配置、密钥与 main/Worker 未作更改**；此设置只有经单独发布许可并部署后才可能开始持续存储日志（采样100%，需明确确认用量/费用与日志留存；官方 2026-11-06 Workers Logs 免费方案 20万条/天、3天留存，付费方案含2000万条/月并有超量费用，2026-12-01 起计费政策将改变）。M1 完整 Core 宿主 E3 仍 OPEN，L5 暂缓。
-> **分支范围**：生产 main `2c94f0444ee5d56c39739beca73abd7496921610`（v6.46.0 / Worker #540 VERIFIED）；dev `36057a0234f37281d20e2ca1ac10840964ef5848`（v6.47.0 DEV CANDIDATE）相对 main ahead6/behind0、净5文件 `CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`（既有交接）、`package.json`、`tests/router_registry_contract_test.mjs`、`wrangler.toml`，对应 Actions `42183836123` SUCCESS。此阶段没有 PR/main/deploy 授权；Worker #540 是现有生产，不是新日志配置已上线的证据。
+> **当前状态（2026-11-06）**：**v6.47.0 Workers Logs 持久化已按柳柳明确批准正式发布并通过真实 E3**。PR [#334](https://github.com/wovowx/mcp-memory/pull/334) dev→main，经 rebase 合并，GitHub 独立确认 `merged=true/state=closed`；合并时 main=dev=`bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82` / ahead0/behind0，package v6.47.0。PR CI `42184550315`、main CI `42184635365`、dev CI `42184638419` 均 SUCCESS；Cloudflare **Worker #541** / deployment `42551af3` / version `94a1675f`，`cloudflare_deploy_status(verify_main=true)=VERIFIED`。生产已显式启用 `[observability] enabled=true` / `[observability.logs] invocation_logs=true, head_sampling_rate=1`（100%采样，保留/用量按 Cloudflare 计划）。**真实日志 E3 成功取得事件**：在一次不存在的合成 key `memory(recall)` 控制请求之后，`cloudflare_logs_query(15min,20,all)` 第一次返回 `OK`、1条，第二次返回 `OK`、3条，事件包含 UTC 时间戳及非敏感 trace_id；说明权限/存储/工具查询链路已可用。**剩余限制**：脱敏结果中 `method/path/status_code` 仍为 null、`outcome=unknown`，尚不能直接归因具体 MCP action；请求日志未与合成 recall 精确关联，旧 OpenAI 安全拦截原因仍 UNKNOWN。M1 完整私人 Core 宿主 E3 受阻独立 OPEN；L5 记忆体检暂缓。没有修改真实业务记忆、数据库、Secrets、技能注册表、暂停聊天室/唤醒。
+> **分支范围**：本版发布输入 main `2c94f0444ee5d56c39739beca73abd7496921610`（v6.46.0 / Worker #540）与 dev `36057a0234f37281d20e2ca1ac10840964ef5848`（v6.47.0），ahead6/behind0，净5文件 `CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`、`package.json`、`tests/router_registry_contract_test.mjs`、`wrangler.toml`。PR #334 `changed_files=5` / mergeable clean / rebaseable true，PR CI `42184550315` SUCCESS；rebase 后 main=dev=`bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82`、compare identical，main/dev post-merge CI `42184635365`/`42184638419` SUCCESS，Worker #541 `42551af3` VERIFIED。若后续 dev 添加 Bridge-only 交接，需另行按最新 compare 和 CI 报告；不能把仅 dev 文档提交当成新生产发布。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
@@ -172,6 +172,14 @@
 
 ## 5. 当前主线与下一步
 
+### 2026-11-06 · v6.47.0 正式发布 + Workers Logs E3 真实读取成功
+
+- **授权与版本意义**：柳柳看过 v6.47.0 在 dev 的完整配置/Mock E1/E2、100% 请求采样、日志留存及 Cloudflare 用量/潜在费用、可能重新部署 Worker、回滚基线 v6.46.0 后明确回复「好」，授权本版 PR/main/Cloudflare 自动部署。此授权不扩展到其他 Cloudflare 配置/Token/后续版本。
+- **GitHub 合并证据**：PR [#334](https://github.com/wovowx/mcp-memory/pull/334)，input main `2c94f044...`，dev `36057a02...` ahead6/behind0 净5文件；PR Actions [#42184550315](https://github.com/wovowx/mcp-memory/actions/runs/42184550315) SUCCESS、clean/rebaseable。按 rebase 合并，GitHub API GET 确认 merged=true/closed；main=dev `bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82`、compare identical；main CI [#42184635365](https://github.com/wovowx/mcp-memory/actions/runs/42184635365) SUCCESS，dev CI [#42184638419](https://github.com/wovowx/mcp-memory/actions/runs/42184638419) SUCCESS。GitHub Pages 旧独立发布工作流失败不构成 Worker 失败，保持暂停不处理。
+- **Worker 部署证据**：Cloudflare Workers #541 / deployment `42551af3` / version hash `94a1675f` (wrangler)；`cloudflare_deploy_status(verify_main=true)` 对 main SHA `bedaa2b2...` 返回 `VERIFIED`。上一生产版回滚参考 v6.46.0 main `2c94f044...` / Worker #540 deployment `f710f2b7`；不在本轮自动回滚。
+- **E3 真实业务证据**：新版本部署后执行仅虚构不存在 key 的 `memory(recall)`，返回正常「没有找到」，未修改记忆；随后用 `cloudflare_logs_query({minutes:15,limit:20,status_filter:'all'})` 连续两次查询。首次 `status=OK, fetched_count=1,reported_count=1`；第二次 `status=OK, fetched_count=3,reported_count=3`。三条 event 均具有合法 UTC 时间和 trace_id，未返回明文秘钥/请求全文。说明存储日志/Cloudflare 查询权限/宿主工具入口已真实可用，先前 `EMPTY` 从结果上得到缓解；但没有请求级关联信息，不能把某个 trace_id 指认成 recall。
+- **仍未关闭的诊断精度**：三个事件的 `method=null,path=null,status_code=null,outcome=unknown`。脱敏器只从若干预期 `$metadata.*` 与 `request.*` 路径取值，真实 Cloudflare Observability 事件字段在当前输出中尚未完整映射；若以后要关联具体 MCP action，应先用脱敏的合成字段元数据与实际官方 schema 设计最小修复，讨论确定并另行 dev 编码/发布。**这不影响本版日志存储/查询 E3 成功，不应急着重构。**
+- **运营边界**：生产 100% 日志采样已经开启，Cloudflare Logs 按账户计划留存/计量；不在此轮更改采样率、Retention、费用方案、Token、数据库或项目暂停范围。旧 M1 `include_core=true` / Bootstrap 宿主安全阻断仍独立 OPEN；L5 只读记忆体检暂缓。
 ### 2026-11-06 · v6.46.0 正式发布 · Cloudflare Worker #540 VERIFIED
 
 - **授权**：柳柳在 v6.46.0 dev E1/E2、用户收益、净6文件/8提交、自动 Worker 部署与 v6.45.0 回滚基线说明之后明确回复「好」，逐版本批准 PR/main/Worker。授权仅限这一版，不含提升 Cloudflare Token 权限、修改日志存储配置、L5 或记忆数据。
