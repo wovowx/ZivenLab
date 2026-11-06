@@ -1,9 +1,9 @@
-# 整体架构重构总控（Roadmap · v1.47）
+# 整体架构重构总控（Roadmap · v1.48）
 
-> **版本**：v1.47 · 2026-11-06  
+> **版本**：v1.48 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：Memory Layering v0.1 四层逻辑视图已由柳柳确认；L0 治理文档 CLOSED，L1 Type 写入链已按验收原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b`，package candidate v6.42.0，main...dev ahead100/behind0；CI `learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤均 PASS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未修改 main、Supabase 注册表、DB Schema 或真实记忆。ZivenLab/dev 当前主线文档：整体架构 v1.25、详细设计 v2.3（§3.1.1 L2 Core v0.2 待验收）、Roadmap v1.47。上述代码与 CI 属于上一轮 L1 证据；本轮仅文档归并和原型设计，未改代码或重跑测试。状态入口已同步：驾驶舱version179、导航v3.77、差距矩阵v4.63、现状架构当前摘要与CHANGELOG；Bridge已追加L1补交接及L2原型待验收。旧快照保留为历史，当前行动以本文件§5与云端检查点为准。Bridge文档提交使dev HEAD前移，ad62fbeae23ae1591fc39f17cb6d345f0572584b是L1代码/测试基线而非本轮文档HEAD；ahead100为此前快照。**本轮 mcp-memory 仅 dev 代码/Skill/Mock 测试，ZivenLab 仅治理文档：没有 PR/main 合并、Worker 部署或 E3。** L1 dev 实施与 E1/E2 CLOSED；下一施工切片为 L2 Core 只读上下文组装，Technology Scout 保留长期横向方向，不插队替代当前主线。
-> **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b`，相对 main ahead100/behind0。v6.42.0 L1 Type dev 候选的精确 CI run `42125896297` SUCCESS，E1/E2 全步骤通过；Memory Core 101/101。ZivenLab/dev 本轮仅同步治理文档；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
+> **当前状态**：Memory Layering L0 CLOSED；L1 Type 与 L2 Core v0.2 均已在 `mcp-memory/dev` 实施并通过精确 E1/E2。L2 代码/测试 SHA `6411d4f17ecdee338b4cb214636f7bf1220c2940` / run `42146323527` SUCCESS，Session Bootstrap + Context + Core 56/56；Bridge-only handoff HEAD `6f6b79a5ff2e3ede52b207e137826167a3d29986` / run `42147292641` SUCCESS。当前 dev package candidate v6.43.0，main...dev ahead112/behind0、19 个差异路径。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 / `fb40fed3` 未变。**L2 服务端 E1/E2 CLOSED；M1 整体仍待生产/宿主 E3 与工作/相处分别验收。**无 PR/main/部署授权。ZivenLab/dev 主线文档正在同步 v1.26/v1.48/v2.4/version180/v4.64/v3.78；当前行动以本节与云端唯一检查点为准。
+> **分支范围**：`mcp-memory/main` 仍 v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Cloudflare Worker #535 / deployment `fb40fed3` VERIFIED）；`mcp-memory/dev` 当前 HEAD `6f6b79a5ff2e3ede52b207e137826167a3d29986`，相对 main ahead112/behind0。v6.43.0 是 dev 候选，不是发布版本；L2 代码/测试精确 SHA 与 CI 见 §4 交付账本及 Bridge。不得整支合并 dev；本轮无 PR、无 main 合并、无 Worker 部署、无宿主 E3。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
@@ -155,6 +155,8 @@
 | Memory Retrieval Reliability v0.1 | Repository 显式错误；Retrieval 四态与数组兼容；Memory Facade `search_status`；Session Context 状态映射；Bridge 已同步 | ✅ dev 实施、E1/E2 与交接完成 | 代码 commit `97d4cbd48ed94b0654a49838fa435ecc8e9dda7b` / run `42060784577` PASS；Bridge handoff commit `cbd318fd5effc0c941411d1030ab80eb7d41ca7b` / run `42061816668` PASS；最新 dev HEAD `4a0dd0500a169e8683a2c80bb13eed6765f416eb` / run `42063093543` PASS | 仅 dev；无算法/Schema/DB 变更；无 PR/main/E3/部署授权 |
 | Memory Retrieval Quality Benchmark v0.1 | `tests/fixtures/memory_retrieval_benchmark_v0_1.json`、冻结 baseline、`tests/memory_retrieval_benchmark_test.mjs`；package script + learning-regression E2 step | ✅ mcp-memory/dev 已实施并通过最终 HEAD CI | 首轮测量 `9146d3c920d6d3816238083f1538002024f8d5ab` / run `42043430775`；冻结 baseline 后最终 dev `de2ce34f46eb9ae3d9e5a2757f60856b6c00acd8` / run `42048224495` SUCCESS；16 queries、32 GET-only requests、baseline non-regression PASS | 仅 E1/E2 synthetic CI；未改生产 `src/`、算法、数据库、真实记忆；main v6.41.0 / Worker #535 不变，未获 main/部署授权 |
 
+| Session Core Context v0.2 | `src/modules/session/bootstrap.js` 的 `session_context(include_core=true)` opt-in CORE-0.2；共享五源快照、完整当前检查点、24,000 Unicode code points 完整块预算与 topic 后置 | ✅ `mcp-memory/dev` 已实施 | 代码/测试 SHA `6411d4f17ecdee338b4cb214636f7bf1220c2940` / run `42146323527` SUCCESS；E1 `npm run check` PASS；Session Bootstrap + Context + Core 56/56；Bridge HEAD `6f6b79a5ff2e3ede52b207e137826167a3d29986` / run `42147292641` SUCCESS | 仅 dev 候选 v6.43.0；main v6.41.0 / Worker #535 未变；无 PR/main/部署/E3；ChatGPT/Operit 宿主接收与双重连续性待验证 |
+
 ### 交付账本规则
 
 - 上表只列当前材料能由源码/测试记录相互佐证的切片。后续增量追加准确文件、Commit、run 和发布证据。
@@ -172,12 +174,12 @@
 
 工作连续性与相处连续性同等验收：前者验证目标、决定及原因、下一步和边界；后者验证身份/称谓不混淆、已确认关系与偏好可恢复、不虚构共同经历，以及由柳柳判断的实际相处体验。分别记录通过/失败/未验证，仅工作恢复不能宣布整体恢复完成。
 
-本次确认不等于批准完整技术接口、代码、生产数据或 main 发布。评审稿 M0–M4 仅作交付解释，不新增平行施工状态；当前仍为 L2 原型待验收。完整技术原型见 `记忆层存量归位规范.md` §3.1.1。
+M0–M4 仅作交付解释，不新增平行施工状态。L2 Core v0.2 已验收原型并在 dev 完成服务端实现与 E1/E2；生产 main/Worker E3、ChatGPT/Operit 宿主接收与工作/相处行为验收仍未执行/未验证。详细设计与精确证据见 `记忆层存量归位规范.md` v2.4 §3.1.1。
 
-**本次下一步**：提交详细设计 §3.1.1 L2 Core v0.2 技术原型，确认 opt-in 核心正文、兼容与双重验收边界后才能编码。此前 L1 测试是历史证据，本次文档修改没有重跑代码测试。已成熟 dev 切片按净 diff 与依赖准备独立发布单，不等所有后续功能完成；发布仍需逐版本批准。
+**本次下一步**：L2 服务端切片已 CLOSED（dev E1/E2）；先对 v6.43.0 候选做精确 scoped diff/依赖/回滚评估，形成用户可理解的发布单，等待柳柳对该版本单独批准后才可创建 PR/main 合并/部署。只有生产版本就绪后，才分别验收 ChatGPT/Operit 的 include_core 返回、该轮上下文接收、工作连续性与相处连续性；未验证前不宣布 M1 全部完成。
 
 
-> **当前状态（2026-11-06 · v1.46）**：Memory Layering v0.1 四层逻辑视图 + 单一权威正文已确认；L0 治理文档 CLOSED；L1 Type 写入链已按柳柳验收的 v0.1 原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / package v6.42.0，main...dev ahead100/behind0；`learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤通过。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未改 main/注册表/DB Schema/真实记忆。ZivenLab/dev 同步整体架构 v1.24、详细设计 v2.2、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、数据库设计 v1.9、Memory 域 v1.9。**L1 dev 实施与 E1/E2 CLOSED；PR/main/Worker E3/部署未授权且未执行。** 下一施工切片为 L2 Core 只读上下文组装；L3 Reflection、L4 Archive、L5 只读存量映射后续推进；L6 仅在依赖自动状态迁移时解决事务/CAS/事件一致性。Technology Scout 保留为长期横向方向。
+> **历史状态快照（2026-11-06 · v1.46；已由 v1.48 覆盖）**：Memory Layering v0.1 四层逻辑视图 + 单一权威正文已确认；L0 治理文档 CLOSED；L1 Type 写入链已按柳柳验收的 v0.1 原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / package v6.42.0，main...dev ahead100/behind0；`learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤通过。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未改 main/注册表/DB Schema/真实记忆。ZivenLab/dev 同步整体架构 v1.24、详细设计 v2.2、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、数据库设计 v1.9、Memory 域 v1.9。**L1 dev 实施与 E1/E2 CLOSED；PR/main/Worker E3/部署未授权且未执行。** 下一施工切片为 L2 Core 只读上下文组装；L3 Reflection、L4 Archive、L5 只读存量映射后续推进；L6 仅在依赖自动状态迁移时解决事务/CAS/事件一致性。Technology Scout 保留为长期横向方向。
 
 ### 5.6 Memory Layering v0.1（逻辑模型已验收；L0 CLOSED；L1 Type dev 实施与 E1/E2 CLOSED）
 
@@ -198,7 +200,7 @@
 
 **L1-L6 实施计划**：
 1. **L1 Type 写入规则收敛（DEV_CODE_E1_E2=CLOSED）**：柳柳已验收原型并授权 dev 实施。`mcp-memory/dev` SHA `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / CI run `42125896297` SUCCESS；共享 helper 同步 tools/list 与 dispatchGuard optional enum；remember/update/lifecycle、Recall/Search/History、Transfer import/export 与 Memory Management Skill 已贯通；Memory Core 101/101。未写 Supabase 注册表/DB Schema/真实记忆。生产 main 仍 v6.41.0，Worker text Skill loader 固定读取 main，故 v6.42.0 dev 候选尚未在线生效；PR/main/Worker E3/部署需独立版本单与授权。
-2. **L2 Core 视图与上下文组装**：复用 SB-1.0 已核实的五个精确来源 key；区分稳定核心/动态指针；先做只读最小上下文组装、预算/缺失/降级测试；Bootstrap READY 不等于全文 persona 已装入宿主，必须单独取证。
+2. **L2 Core 视图与上下文组装（DEV_CODE_E1_E2=CLOSED；HOST_E3=NOT RUN）**：`session_context(include_core=true)` 已在 dev 提供 CORE-0.2 五源完整块；精确 E1/E2 见 v2.4 §3.1.1。生产发布、宿主实际接收/冷启动、工作/相处双重验收仍未完成。
 3. **L3 Reflection 工作流**：复用 lesson、tests/learning 与治理文档；标准化 pending/validated/rejected/deferred、source_refs、evidence、target、decision_reason；只有 validated 才晋升。
 4. **L4 Archive 历史视图**：复用现有 history/events/对话归档；默认当前检索不混入历史；明确历史意图时返回带时间/来源/当时状态的结果；不补造缺失事件。
 5. **L5 存量只读映射**：先用合成样例，再对真实数据做只读 dry-run，输出 id/key/category/type/status/建议视图/理由/不确定项；零写入、可复核；柳柳验收后才考虑极小试点，且多数记录不需要物理搬动。
