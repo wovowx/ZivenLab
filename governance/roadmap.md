@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.58）
+# 整体架构重构总控（Roadmap · v1.59）
 
-> **版本**：v1.58 · 2026-11-06  
+> **版本**：v1.59 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：mcp-memory **v6.45.0** 已经柳柳逐版本批准、PR [#332](https://github.com/wovowx/mcp-memory/pull/332) merged；合并时 `main=dev=4a9aef4a7d164a1a62aab340fe7a1efde1b96505`；当前 dev 因发布交接追加 `CROSS-HOST-BRIDGE.md`，dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3`、ahead1/behind0，CI `42171338479` SUCCESS；Cloudflare Worker **#538** / deployment `86cfeb29` / version `dbd870f9`，`verify_main=VERIFIED`。PR CI `42170743743`、main CI `42170815687`、dev CI `42170817732` SUCCESS。**L4 Archive v0.1 的底层历史阅读、合法 history action Schema、四态证据/缺口展示均已正式发布；服务端 E1/E2+部署 CLOSED，但 ChatGPT/Operit 宿主历史查询 E3 NOT VERIFIED**，需检查插件工具列表是否已包含 `history`，必要时由柳柳手动刷新后合法验收。M1 完整 Core 宿主调用仍 BLOCKED_BY_HOST_SAFETY/NOT VERIFIED，不能把默认摘要 READY 视为完整恢复。未修改生产记忆/Schema/skills 注册表、聊天室/唤醒。**下一主线 L5 存量只读映射 v0.1** 已在记忆分层规范 v2.11 §8.1 写出原型候选：推荐先纯函数+合成 E1/E2，输出可审核建议而不搬动旧记忆；尚未获柳柳原型验收，不编码或读取真实私密存量。
+> **当前状态**：mcp-memory **v6.45.0** 已经柳柳逐版本批准、PR [#332](https://github.com/wovowx/mcp-memory/pull/332) merged；合并时 `main=dev=4a9aef4a7d164a1a62aab340fe7a1efde1b96505`；当前 dev 因发布交接追加 `CROSS-HOST-BRIDGE.md`，dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3`、ahead1/behind0，CI `42171338479` SUCCESS；Cloudflare Worker **#538** / deployment `86cfeb29` / version `dbd870f9`，`verify_main=VERIFIED`。PR CI `42170743743`、main CI `42170815687`、dev CI `42170817732` SUCCESS。**L4 Archive v0.1 的底层历史阅读、合法 history action Schema、四态证据/缺口展示均已正式发布；服务端 E1/E2+部署 CLOSED，但 ChatGPT/Operit 宿主历史查询 E3 NOT VERIFIED**，需检查插件工具列表是否已包含 `history`，必要时由柳柳手动刷新后合法验收。M1 完整 Core 宿主调用仍 BLOCKED_BY_HOST_SAFETY/NOT VERIFIED，不能把默认摘要 READY 视为完整恢复。未修改生产记忆/Schema/skills 注册表、聊天室/唤醒。**当前优先 P0：M1/L4 宿主安全拦截的请求级证据定位**。柳柳指出仅改动后的 `history`/完整 Core 被挡；已控制实测同一虚构 key 的 `memory(recall)` 正常返回未找到，而 `memory(history)` 先前被宿主安全拦截；`session_context(false)` READY。源码 `tools/list` 尚未提供 annotations、`memory` 混合读写并有 usage 打点，但 Tool 级缺省标注不能单独解释按 action 分化。**根因尚未确定；缺 Cloudflare Workers Live 请求日志**。详细诊断及候选 A/B 见 `governance/记忆层存量归位规范.md` v2.12 §3.4.4。L5 轻量只读映射暂缓，未获实施授权；未改 mcp-memory 代码、生产环境或数据库。
 > **分支范围**：本次 PR #332 基线 main v6.44.0 `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`、候选 dev `4b072768a304e19342c7e085b1408da3708bde43`，ahead12/behind0、净10文件；rebase merged=true / state=closed，合并时 mcp-memory/main=dev `4a9aef4a7d164a1a62aab340fe7a1efde1b96505`（v6.45.0，compare identical）；之后仅 dev 追加 Bridge 交接，当前 mcp-memory/main `4a9aef4a...`、dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3`，ahead1/behind0，净差异仅 `CROSS-HOST-BRIDGE.md`，dev CI `42171338479` SUCCESS。Worker #538 VERIFIED；上一版回退参考 v6.44.0 SHA `5eb7b9d7...` / Worker #537 / deployment `47fac1be`。后续仅治理或 Bridge 文档更新不得误写成再次上线；如 dev 再追加文档，须重新核对分支和 CI。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -172,6 +172,13 @@
 
 ## 5. 当前主线与下一步
 
+### 2026-11-06 · M1/L4 新增宿主拦截定点排查（先取证，不动代码）
+
+柳柳指出「别的方法正常，只有修改的方法被拦」，要求先查本次改动。新 A/B 控制：相同合成不存在 key 的 `memory(recall)` 正常返回「没有找到」，先前 `memory(history)` 被平台安全检查拒绝；`session_context(include_core=false)` 仍 READY，而 include_core=true 历史上被拒。插件新 enum 已出现 history，Worker #538 VERIFIED。源码已证明 `tools/list` 没有 annotations、`memory` 混合读写且成功调用可能增加 usage 计数；OpenAI/MCP 文档要求只给真正无副作用工具 `readOnlyHint:true`。但**相同 Tool 级描述下不同 action 的结果不同**，因此不能把单一 annotations 缺失当确定根因。
+
+**唯一未闭证据**：Cloudflare Workers 请求级 Live Logs / Trace 与已成功的对照调用同时间联动；现有 Cloudflare build/deploy logs 不能证明被拦截请求是否到了 Worker。平台官方曾确认误拦截合法只读 MCP 操作，仍需项目自身请求证据。先不改 MCP 工具、生产代码、main、DB、宿主设置或做越权实验。诊断与设计候选 A/B 记录在记忆层规范 v2.12 §3.4.4；如确认需要工具拆分，**新增真正只读场景入口需柳柳另行批准原型与发布**。L5 已整理的小型只读 mapper 原型保留，暂停实施直到优先故障定位结束。
+
+### 2026-11-06 已确认：可靠性优先与双重连续性验收
 ### 2026-11-06 已确认：可靠性优先与双重连续性验收
 
 柳柳反馈：“1其实我比较偏向A不过c也可以 2 选3没问题”。执行解释：沿当前 L2→L3→L4→按需 L5 主线推进，依赖自动写入的步骤以对应 L6 保障为前置；不提前启动正式 Web 开发。小范围 Web 体验原型保留为可选验证，须明确范围，不挤占当前主线。外部探索继续贯穿工作。
