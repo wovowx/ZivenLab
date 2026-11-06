@@ -1,6 +1,6 @@
-# 整体架构重构总控（Roadmap · v1.46）
+# 整体架构重构总控（Roadmap · v1.47）
 
-> **版本**：v1.46 · 2026-11-06  
+> **版本**：v1.47 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
 > **当前状态**：Memory Layering v0.1 四层逻辑视图已由柳柳确认；L0 治理文档 CLOSED，L1 Type 写入链已按验收原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b`，package candidate v6.42.0，main...dev ahead100/behind0；CI `learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤均 PASS。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未修改 main、Supabase 注册表、DB Schema 或真实记忆。ZivenLab/dev 同步：整体架构 v1.24、详细设计 v2.2、Roadmap v1.46、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、数据库设计 v1.9、Memory 域 v1.9。**本轮 mcp-memory 仅 dev 代码/Skill/Mock 测试，ZivenLab 仅治理文档：没有 PR/main 合并、Worker 部署或 E3。** L1 dev 实施与 E1/E2 CLOSED；下一施工切片为 L2 Core 只读上下文组装，Technology Scout 保留长期横向方向，不插队替代当前主线。
 > **分支范围**：生产基线仍为 mcp-memory/main v6.41.0（SHA `5e4cf739a5ffd21c0434db96217267edb2af57bd`，Worker #535 VERIFIED）；mcp-memory/dev 最新 HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b`，相对 main ahead100/behind0。v6.42.0 L1 Type dev 候选的精确 CI run `42125896297` SUCCESS，E1/E2 全步骤通过；Memory Core 101/101。ZivenLab/dev 本轮仅同步治理文档；未创建 PR、未合 main、未运行 Worker E3、未部署、未触生产环境。  
@@ -165,6 +165,17 @@
 ---
 
 ## 5. 当前主线与下一步
+
+### 2026-11-06 已确认：可靠性优先与双重连续性验收
+
+柳柳反馈：“1其实我比较偏向A不过c也可以 2 选3没问题”。执行解释：沿当前 L2→L3→L4→按需 L5 主线推进，依赖自动写入的步骤以对应 L6 保障为前置；不提前启动正式 Web 开发。小范围 Web 体验原型保留为可选验证，须明确范围，不挤占当前主线。外部探索继续贯穿工作。
+
+工作连续性与相处连续性同等验收：前者验证目标、决定及原因、下一步和边界；后者验证身份/称谓不混淆、已确认关系与偏好可恢复、不虚构共同经历，以及由柳柳判断的实际相处体验。分别记录通过/失败/未验证，仅工作恢复不能宣布整体恢复完成。
+
+本次确认不等于批准完整技术接口、代码、生产数据或 main 发布。评审稿 M0–M4 仅作交付解释，不新增平行施工状态；当前仍为 L2 原型待验收。完整技术原型见 `记忆层存量归位规范.md` §3.1.1。
+
+**本次下一步**：提交详细设计 §3.1.1 L2 Core v0.2 技术原型，确认 opt-in 核心正文、兼容与双重验收边界后才能编码。此前 L1 测试是历史证据，本次文档修改没有重跑代码测试。已成熟 dev 切片按净 diff 与依赖准备独立发布单，不等所有后续功能完成；发布仍需逐版本批准。
+
 
 > **当前状态（2026-11-06 · v1.46）**：Memory Layering v0.1 四层逻辑视图 + 单一权威正文已确认；L0 治理文档 CLOSED；L1 Type 写入链已按柳柳验收的 v0.1 原型在 mcp-memory/dev 实施并通过精确 E1/E2。mcp-memory/dev HEAD `ad62fbeae23ae1591fc39f17cb6d345f0572584b` / package v6.42.0，main...dev ahead100/behind0；`learning-regression` run `42125896297` SUCCESS，Memory Core 101/101，Router/registry/Patch Engine 与全量 E2 步骤通过。生产 main 仍 v6.41.0 / `5e4cf739a5ffd21c0434db96217267edb2af57bd`、Worker #535 VERIFIED；未改 main/注册表/DB Schema/真实记忆。ZivenLab/dev 同步整体架构 v1.24、详细设计 v2.2、差距矩阵 v4.62、当前项目状态 version178、导航表 v3.76、数据库设计 v1.9、Memory 域 v1.9。**L1 dev 实施与 E1/E2 CLOSED；PR/main/Worker E3/部署未授权且未执行。** 下一施工切片为 L2 Core 只读上下文组装；L3 Reflection、L4 Archive、L5 只读存量映射后续推进；L6 仅在依赖自动状态迁移时解决事务/CAS/事件一致性。Technology Scout 保留为长期横向方向。
 
