@@ -1,9 +1,9 @@
-# 整体架构重构总控（Roadmap · v1.60）
+# 整体架构重构总控（Roadmap · v1.61）
 
-> **版本**：v1.60 · 2026-11-06  
+> **版本**：v1.61 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：mcp-memory v6.45.0 仍为正式生产版，PR #332/main `4a9aef4a7d164a1a62aab340fe7a1efde1b96505` / Worker #538 deployment `86cfeb29` `verify_main=VERIFIED`；dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3` 仅比 main 多 Bridge 交接，未获新版本发布许可。**M1/L4 安全拦截最近一次合成 E3 控制观察更新**：柳柳已手动刷新 ChatGPT 插件，`history` action 合法可见；先前合成 `memory(history)` 被宿主安全检查拦截，但 2026-11-06 后来同一虚构 key 的 `recall` 与 `history` 均成功，`history_status=EMPTY`。柳柳 Cloudflare Live 页面截图可见 `POST` 与 `Ok`，但缺请求 correlation ID、旧拦截发生时的请求级日志，**无法证明过去拦截的具体原因**。真实私人 Archive/完整 Core 宿主 E3 仍 NOT VERIFIED/BLOCKED。**当前工具化方向**：柳柳同意优先让哥哥自己读取 Cloudflare 请求日志，不再依赖人工截图；Cloudflare Observability 已有 REST telemetry query API，可复用现有 `CLOUDFLARE_API_TOKEN` 和 `CLOUDFLARE_ACCOUNT_ID` 认证，不应暴露广域 `cf_proxy`。**只读日志查询 v0.1 原型 CANDIDATE 待最终接口/权限验收，未编码**；当前 Cloudflare Token 是否具备 `Workers Observability Write` 权限、Workers Logs 持久化是否启用均未验证。L5 记忆体检暂缓；严格不动生产 DB、真实记忆、聊天室/唤醒、密钥、main 或 Worker 配置。
-> **分支范围**：本次 PR #332 基线 main v6.44.0 `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`、候选 dev `4b072768a304e19342c7e085b1408da3708bde43`，ahead12/behind0、净10文件；rebase merged=true / state=closed，合并时 mcp-memory/main=dev `4a9aef4a7d164a1a62aab340fe7a1efde1b96505`（v6.45.0，compare identical）；之后仅 dev 追加 Bridge 交接，当前 mcp-memory/main `4a9aef4a...`、dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3`，ahead1/behind0，净差异仅 `CROSS-HOST-BRIDGE.md`，dev CI `42171338479` SUCCESS。Worker #538 VERIFIED；上一版回退参考 v6.44.0 SHA `5eb7b9d7...` / Worker #537 / deployment `47fac1be`。后续仅治理或 Bridge 文档更新不得误写成再次上线；如 dev 再追加文档，须重新核对分支和 CI。
+> **当前状态（2026-11-06）**：生产 `mcp-memory/main` **v6.45.0** / SHA `4a9aef4a7d164a1a62aab340fe7a1efde1b96505`，Cloudflare 最新可查 Worker **#539** / deployment `26929653`（柳柳在控制台更新令牌后触发的 Dashboard 部署），`cloudflare_deploy_status(verify_main=true)=VERIFIED`；此前 Worker #538/PR #332 属发布时基线。**Cloudflare 自助日志查询 v0.1** 已按柳柳继续实施授权在 `dev` 实现，package **v6.46.0 DEV CANDIDATE**，代码/测试 SHA `12054c604c45fe26d911f49f78cb1bbc9a126e3f` / GitHub Actions `42179392775` SUCCESS；含 CHANGELOG/package 的现有候选 SHA `724efacb1c865bfa6dbda99f7fbd8d5eedd3de35` / CI `42179727965` SUCCESS。新增 `cloudflare_logs_query` 只查固定 Worker 的官方存储日志 API，限制参数/脱敏、MCP readOnlyHint/dispatch schema、排除 usage 打点，不向 ChatGPT 暴露全权 `cf_proxy`。Router/Registry **191/191**、Memory Core **120/120**、Session **56/56**、Reflection **35/35** 全 PASS；**E1/E2 是合成 Mock，生产没有该新工具；Cloudflare 存储开关、更新后的 Token 是否具备 Observability 权限、ChatGPT E3 NOT VERIFIED**。`dev` 仅开发候选，禁止在没有 v6.46.0 发布批准前 PR/main/Worker 自动部署；L5 暂缓，聊天室/唤醒冻结，真实用户记忆/DB/skills registry/密钥无更改。
+> **分支范围**：生产 main `4a9aef4a7d164a1a62aab340fe7a1efde1b96505` (v6.45.0；Worker #539 `26929653` VERIFIED，配置来源 dashboard)；dev `724efacb1c865bfa6dbda99f7fbd8d5eedd3de35` (`package.json` v6.46.0 DEV CANDIDATE)，相对 main ahead7/behind0（包括先前 Bridge-only 交接），净差异 `CROSS-HOST-BRIDGE.md`、`src/tools/cf_proxy.js`、`src/modules/mcp_router.js`、`tests/router_registry_contract_test.mjs`、`package.json`、`CHANGELOG.md`，实际差异数量以每次 compare 的最新输出为准。E1/E2 候选 CI `42179727965` SUCCESS。上一个 GitHub 正式发布为 v6.45.0 PR #332，正式发布前需另报完整 release 单并获柳柳明确批准。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
@@ -194,12 +194,22 @@
 2. 只提交 Cloudflare 官方已定义的**临时查询**，不保存/删除查询配置、不更改 Worker 的日志开关、不修改日志、不建存储。若调用链需要允许查询 API 的 POST，则固定 URL 与固定 Body schema，且 JSON 构造由代码完成，不接收任意原始查询对象。
 3. 返回仅允许：`timestamp`、`method`、经过归一化且剥离查询参数的 `path`、`statusCode`、`outcome`、`traceId`（若存在）、`worker`、`coverage/sampled` 元信息。请求体/响应正文、Cookie、Auth Header、完整 URL 查询串、Worker secrets、日志 `source` 原文一律**不返回**。
 4. 结果四态：`OK` 有事件、`EMPTY` 本次查询明确为空、`UNAVAILABLE` 日志存储未启用/Token 缺权限/账号不支持、`ERROR` API/网络/结构不符合合同。**EMPTY 不能解释为某一次 MCP 请求绝对没有到 Worker**，必须结合采样、时间窗口与成功请求控制记录判定。
-5. 工具在 MCP 层准确描述只读目标：若确实无业务写、无技能 usage 打点，可标 `readOnlyHint:true, destructiveHint:false, openWorldHint:false`；注意 Cloudflare API Token 仍可能在服务端具备写权限，**只读来自固定不可变调用路径和输出约束**，不能混淆权限。
+5. 工具在 MCP 层准确描述只读目标：若确实无业务写、无技能 usage 打点，可标 `readOnlyHint:true, destructiveHint:false, openWorldHint:true`；注意 Cloudflare API Token 仍可能在服务端具备写权限，**只读来自固定不可变调用路径和输出约束**，不能混淆权限。
 6. 先合成 Mock E1/E2 验证正确参数、权限被拒、无日志、时间窗、脱敏和网络失败；取得柳柳技术原型验收后才能 dev 编码。真实 E3 要先验证 Worker 已存储 Logs、Token 已有查询权限；如果缺权限必须另报柳柳批准，不擅自修改设置/Token。独立发布版本须按既定发布单另行批准。
 
 **方案 B（不推荐）**：直接把旧 `cf_proxy` 全功能工具向 ChatGPT 公开，让调用者自己拼 URL/HTTP 方法。虽然初次编码少，但工具能够操作账号/隧道/DNS，权限过宽，且每次要手工构造查询；违背基本能力原子化、场景完整编排、可复用与真实最小权限。只保留原 `cf_proxy` 用于原来明确授权的运维用途。
 
 **选型结论**：推荐 A；复用 CF 认证原子能力而不是新造身份认证；查询端点只读语义、暴露面最小；首版不做真正 Live WebSocket 流，先查已存储的近 15 分钟请求，待实际不能满足排障时才讨论单独 Live Tail 场景。设计与生产发布授权分离。
+
+**v6.46.0 dev 实现与合成验收（2026-11-06；尚未发布）**：柳柳更新 Cloudflare Token 后明确要求哥哥继续实施。为保持“一本书”复用，不另造 API Key 执行器，也不打开原 `cf_proxy` 的广域操作：
+- `src/tools/cf_proxy.js` 提取 `cloudflareBearerHeaders` 纯原子方法，并在同文件追加 `CLOUDFLARE_LOGS_QUERY_TOOL` / `handleCloudflareLogsQuery` 场景入口。固定 Worker `mcp-memory`、Cloudflare 官方 `telemetry/query` 路径、`POST` + `dry:true`、`view:events`、`$metadata.service=mcp-memory` 双重筛选；不使用用户传入的 token_var、endpoint、HTTP method、查询语句。查询本身是允许范围内的临时读，不变更 Cloudflare 账户、Worker、日志存储配置。
+- `src/modules/mcp_router.js` 在 `tools/list` 静态暴露 1 个合法的日志入口，复用统一 dispatchGuard Schema、`annotations.readOnlyHint=true/destructiveHint=false/openWorldHint=true`。已验证工具不会出现在 skills 注册表写操作中、成功/失败均不产生自动 `usage_count` PATCH；原 `cf_proxy` 不增加公共可见性。
+- 输出四态 `OK/EMPTY/UNAVAILABLE/ERROR`，按白名单投影事件，只保留时间、已验证 Worker、可识别方法、仅 `/mcp` 或 `/` 的路径、状态码、outcome 和安全追踪 ID。原始日志源、消息、Headers、Tokens、查询串、正文全部不可外发；跨 Worker 不可验证事件 fail-closed。只检查合成 fixtures；不声称实际 Cloudflare 的所有字段都能获取。
+- 精确代码+Mock SHA `12054c604c45fe26d911f49f78cb1bbc9a126e3f` / CI `42179392775` SUCCESS：`npm run check` 43 JS 文件 PASS，Router/Registry **191/191**（含新增安全/脱敏/异常/读写隔离合同），Memory Core 120/120、Session/Core 56/56、Reflection 35/35，检索基准 16 条 PASS。版本文件与 CHANGELOG 更新后的 dev SHA `724efacb1c865bfa6dbda99f7fbd8d5eedd3de35` / CI `42179727965` SUCCESS。
+- **验收分界**：API 真正查询日志 E3 **NOT RUN**，部署到 main 前无法在当前 ChatGPT App 正常发现本场景工具；持久化 Workers Logs 和 Token 真实权限未验证。User 已修改 Cloudflare Token 权限是外部配置动作，尚没有证明 Worker 环境变量当前采用的具体 Token 就是该修改对象。正式 PR/main/Cloudflare 发布必须按版本 v6.46.0 逐项向柳柳报备并取得独立批准。
+- **原型标注更正**：`openWorldHint` 是外部 Cloudflare API，故准确设置为 `true`；即便 URL 受限也不是封闭世界。上方 v0.1 原型原文是设计过程快照，下面代码事实优先，不修改已验收的权限边界。
+
+
 ### 2026-11-06 · M1/L4 新增宿主拦截定点排查（先取证，不动代码）
 
 柳柳指出「别的方法正常，只有修改的方法被拦」，要求先查本次改动。新 A/B 控制：相同合成不存在 key 的 `memory(recall)` 正常返回「没有找到」，先前 `memory(history)` 被平台安全检查拒绝；`session_context(include_core=false)` 仍 READY，而 include_core=true 历史上被拒。插件新 enum 已出现 history，Worker #538 VERIFIED。源码已证明 `tools/list` 没有 annotations、`memory` 混合读写且成功调用可能增加 usage 计数；OpenAI/MCP 文档要求只给真正无副作用工具 `readOnlyHint:true`。但**相同 Tool 级描述下不同 action 的结果不同**，因此不能把单一 annotations 缺失当确定根因。
