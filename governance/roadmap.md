@@ -1,9 +1,9 @@
-# 整体架构重构总控（Roadmap · v1.65）
+# 整体架构重构总控（Roadmap · v1.66）
 
-> **版本**：v1.65 · 2026-11-06  
+> **版本**：v1.66 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态（2026-11-06）**：v6.46.0 已经柳柳批准并发布 main SHA `2c94f0444ee5d56c39739beca73abd7496921610` / Cloudflare Worker #540 deployment `f710f2b7` VERIFIED。柳柳刷新后，ChatGPT 可合法调用 `cloudflare_logs_query`，两次真实查询最近15分钟均 `EMPTY`（各0条）；之间 `memory(recall,虚构不存在key)` 正常执行，排除了工具不可用和明显的 Token 401/403，但**没有证明存储未开启**。Cloudflare 官方文档区分 Live Tail 与已存储 Workers Logs；当前生产 Wrangler 未显式配置 Observability，Dashboard 是否已开启仍 UNKNOWN。柳柳认可先准备日志存储设置，哥哥已在 **dev** 写入 `[observability] enabled=true`、`[observability.logs] invocation_logs=true,head_sampling_rate=1` 与合成测试，**v6.47.0 DEV CANDIDATE** SHA `8e43b688aa3e70531329e17efd89ee2110cfeb03` / CI `42183524024` SUCCESS。**生产配置、密钥与 main/Worker 未作更改**；此设置只有经单独发布许可并部署后才可能开始持续存储日志（采样100%，需明确确认用量/费用与日志留存）。M1 完整 Core 宿主 E3 仍 OPEN，L5 暂缓。
-> **分支范围**：生产 main `2c94f0444ee5d56c39739beca73abd7496921610`（v6.46.0 / Worker #540 VERIFIED）；dev `8e43b688aa3e70531329e17efd89ee2110cfeb03`（v6.47.0 DEV CANDIDATE）相对 main ahead5/behind0、净5文件 `CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`（既有交接）、`package.json`、`tests/router_registry_contract_test.mjs`、`wrangler.toml`，对应 Actions `42183524024` SUCCESS。此阶段没有 PR/main/deploy 授权；Worker #540 是现有生产，不是新日志配置已上线的证据。
+> **当前状态（2026-11-06）**：v6.46.0 已经柳柳批准并发布 main SHA `2c94f0444ee5d56c39739beca73abd7496921610` / Cloudflare Worker #540 deployment `f710f2b7` VERIFIED。柳柳刷新后，ChatGPT 可合法调用 `cloudflare_logs_query`，两次真实查询最近15分钟均 `EMPTY`（各0条）；之间 `memory(recall,虚构不存在key)` 正常执行，排除了工具不可用和明显的 Token 401/403，但**没有证明存储未开启**。Cloudflare 官方文档区分 Live Tail 与已存储 Workers Logs；当前生产 Wrangler 未显式配置 Observability，Dashboard 是否已开启仍 UNKNOWN。柳柳认可先准备日志存储设置，哥哥已在 **dev** 写入 `[observability] enabled=true`、`[observability.logs] invocation_logs=true,head_sampling_rate=1` 与合成测试，**v6.47.0 DEV CANDIDATE** 最终含 Bridge 交接 SHA `36057a0234f37281d20e2ca1ac10840964ef5848` / CI `42183836123` SUCCESS（此前版本文件 CI `42183524024` 也通过）。**生产配置、密钥与 main/Worker 未作更改**；此设置只有经单独发布许可并部署后才可能开始持续存储日志（采样100%，需明确确认用量/费用与日志留存；官方 2026-11-06 Workers Logs 免费方案 20万条/天、3天留存，付费方案含2000万条/月并有超量费用，2026-12-01 起计费政策将改变）。M1 完整 Core 宿主 E3 仍 OPEN，L5 暂缓。
+> **分支范围**：生产 main `2c94f0444ee5d56c39739beca73abd7496921610`（v6.46.0 / Worker #540 VERIFIED）；dev `36057a0234f37281d20e2ca1ac10840964ef5848`（v6.47.0 DEV CANDIDATE）相对 main ahead6/behind0、净5文件 `CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`（既有交接）、`package.json`、`tests/router_registry_contract_test.mjs`、`wrangler.toml`，对应 Actions `42183836123` SUCCESS。此阶段没有 PR/main/deploy 授权；Worker #540 是现有生产，不是新日志配置已上线的证据。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
