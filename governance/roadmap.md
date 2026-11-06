@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.73）
+# 整体架构重构总控（Roadmap · v1.74）
 
-> **版本**：v1.73 · 2026-11-06  
+> **版本**：v1.74 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态（2026-11-06）**：**v6.48.0 Cloudflare 日志类型识别与安全 HTTP 字段映射已按柳柳单独批准正式发布并通过真实 E3**。PR [#335](https://github.com/wovowx/mcp-memory/pull/335) dev→main rebase 合并，GitHub 读回 `merged=true/state=closed`；合并时 main=dev=`a788a77d3400d1e7a76729bcc9ed740a00bf5220` / ahead0/behind0，package v6.48.0；PR CI [#42188800147](https://github.com/wovowx/mcp-memory/actions/runs/42188800147)、main CI [#42188890172](https://github.com/wovowx/mcp-memory/actions/runs/42188890172)、dev CI [#42188893460](https://github.com/wovowx/mcp-memory/actions/runs/42188893460) 均 SUCCESS。Cloudflare **Worker #542** / deployment `891473d4` / version `3851a427`，`cloudflare_deploy_status(verify_main=true)=VERIFIED`。**真实 E3**：正式部署后发起不存在合成 key 的 `memory(recall)`（无写入），再 `cloudflare_logs_query(minutes=15,limit=20,status_filter=all)` 返回 `OK/fetched_count=20/reported_count=20`，查询样本中 `event_kind=http` **3条**、`scheduled` **17条**；HTTP 的 `method=POST,path=/mcp,outcome=ok`，而 `scheduled` 的 HTTP 字段 null，证实新分类/请求方法和路径安全映射在真实存储日志上可用。**未关闭限制**：HTTP status_code 仍 null（没有可信结构化值）；未实现具体 MCP action 与 trace_id 的精确匹配；窗口样本受 limit=20 限制，不能当作全窗口事件总量。保留原有 Cloudflare 日志100%采样，不变 Token、Wrangler、数据库/私人记忆/skills registry、聊天室或唤醒。旧 OpenAI 宿主 M1 完整私人 Core 安全拦截根因仍 UNKNOWN；L5 暂缓。 **发布后交接校验**：仅在 dev 追加 `CROSS-HOST-BRIDGE.md` 记录 PR #335/Worker #542/E3；最新 dev `f0e3bc8f07d14a6a8259bdb283fe29b08c0cf709`、GitHub Actions `42189379941` SUCCESS，相对 main `a788a77d...` ahead1/behind0，唯一差异为 Bridge 文件；不构成新生产发布。
+> **当前状态（2026-11-06）**：**v6.48.0 Cloudflare 日志类型识别与安全 HTTP 字段映射已按柳柳单独批准正式发布并通过真实 E3**。PR [#335](https://github.com/wovowx/mcp-memory/pull/335) dev→main rebase 合并，GitHub 读回 `merged=true/state=closed`；合并时 main=dev=`a788a77d3400d1e7a76729bcc9ed740a00bf5220` / ahead0/behind0，package v6.48.0；PR CI [#42188800147](https://github.com/wovowx/mcp-memory/actions/runs/42188800147)、main CI [#42188890172](https://github.com/wovowx/mcp-memory/actions/runs/42188890172)、dev CI [#42188893460](https://github.com/wovowx/mcp-memory/actions/runs/42188893460) 均 SUCCESS。Cloudflare **Worker #542** / deployment `891473d4` / version `3851a427`，`cloudflare_deploy_status(verify_main=true)=VERIFIED`。**真实 E3**：正式部署后发起不存在合成 key 的 `memory(recall)`（无写入），再 `cloudflare_logs_query(minutes=15,limit=20,status_filter=all)` 返回 `OK/fetched_count=20/reported_count=20`，查询样本中 `event_kind=http` **3条**、`scheduled` **17条**；HTTP 的 `method=POST,path=/mcp,outcome=ok`，而 `scheduled` 的 HTTP 字段 null，证实新分类/请求方法和路径安全映射在真实存储日志上可用。**未关闭限制**：HTTP status_code 仍 null（没有可信结构化值）；未实现具体 MCP action 与 trace_id 的精确匹配；窗口样本受 limit=20 限制，不能当作全窗口事件总量。保留原有 Cloudflare 日志100%采样，不变 Token、Wrangler、数据库/私人记忆/skills registry、聊天室或唤醒。旧 OpenAI 宿主 M1 完整私人 Core 安全拦截根因仍 UNKNOWN；L5 暂缓。 **发布后交接校验**：仅在 dev 追加 `CROSS-HOST-BRIDGE.md` 记录 PR #335/Worker #542/E3；最新 dev `f0e3bc8f07d14a6a8259bdb283fe29b08c0cf709`、GitHub Actions `42189379941` SUCCESS，相对 main `a788a77d...` ahead1/behind0，唯一差异为 Bridge 文件；不构成新生产发布。 **下一方向（仅设计候选）**：柳柳在 v6.48.0 发布及 E3 成功后回复「好」，认可继续定位请求级关联。定点阅读 `src/index.js:/mcp`、`src/modules/mcp_router.js`、现有 `cloudflare_logs_query`；Cloudflare Workers Observability 有 `requestId/traceId`、按 invocation 分组和 Worker active span traceId。现有日志可证明 HTTP `POST /mcp`，但无法定位具体 `memory/session_context` 工具；某次 ChatGPT 宿主安全拦截可能发生在网络发送前，**不存在 Cloudflare 日志也不足以断定拦截位置**。已草拟下面的最小场景级脱敏请求关联原型，**仍待柳柳确认，未编码、未发布、不改日志配置或私人 Core**。
 > **分支范围**：v6.48.0 发布前 main `bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82` (v6.47.0/Worker #541)，dev `06717307414f1e8c6d6ece9928bf2d9ca34aeb2d`（v6.48.0），ahead8/behind0、净5文件 `CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`、`package.json`、`src/tools/cf_proxy.js`、`tests/router_registry_contract_test.mjs`；PR #335 changed_files=5/mergeable clean/rebaseable true、CI `42188800147` SUCCESS。经 rebase 合并后 main=dev=`a788a77d3400d1e7a76729bcc9ed740a00bf5220` (ahead0/behind0)、main CI `42188890172` SUCCESS、dev CI `42188893460` SUCCESS、Worker #542 deployment `891473d4` VERIFIED。发布后 dev 确已仅新增 Bridge 交接，最新 dev `f0e3bc8f07d14a6a8259bdb283fe29b08c0cf709`、CI [#42189379941](https://github.com/wovowx/mcp-memory/actions/runs/42189379941) SUCCESS，相对 main `a788a77d3400d1e7a76729bcc9ed740a00bf5220` ahead1/behind0，净差异仅 `CROSS-HOST-BRIDGE.md`，不再 PR/main/Worker；回滚基线为 v6.47.0 main `bedaa2b2...` / Worker #541 `42551af3`。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -172,6 +172,42 @@
 
 ## 5. 当前主线与下一步
 
+### 2026-11-06 · M1 请求关联诊断 v0.1 · 安全最小原型（CANDIDATE，未编码）
+
+**目标与解决边界**：把已可查的 `/mcp` HTTP 事件和 **Worker 实际收到的 MCP tool 名/阶段**关联，区分 `工具请求到达并有服务端响应`、`到达但处理异常`、`目前没观察到`。**不声称能凭 Worker 日志识别 ChatGPT 平台在发网前的安全阻断**：未观测原因包括宿主阻断、网络失败、上游代理、日志延迟/丢失、查询窗口/限额；必须输出 `NOT_OBSERVED/UNKNOWN` 而不是武断 `BLOCKED_BY_HOST`。
+
+**已核对事实**：
+- `mcp-memory/main/src/index.js` 的 `/mcp` POST 分支读取 JSON-RPC body，再调用 `handleMCPRequest(body,env)`；`src/modules/mcp_router.js` 的 `tools/call` 已拥有 `params.name`、dispatchGuard 和 handler 结果，但现有 Worker 默认 invocation log 只显示 `/mcp` 的 HTTP 级别，不告诉具体 MCP tool。
+- Cloudflare 官方 Workers Observability API 有 `$metadata.requestId`、`traceId`、`rayId` 等索引字段；`view='invocations'` 可以将同一 requestId 的事件分组。`ctx.tracing.getActiveSpan()?.spanContext().traceId`（2026-10-26 新 API）可读到与同次 Workers Logs 匹配的 trace ID，**即使 tracing 未采样而 Workers Logs 开启亦有非零 ID**。官方 https://developers.cloudflare.com/workers/observability/traces/custom-spans/ 及 https://developers.cloudflare.com/api/resources/workers/subresources/observability/subresources/telemetry/methods/query/。
+- Cloudflare Worker #542 已开启 Workers Logs 100% 采样。上次 E3 最近15分钟最多20条：3条 `http POST /mcp` +17条 `scheduled`，`status_code=null`。仅凭时间相近或20条样本无法与某个 MCP action 精确匹配。
+
+**推荐方案 A：在既有 `/mcp` 分发入口记录最少的** *结构化、固定枚举* **诊断元数据，再用 Cloudflare 自带 requestId/traceId 合并，不新增工具或数据库表。**
+1. 仅当 JSON-RPC `method='tools/call'` 且 `params.name` 是 `memory`（仅 `action=recall|history`）、`session_context` 或 `session_bootstrap` 时，记录一个 `phase='arrived'` 事件；响应成型时记录 `phase='response_formed'`，捕获异常时记录 `phase='server_error'`。只存 `marker='ziven_mcp_diag_v1'`、预设枚举 `tool_kind`（如 `memory_recall|memory_history|session_context|session_bootstrap`）、`phase`。所有值严格白名单和固定长度；不记录 key、arguments、include_core、JSON-RPC 原始 id、响应内容、用户信息、URL、Headers、Token、会话或身份根。
+2. 优先用 Cloudflare 自动附着的 `$metadata.requestId` / `traceId` 在 Observability 的 invocation 范围内关联同一请求的 invocation log 与本项目诊断事件；`traceId` 只有在格式符合 32 位小写十六进制且非全零时才保留。不能退化为「附近10秒的 POST 一定是这次工具」。`ctx.tracing` 为只读获取，不改 Wranger traces/logs 设置。
+3. 沿用现有 `cloudflare_logs_query` 名称、输入 Schema、时间窗、limit 与固定 Workers Observability 查询 API。仅查询结果增加可选 `mcp_tool_kind` 和 `mcp_phase` 的**枚举投影**。为了匹配 Cloudflare custom log（它的 raw `source` 可能为字符串或对象），只在**内部**识别来源 Worker、`$metadata.type=cf-worker-log` 和精确 marker 后，读取固定的两个安全枚举键；**绝不将任何 raw `source`、原始内容或任意 JSON 键/值返回宿主**。无强关联键时返回 null/UNKNOWN，不采集真实记忆。
+4. 保持原子能力（CF requestId / 结构化诊断事件 / 白名单投影）可复用，场景入口 `cloudflare_logs_query` 内自动查询并合并，不要求柳柳手动调用两个工具或传请求/日志文本。只加 `src/index.js` `/mcp` 的极小埋点辅助和 `src/tools/cf_proxy.js` 的白名单关联读取，现有 `src/modules/mcp_router.js` 公开工具名称/Schema 无需变动；不触及聊天、Cron、Agent wake 的处理路径。
+5. Cloudflare 已开启100%日志采样，新增每个**目标工具**最多两条结构化小事件，会增加日志条目与用量；不改采样率/留存/付费计划。若使用 root span API 未获运行环境支持，必须 fail-closed、保留旧事件查询，不能因此让业务工具失败。
+
+**验收示意（完全合成，不是从线上读到的用户调用）**：
+```text
+对照 A: memory(recall, synthetic_key)
+  => 客户端返回“未找到”
+  => query: mcp_tool_kind=memory_recall, phase=arrived/response_formed,
+     correlation=confirmed (同一 CF requestId/traceId)
+对照 B: session_context(include_core=false) 正常
+  => 同理可证请求送达 Worker
+对照 C: 某次敏感宿主调用被阻断
+  => 若查询缺少可关联服务端事件，只能报告 NOT_OBSERVED；
+     严禁推出“已证明是 ChatGPT 平台阻断”，不复现私人 Core 数据。
+```
+
+**E1/E2**：Mock `fetch` + 受控 fake trace，验证静态工具别名、单次调用的阶段/匹配、不记录 arg/key/headers/body、跨 Worker 不关联、无相同 requestId/traceId 不关联、模拟 hostile source marker 注入 fail closed、Cloudflare API 无 trace 时老功能兼容、异常情况下不影响 MCP 返回、存储用量上限（每目标调用最多2条诊断日志）。尤其测试 `jsonrpc.id` 不需回显、不作为全局唯一会话标识。
+
+**E3（下一版另行审批发布后）**：仅使用合成不存在 key 的只读 recall 和非隐私 `session_context(include_core=false)` 做一次明确动作→同请求 ID 的事件合并，再核对真实输出只含 allowlist 字段。**不做 include_core=true 的真实私人内容穿越测试**，除非柳柳另外同意明确的 E3 范围；也不声称已经修复宿主安全判断。
+
+**备选方案 B（不推荐）**：只按时间窗口把 3 条 `POST /mcp` 归到最近操作，或暴露全部 raw `source` 自行推断——前者不可靠，后者暴露敏感日志/用户数据。也不建议增加一套独立 tracing 服务或数据库，仅为个人项目补追踪。
+
+**唯一需柳柳验收的设计点**：是否同意 A —— 只给 `memory(recall|history)` / `session_context` / `session_bootstrap` 加最多2条固定枚举诊断事件，复用 CF requestId/traceId 并在现有只读 `cloudflare_logs_query` 里呈现；不读取/返回用户参数正文、秘密、私人 Core。柳柳当前的「好」允许做方案，不等于已经批准埋点代码、增加日志用量或正式发布。
 ### 2026-11-06 · v6.48.0 正式发布 / Worker #542 / HTTP 与 cron E3 通过
 
 - **授权**：柳柳在收到 v6.48.0 开发 E1/E2 207/207、版本作用、8次提交净5文件、Cloudflare 自动部署与 v6.47.0 回滚基线之后回复「好」，明确逐版本批准 PR/main/Worker。原先原型「好」只属于开发许可；这次才是单独的生产发布授权。
