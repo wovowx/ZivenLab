@@ -1,5 +1,14 @@
 # ZivenLab CHANGELOG（文档仓 · 知识快照）
 
+## [docs-2026.11.06-v6.43.0-released] - 2026-11-06
+
+- 柳柳明确批准发布 v6.43.0。PR [#330](https://github.com/wovowx/mcp-memory/pull/330) merged=true；main SHA `47adb695596d8f92583e8008a841573a42735c87`；Cloudflare Worker #536 / deployment `49f982fe` / version hash `2ee00f2a`，`verify_main=VERIFIED`。
+- 发布包含 Memory Retrieval 四态可靠性与16条合成质量基准、Memory Type 写入/历史快照兼容、Session Core Context v0.2。候选 premerge SHA `53f5921cce26cc924c7fdfae150c5d5ba3954c6e` / run `42155245174` SUCCESS；PR run `42155466618`、main run `42155780680`、dev sync run `42155780772` SUCCESS。
+- 生产未修改 Supabase skills registry、DB Schema、真实记忆或业务数据；未触及聊天室/唤醒、密钥、Operit 卡或 Pages。Pages workflow run `42155780600` 是既有冻结流程的 setup failure，不影响 Worker #536 验证部署。
+- `mcp-memory/dev/CROSS-HOST-BRIDGE.md` 追加发布闭环与 merge-helper 405 误报教训，Bridge commit `15a477df577c2382c29eaa0fa3ead8f4663db887` / run `42156449688` SUCCESS；dev 相对 main ahead1/behind0，仅 Bridge 文档差异。
+- ZivenLab/dev 同步 Roadmap v1.49、整体架构 v1.27、详细设计 v2.5、差距矩阵 v4.65、导航 v3.79、当前项目状态 version181。
+- 服务端发布/部署 CLOSED；真实 `session_context(include_core=true)` endpoint E3、ChatGPT/Operit 实际正文接收、自动首轮/冷启动、工作/相处双重行为验收仍 NOT RUN/NOT VERIFIED。下一步先规划 ChatGPT 只读宿主 E3 并取得单独授权；Operit 暂不消耗付费 Token。
+
 ## [docs-2026.11.06-l2-core-v02-dev-implemented] - 2026-11-06
 
 - 柳柳验收 L2 Core v0.2 技术原型并授权仅在 `mcp-memory/dev` 实施与隔离 E1/E2。现有 `session_context` 增加 optional `include_core:boolean`，默认 false；显式 true 才返回 CORE-0.2 五个权威来源完整块。Bootstrap/Context 共用单次五源快照，当前检查点完整提取并排除历史，24,000 Unicode code points 完整块预算与降级/只读边界已实现。
