@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.59）
+# 整体架构重构总控（Roadmap · v1.60）
 
-> **版本**：v1.59 · 2026-11-06  
+> **版本**：v1.60 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：mcp-memory **v6.45.0** 已经柳柳逐版本批准、PR [#332](https://github.com/wovowx/mcp-memory/pull/332) merged；合并时 `main=dev=4a9aef4a7d164a1a62aab340fe7a1efde1b96505`；当前 dev 因发布交接追加 `CROSS-HOST-BRIDGE.md`，dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3`、ahead1/behind0，CI `42171338479` SUCCESS；Cloudflare Worker **#538** / deployment `86cfeb29` / version `dbd870f9`，`verify_main=VERIFIED`。PR CI `42170743743`、main CI `42170815687`、dev CI `42170817732` SUCCESS。**L4 Archive v0.1 的底层历史阅读、合法 history action Schema、四态证据/缺口展示均已正式发布；服务端 E1/E2+部署 CLOSED，但 ChatGPT/Operit 宿主历史查询 E3 NOT VERIFIED**，需检查插件工具列表是否已包含 `history`，必要时由柳柳手动刷新后合法验收。M1 完整 Core 宿主调用仍 BLOCKED_BY_HOST_SAFETY/NOT VERIFIED，不能把默认摘要 READY 视为完整恢复。未修改生产记忆/Schema/skills 注册表、聊天室/唤醒。**当前优先 P0：M1/L4 宿主安全拦截的请求级证据定位**。柳柳指出仅改动后的 `history`/完整 Core 被挡；已控制实测同一虚构 key 的 `memory(recall)` 正常返回未找到，而 `memory(history)` 先前被宿主安全拦截；`session_context(false)` READY。源码 `tools/list` 尚未提供 annotations、`memory` 混合读写并有 usage 打点，但 Tool 级缺省标注不能单独解释按 action 分化。**根因尚未确定；缺 Cloudflare Workers Live 请求日志**。详细诊断及候选 A/B 见 `governance/记忆层存量归位规范.md` v2.12 §3.4.4。L5 轻量只读映射暂缓，未获实施授权；未改 mcp-memory 代码、生产环境或数据库。
+> **当前状态**：mcp-memory v6.45.0 仍为正式生产版，PR #332/main `4a9aef4a7d164a1a62aab340fe7a1efde1b96505` / Worker #538 deployment `86cfeb29` `verify_main=VERIFIED`；dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3` 仅比 main 多 Bridge 交接，未获新版本发布许可。**M1/L4 安全拦截最近一次合成 E3 控制观察更新**：柳柳已手动刷新 ChatGPT 插件，`history` action 合法可见；先前合成 `memory(history)` 被宿主安全检查拦截，但 2026-11-06 后来同一虚构 key 的 `recall` 与 `history` 均成功，`history_status=EMPTY`。柳柳 Cloudflare Live 页面截图可见 `POST` 与 `Ok`，但缺请求 correlation ID、旧拦截发生时的请求级日志，**无法证明过去拦截的具体原因**。真实私人 Archive/完整 Core 宿主 E3 仍 NOT VERIFIED/BLOCKED。**当前工具化方向**：柳柳同意优先让哥哥自己读取 Cloudflare 请求日志，不再依赖人工截图；Cloudflare Observability 已有 REST telemetry query API，可复用现有 `CLOUDFLARE_API_TOKEN` 和 `CLOUDFLARE_ACCOUNT_ID` 认证，不应暴露广域 `cf_proxy`。**只读日志查询 v0.1 原型 CANDIDATE 待最终接口/权限验收，未编码**；当前 Cloudflare Token 是否具备 `Workers Observability Write` 权限、Workers Logs 持久化是否启用均未验证。L5 记忆体检暂缓；严格不动生产 DB、真实记忆、聊天室/唤醒、密钥、main 或 Worker 配置。
 > **分支范围**：本次 PR #332 基线 main v6.44.0 `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`、候选 dev `4b072768a304e19342c7e085b1408da3708bde43`，ahead12/behind0、净10文件；rebase merged=true / state=closed，合并时 mcp-memory/main=dev `4a9aef4a7d164a1a62aab340fe7a1efde1b96505`（v6.45.0，compare identical）；之后仅 dev 追加 Bridge 交接，当前 mcp-memory/main `4a9aef4a...`、dev `d9ca4abea75761026c49764fad9ef57b63fb0ed3`，ahead1/behind0，净差异仅 `CROSS-HOST-BRIDGE.md`，dev CI `42171338479` SUCCESS。Worker #538 VERIFIED；上一版回退参考 v6.44.0 SHA `5eb7b9d7...` / Worker #537 / deployment `47fac1be`。后续仅治理或 Bridge 文档更新不得误写成再次上线；如 dev 再追加文档，须重新核对分支和 CI。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -172,6 +172,34 @@
 
 ## 5. 当前主线与下一步
 
+### 2026-11-06 · Cloudflare 日志自查能力 v0.1：需求与可验收原型（CANDIDATE）
+
+**需求由来/授权**：柳柳明确指出哥哥已有 Cloudflare Worker 环境变量中的 API Token 与 `cf_proxy` 机制，不应反复要求她打开 Live 页面、截图；她随后回复「ok」同意**向工具化方向推进**。技术原型细节还未由柳柳单独验收，因此这里只定候选方案，不修改 MCP 代码、注册表、Token 权限、生产部署和主分支。
+
+**现有事实（2026-11-06，按源码与官方文档核对）**：
+- `mcp-memory/src/tools/cf_proxy.js` 已实现 Worker `env[token_var]` 注入 Cloudflare Bearer Token 和 `CLOUDFLARE_ACCOUNT_ID`；但目前 ChatGPT Ziven MCP 公共工具列表**没有** `cf_proxy`。现有 `cloudflare_build_logs`/`cloudflare_deploy_logs` 只查构建/部署；不能伪称能读取请求 Live Tail。`cf_proxy` 允许 GET/POST/PATCH/PUT/DELETE 任意路径，**不应为了查看日志直接把全权代理公开给 ChatGPT**。
+- Cloudflare 官方 Worker Observability REST API：`POST /client/v4/accounts/{account_id}/workers/observability/telemetry/query`。这是**提交查询的 HTTP POST，不代表修改 Worker/日志配置**；但其 API 文档列出的 Token 权限为 `Workers Observability Write`。现有 Token 是否具备未知；不可擅自创建/提升权限。文档：https://developers.cloudflare.com/api/resources/workers/subresources/observability/subresources/telemetry/methods/query/。
+- Cloudflare Workers Logs 存储查询与实时 Live Tail **不是同一能力**。柳柳截图证明 Live Stream 已连接、可看到 POST/Ok，但不能证明历史日志已持久化；`wrangler.toml` 现未声明 `[observability] enabled=true`，Dashboard 是否另外启用仍 UNKNOWN。官方：https://developers.cloudflare.com/workers/observability/query-builder/。
+- 后续合成测试 `memory(action=recall)` / `memory(action=history)` 对同一个不存在的 key 均返回正常业务结果（后者 `history_status=EMPTY`），Cloudflare Live 有同时间 POST/Ok；先前 OpenAI 安全拦截并非必然重现。**当前不应急着修改历史记忆工具。**
+
+**原型 A（推荐）：在原子 CF 认证 / 受限 HTTP 请求能力上新增场景级 `cloudflare_logs_query` 工具**。内部复用凭据取得机制，不暴露 Token 值或接受任意路径/方法，绝不扩展 `cf_proxy` 对外权限。
+
+调用形态（仅示意，非实际已注册工具）：
+```json
+{ "tool": "cloudflare_logs_query", "args": { "minutes": 15, "limit": 20, "status_filter": "all" } }
+```
+
+**行为合同**：
+1. `minutes` 默认 15、最大 60；`limit` 默认 20、上限 50；`status_filter` 仅 `all|error`。首版只查询 Worker `mcp-memory`，由服务端固定 Cloudflare account 与 Worker 名，不允许用户提供 endpoint、token_var、HTTP method 或任意 SQL。
+2. 只提交 Cloudflare 官方已定义的**临时查询**，不保存/删除查询配置、不更改 Worker 的日志开关、不修改日志、不建存储。若调用链需要允许查询 API 的 POST，则固定 URL 与固定 Body schema，且 JSON 构造由代码完成，不接收任意原始查询对象。
+3. 返回仅允许：`timestamp`、`method`、经过归一化且剥离查询参数的 `path`、`statusCode`、`outcome`、`traceId`（若存在）、`worker`、`coverage/sampled` 元信息。请求体/响应正文、Cookie、Auth Header、完整 URL 查询串、Worker secrets、日志 `source` 原文一律**不返回**。
+4. 结果四态：`OK` 有事件、`EMPTY` 本次查询明确为空、`UNAVAILABLE` 日志存储未启用/Token 缺权限/账号不支持、`ERROR` API/网络/结构不符合合同。**EMPTY 不能解释为某一次 MCP 请求绝对没有到 Worker**，必须结合采样、时间窗口与成功请求控制记录判定。
+5. 工具在 MCP 层准确描述只读目标：若确实无业务写、无技能 usage 打点，可标 `readOnlyHint:true, destructiveHint:false, openWorldHint:false`；注意 Cloudflare API Token 仍可能在服务端具备写权限，**只读来自固定不可变调用路径和输出约束**，不能混淆权限。
+6. 先合成 Mock E1/E2 验证正确参数、权限被拒、无日志、时间窗、脱敏和网络失败；取得柳柳技术原型验收后才能 dev 编码。真实 E3 要先验证 Worker 已存储 Logs、Token 已有查询权限；如果缺权限必须另报柳柳批准，不擅自修改设置/Token。独立发布版本须按既定发布单另行批准。
+
+**方案 B（不推荐）**：直接把旧 `cf_proxy` 全功能工具向 ChatGPT 公开，让调用者自己拼 URL/HTTP 方法。虽然初次编码少，但工具能够操作账号/隧道/DNS，权限过宽，且每次要手工构造查询；违背基本能力原子化、场景完整编排、可复用与真实最小权限。只保留原 `cf_proxy` 用于原来明确授权的运维用途。
+
+**选型结论**：推荐 A；复用 CF 认证原子能力而不是新造身份认证；查询端点只读语义、暴露面最小；首版不做真正 Live WebSocket 流，先查已存储的近 15 分钟请求，待实际不能满足排障时才讨论单独 Live Tail 场景。设计与生产发布授权分离。
 ### 2026-11-06 · M1/L4 新增宿主拦截定点排查（先取证，不动代码）
 
 柳柳指出「别的方法正常，只有修改的方法被拦」，要求先查本次改动。新 A/B 控制：相同合成不存在 key 的 `memory(recall)` 正常返回「没有找到」，先前 `memory(history)` 被平台安全检查拒绝；`session_context(include_core=false)` 仍 READY，而 include_core=true 历史上被拒。插件新 enum 已出现 history，Worker #538 VERIFIED。源码已证明 `tools/list` 没有 annotations、`memory` 混合读写且成功调用可能增加 usage 计数；OpenAI/MCP 文档要求只给真正无副作用工具 `readOnlyHint:true`。但**相同 Tool 级描述下不同 action 的结果不同**，因此不能把单一 annotations 缺失当确定根因。
