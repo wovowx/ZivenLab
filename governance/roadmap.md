@@ -1,9 +1,9 @@
-# 整体架构重构总控（Roadmap · v1.53）
+# 整体架构重构总控（Roadmap · v1.54）
 
-> **版本**：v1.53 · 2026-11-06  
+> **版本**：v1.54 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态**：mcp-memory **v6.44.0** 已获柳柳逐版本批准并经 PR [#331](https://github.com/wovowx/mcp-memory/pull/331) 合并，main/dev `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`（identical），Worker **#537** / deployment `47fac1be` / version `e134a4fd`，Cloudflare `verify_main=VERIFIED`；PR CI `42167240171`、main CI `42167335040`、dev CI `42167337075` 全 SUCCESS。L3 Reflection v0.1 纯函数/只读候选预览/35项隔离合同已发布，但不含自动反思或自动写 Memory/Skill/Workflow，真实学习效果 E3 NOT VERIFIED。M1 的完整私人 Core 宿主调用依然 BLOCKED_BY_HOST_SAFETY / NOT VERIFIED，请求是否到 Worker UNKNOWN；此前默认工作摘要 E3 通过不等于完整 Core 通过。未修改生产数据库 Schema/业务记忆、聊天室/唤醒/密钥或 Operit。**下一步 L4 Archive v0.1 原型已完成候选设计**（`governance/记忆层存量归位规范.md` v2.8 §3.4.1）：推荐复用历史 Repository/现有 `memory(history)` handler 并补公开 Schema；此项尚须柳柳确认，不准先编码/发布。
-> **分支范围**：当前 mcp-memory/main = mcp-memory/dev = `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`（v6.44.0 正式版），compare `identical` / ahead0/behind0；合并前净差异9文件，dev 候选 `b641eee92d29aff049815844046466021fb89580` / Actions `42164563730` SUCCESS。PR #331 `head=dev/base=main`、rebaseable=true、合并后 `merged=true/state=closed`。Worker #537 VERIFIED；上版回退基线 v6.43.0 `47adb695...` / Worker #536。ZivenLab 治理文档仅 dev 更新，不代表再次发布 mcp-memory。
+> **当前状态**：mcp-memory **v6.44.0** 已获柳柳逐版本批准并经 PR [#331](https://github.com/wovowx/mcp-memory/pull/331) 合并，合并时 main/dev `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`（identical）；随后仅 dev 追加 Bridge 交接，当前 dev `acfe1ee92b42d3b5912e49d3544155ef45c361a7`，main...dev ahead1/behind0，仅 `CROSS-HOST-BRIDGE.md`，Worker **#537** / deployment `47fac1be` / version `e134a4fd`，Cloudflare `verify_main=VERIFIED`；PR CI `42167240171`、main CI `42167335040`、dev CI `42167337075` 全 SUCCESS。L3 Reflection v0.1 纯函数/只读候选预览/35项隔离合同已发布，但不含自动反思或自动写 Memory/Skill/Workflow，真实学习效果 E3 NOT VERIFIED。M1 的完整私人 Core 宿主调用依然 BLOCKED_BY_HOST_SAFETY / NOT VERIFIED，请求是否到 Worker UNKNOWN；此前默认工作摘要 E3 通过不等于完整 Core 通过。未修改生产数据库 Schema/业务记忆、聊天室/唤醒/密钥或 Operit。**下一步 L4 Archive v0.1 原型已完成候选设计**（`governance/记忆层存量归位规范.md` v2.8 §3.4.1）：推荐复用历史 Repository/现有 `memory(history)` handler 并补公开 Schema；此项尚须柳柳确认，不准先编码/发布。
+> **分支范围**：mcp-memory/main = `5eb7b9d76fe85d4a5fdbd0c3279a70b6f0dd23be`（v6.44.0/Worker #537 VERIFIED）；mcp-memory/dev = `acfe1ee92b42d3b5912e49d3544155ef45c361a7`（Bridge-only handoff），main...dev `ahead1/behind0`，仅 `CROSS-HOST-BRIDGE.md` 一个文件；Bridge HEAD CI `42168157087` SUCCESS。PR #331 合并时 main/dev 完全一致且已验证。新 dev 提交不代表新版本/新 Worker 部署，不能未经许可再次发布。回退对照上版 v6.43.0 `47adb695...` / Worker #536。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
 
