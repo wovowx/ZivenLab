@@ -1,8 +1,8 @@
-# 整体架构重构总控（Roadmap · v1.68）
+# 整体架构重构总控（Roadmap · v1.69）
 
-> **版本**：v1.68 · 2026-11-06  
+> **版本**：v1.69 · 2026-11-06  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前状态（2026-11-06）**：**v6.47.0 Workers Logs 持久化已按柳柳明确批准正式发布并通过真实 E3**。PR [#334](https://github.com/wovowx/mcp-memory/pull/334) dev→main，经 rebase 合并，GitHub 独立确认 `merged=true/state=closed`；合并时 main=dev=`bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82` / ahead0/behind0，之后仅 dev 追加跨宿主 Bridge 文档，最新 dev `8f86d073f4a57e581af47348a09d970afb7e6b3c` / CI `42185091752` SUCCESS，相对 main ahead1/behind0、净差异只有 `CROSS-HOST-BRIDGE.md`，package v6.47.0。PR CI `42184550315`、main CI `42184635365`、dev CI `42184638419` 均 SUCCESS；Cloudflare **Worker #541** / deployment `42551af3` / version `94a1675f`，`cloudflare_deploy_status(verify_main=true)=VERIFIED`。生产已显式启用 `[observability] enabled=true` / `[observability.logs] invocation_logs=true, head_sampling_rate=1`（100%采样，保留/用量按 Cloudflare 计划）。**真实日志 E3 成功取得事件**：在一次不存在的合成 key `memory(recall)` 控制请求之后，`cloudflare_logs_query(15min,20,all)` 第一次返回 `OK`、1条，第二次返回 `OK`、3条，事件包含 UTC 时间戳及非敏感 trace_id；说明权限/存储/工具查询链路已可用。**剩余限制**：脱敏结果中 `method/path/status_code` 仍为 null、`outcome=unknown`，尚不能直接归因具体 MCP action；请求日志未与合成 recall 精确关联，旧 OpenAI 安全拦截原因仍 UNKNOWN。M1 完整私人 Core 宿主 E3 受阻独立 OPEN；L5 记忆体检暂缓。没有修改真实业务记忆、数据库、Secrets、技能注册表、暂停聊天室/唤醒。
+> **当前状态（2026-11-06）**：**v6.47.0 Workers Logs 持久化已按柳柳明确批准正式发布并通过真实 E3**。PR [#334](https://github.com/wovowx/mcp-memory/pull/334) dev→main，经 rebase 合并，GitHub 独立确认 `merged=true/state=closed`；合并时 main=dev=`bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82` / ahead0/behind0，之后仅 dev 追加跨宿主 Bridge 文档，最新 dev `8f86d073f4a57e581af47348a09d970afb7e6b3c` / CI `42185091752` SUCCESS，相对 main ahead1/behind0、净差异只有 `CROSS-HOST-BRIDGE.md`，package v6.47.0。PR CI `42184550315`、main CI `42184635365`、dev CI `42184638419` 均 SUCCESS；Cloudflare **Worker #541** / deployment `42551af3` / version `94a1675f`，`cloudflare_deploy_status(verify_main=true)=VERIFIED`。生产已显式启用 `[observability] enabled=true` / `[observability.logs] invocation_logs=true, head_sampling_rate=1`（100%采样，保留/用量按 Cloudflare 计划）。**真实日志 E3 成功取得事件**：在一次不存在的合成 key `memory(recall)` 控制请求之后，`cloudflare_logs_query(15min,20,all)` 第一次返回 `OK`、1条，第二次返回 `OK`、3条，事件包含 UTC 时间戳及非敏感 trace_id；说明权限/存储/工具查询链路已可用。**剩余限制**：脱敏结果中 `method/path/status_code` 仍为 null、`outcome=unknown`，尚不能直接归因具体 MCP action；请求日志未与合成 recall 精确关联，旧 OpenAI 安全拦截原因仍 UNKNOWN。M1 完整私人 Core 宿主 E3 受阻独立 OPEN；L5 记忆体检暂缓。没有修改真实业务记忆、数据库、Secrets、技能注册表、暂停聊天室/唤醒。 **下一项仅在设计阶段**：v0.1 日志诊断字段映射已按官方 Observability schema 和当前 `sanitizeLogEvent` 做候选原型（先区分 HTTP/cron/runtime_log，再从安全的 `$metadata.trigger/url` 或 `$workers.event.request` 填充 method/path；缺 HTTP status 不猜 200；输出仅白名单加 event_kind）；柳柳此前回复「好」仅表示继续推进调查，尚未验收此具体原型，**未编码、未新增发布授权**。
 > **分支范围**：本版发布输入 main `2c94f0444ee5d56c39739beca73abd7496921610`（v6.46.0 / Worker #540）与 dev `36057a0234f37281d20e2ca1ac10840964ef5848`（v6.47.0），ahead6/behind0，净5文件 `CHANGELOG.md`、`CROSS-HOST-BRIDGE.md`、`package.json`、`tests/router_registry_contract_test.mjs`、`wrangler.toml`。PR #334 `changed_files=5` / mergeable clean / rebaseable true，PR CI `42184550315` SUCCESS；rebase 后 main=dev=`bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82`、compare identical，main/dev post-merge CI `42184635365`/`42184638419` SUCCESS，Worker #541 `42551af3` VERIFIED。发布后 dev 已追加 Bridge-only 交接，当前 main=`bedaa2b2dd0e71a3a52cc43af9b4b906ed253a82`，dev=`8f86d073f4a57e581af47348a09d970afb7e6b3c`；main...dev ahead1/behind0，差异仅 `CROSS-HOST-BRIDGE.md`，最新 CI `42185091752` SUCCESS。Bridge-only 交接不是新生产部署，不触发额外 main 合并。
 > **权威边界**：本文件不取代目标蓝图、实现地图、差距矩阵、云端身份根或云端当前工作检查点，也不复制这些来源的全文。  
 > **阅读规则**：第 0–6 节是当前有效总控；第 7 节完整保留重组前原文，仅用于追溯，里面的“当前/进行中/下一步”均是历史时间点表述，不激活任务。
@@ -172,6 +172,34 @@
 
 ## 5. 当前主线与下一步
 
+### 2026-11-06 · Workers Logs 诊断字段映射 v0.1：只读解析原型（CANDIDATE，未编码）
+
+**需求/授权状态**：柳柳在 v6.47.0 成功发布后回复「好」，同意**继续调查日志方法/路径/状态码为 null 的诊断缺口**；此回复并不等于对尚未展示的具体映射与下一版发布单的批准。本节是以官方 schema 和线上脱敏结果为证据的**候选原型**，先讨论验收、后修改 dev，不准直接改 main/Worker/Token/采样率/保留策略。
+
+**证据**：
+- v6.47.0 / Worker #541 的 `cloudflare_logs_query` E3 两次从持久化 API 返回 `OK`、分别1和3个 event，安全 trace_id 和时间戳正常，`method/path/status_code` 全为 `null`、`outcome=unknown`。现有 `src/tools/cf_proxy.js:sanitizeLogEvent` 从 `$metadata.method` 或顶层 `request.method`、`$metadata.url` 或顶层 `request.url`、`$metadata.statusCode` 或顶层 `response.status` 取值。**未观察过真实原始事件结构，不得断言何处存在合法值**。
+- 官方 Observability Telemetry Query API 规定 `$metadata.trigger`（如 `GET /users`、`POST /orders`）、`$metadata.url` 和可选 `$metadata.statusCode`；`$metadata.type`（`cf-worker-event` / `cf-worker-log`）；可选 `$workers.eventType`（`fetch`/`scheduled`/`cron` 等）、`$workers.event`（对象）、`$workers.outcome`。`source` 是原始 payload，可能包含用户数据；本能力不读取/返回其内容。官方：https://developers.cloudflare.com/api/resources/workers/subresources/observability/subresources/telemetry/methods/query/。
+- 当前 `wrangler.toml` 有 `crons = ["* * * * *"]` 每分钟触发，不可把查询结果中的所有 event 当成 HTTP 请求。缺少 HTTP 字段可能本来就是 `scheduled`、`cf-worker-log` 等事件的**正常情况**，而非解析错误。
+
+**场景原型 A（推荐）：只调整现有 `sanitizeLogEvent` 的白名单映射，不新增工具/云端调用/数据库表/权限。**
+1. 首先从 `$workers.eventType` 和 `$metadata.type`、`$metadata.trigger` 的已知枚举识别 `event_kind`：`http|scheduled|runtime_log|other|unknown`。若证据冲突或不充分，返回 `unknown`；不要猜。
+2. 只有确认 HTTP 类型，才按固定优先级识别 `method`：原 `$metadata.method` → `$workers.event.request.method` → 顶层 `request.method` → **严格锚定** `$metadata.trigger` 的 `GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS + 空格 + 路径`。各值逐一使用 `logMethod` 允许列表检查；来源不合法继续尝试下一个。
+3. `path`：`$metadata.url` → `$workers.event.request.url` → 顶层 `request.url` → 严格解析 `$metadata.trigger`；**只准 `/mcp` 或 `/`**，任何域名/查询串/任意路径/用户标识均不返回。发生交叉字段冲突时宁可留空或标注不确定，不制造可能误导的事件关联。
+4. `status_code`：只从**官方明确的 HTTP 状态字段** `$metadata.statusCode`（或经过证明的同义字段）提取 100–599 整数；缺失保留 `null`，**不得用 Worker `outcome=ok` 假装 HTTP 200**，也不得扫描原始 `source` 推测。
+5. `outcome`：明确区分 Cloudflare Worker runtime 的 `ok/exception` 与 HTTP 响应状态。可将 `$workers.outcome` 经严格枚举映射到 `ok|error|unknown`，并将 HTTP `status_code>=500` 或明确 `spanStatus=error` 等作为错误依据；未知不得根据没有报错就宣布 ok。
+6. 保持已有 tools/list/Schema、时间窗口、固定 Worker、token 注入、`dry:true` API、限量与只读注解不变。输出只允许既有白名单字段加**一个** `event_kind` 枚举；不暴露 `$workers.event`、`source`、日志原文、headers、body、Auth、完整 URL、动态结构字段列表。旧客户端省略新字段仍兼容。
+
+**预期示意（完全合成，不是线上返回证据）**：
+```json
+{ "timestamp": "2026-11-06T08:10:00.000Z", "worker": "mcp-memory", "event_kind": "http", "method": "POST", "path": "/mcp", "status_code": 200, "outcome": "ok", "trace_id": "synthetic-123" }
+```
+若是计划任务：`event_kind=scheduled`、`method/path/status_code=null`，不伪造 `POST /mcp`。
+
+**验收合同**：E1 只改 `src/tools/cf_proxy.js` 和现有 `tests/router_registry_contract_test.mjs`，不新增依赖或日志查询工具；E2 至少覆盖 HTTP/cron/runtime_log/未知、合法 `$metadata.trigger`、`$workers.event.request`、缺 status、冲突值、恶意查询串/源正文/headers/令牌、跨 Worker fail-closed、旧 event fixture 兼容和全套 CI。E3 在获另版授权部署后，仅用合成不存在 key 的合法 recall 作对照、随后只读查询并观察事件类型和字段非空率；**无请求级关联 ID 就不宣布定位了某次工具调用**。
+
+**替代方案 B（不推荐）**：直接返回 Cloudflare 原始 `source` / `$workers.event` 让模型自行分析，诊断方便但可能泄露 URL 参数、请求正文、Authorization、私人记忆或异常文本，并扩大宿主可见数据，违背此前脱敏契约。
+
+**待柳柳验收的唯一设计选择**：推荐 A 的「先区分 event_kind，再做白名单字段映射；缺字段诚实返回 null」，通过后才能开始 dev 编码与合成测试，独立版本发布仍需另行审批。**没有任何新的生产更改。**
 ### 2026-11-06 · v6.47.0 正式发布 + Workers Logs E3 真实读取成功
 
 - **授权与版本意义**：柳柳看过 v6.47.0 在 dev 的完整配置/Mock E1/E2、100% 请求采样、日志留存及 Cloudflare 用量/潜在费用、可能重新部署 Worker、回滚基线 v6.46.0 后明确回复「好」，授权本版 PR/main/Cloudflare 自动部署。此授权不扩展到其他 Cloudflare 配置/Token/后续版本。
