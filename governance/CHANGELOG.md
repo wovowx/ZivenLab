@@ -4,7 +4,7 @@
 
 - 柳柳验收 L2 Core v0.2 技术原型并授权仅在 `mcp-memory/dev` 实施与隔离 E1/E2。现有 `session_context` 增加 optional `include_core:boolean`，默认 false；显式 true 才返回 CORE-0.2 五个权威来源完整块。Bootstrap/Context 共用单次五源快照，当前检查点完整提取并排除历史，24,000 Unicode code points 完整块预算与降级/只读边界已实现。
 - 精确代码/测试 SHA `6411d4f17ecdee338b4cb214636f7bf1220c2940` / Actions run `42146323527` SUCCESS；E1 `npm run check` PASS；Session Bootstrap + Context + Core 56/56。Bridge-only HEAD `6f6b79a5ff2e3ede52b207e137826167a3d29986` / run `42147292641` SUCCESS。
-- 同步整体架构 v1.26、Roadmap v1.48、详细设计 v2.4、驾驶舱 version180、差距矩阵 v4.64、导航 v3.78、现状架构与 Bridge。mcp-memory/dev package candidate v6.43.0；main 仍 v6.41.0 / Worker #535。无 PR/main/部署/Worker E3；ChatGPT/Operit 宿主接收、冷启动与工作/相处双重行为验收仍未验证。
+- 同步整体架构 v1.26、Roadmap v1.48、详细设计 v2.4、最终需求 v0.5、驾驶舱 version180、差距矩阵 v4.64、导航 v3.78、现状架构与 Bridge。mcp-memory/dev package candidate v6.43.0；main 仍 v6.41.0 / Worker #535。无 PR/main/部署/Worker E3；ChatGPT/Operit 宿主接收、冷启动与工作/相处双重行为验收仍未验证。
 
 ## [docs-2026.11.06-core-v02-dual-continuity] - 2026-11-06
 
