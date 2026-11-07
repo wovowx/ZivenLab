@@ -9,6 +9,14 @@
 > **上一状态快照（2026-11-07 · v1.93）**：**柳柳已回复「好」批准 L3 v0.2 最小原型 dev 施工：把 ChatGPT 宿主先错选通用 GitHub 连接器遇 403、随后改用可用的 Ziven MCP github_edit 成功的真实教训变成路径选择、证据记录与五场景回归；先文档再 dev，严禁把文本规则当宿主硬拦截或把 E1/E2 冒充新框 E3。** 此次批准不含 main/Worker 部署、不含真实记忆/数据库写入；完成后独立报告可验证事实。
 > **上一状态快照（2026-11-07 · v1.92）**：**柳柳纠偏并回复 yes 确认：「向外界主动学习」应是 Ziven「一本书架构」每个重要切片在设计前的常规必经工序，不能误改成单独优先开发 S0 神游项目。** **主线顺序**：M1 冷启动/工作与相处双连续性低成本验收（显式五源 READY 已完成，自动恢复仍未验证）→ L3 可追溯纠错与真实学习闭环 → Web 文字家园 → 经需求原型验收后的语音/动画/陪看/小游戏。**当前 next_action**：对 L3 进行问题导向的外部技术借鉴，比较 Ziven 已有的事件账本、四层逻辑记忆、learning CI 与外部成熟实现，产出可复用/可借鉴/不采纳对照及可验收方案；重大变更先讨论，文档先行再 dev 实施。不重审全仓、不因看到新框架就重构。S0 已创建的 ChatGPT 定时任务作为旁路独立体验实验保留，等待真正无人触发 E3，但**不阻塞 L3**，手动试跑不能冒充自动成功。未授权不改云端私密记忆、生产、Secrets、main 或聊天室。
 
+### M1 v0.1 · Operit 原生前置自动恢复最小适配器（2026-11-07 柳柳回复「ok」批准 dev 施工）
+
+- **业务目标**：Operit 里属于 Ziven 的新聊天，在第一轮模型回答前由 ToolPkg `before_send_to_model` 自动尝试恢复；不要求柳柳手动输入唤醒词或手动激活 MCP。复用已上线 `ziven_mcp.session_context(include_core=false)` 和 `ziven_mcp.memory(recall, key=🧬/我是谁)`，只读验证身份根及唯一工作检查点，严格只在经核实的 Ziven 角色卡 chatId 生效。
+- **官方技术边界**：Operit ToolPkg API 1.0.0 支持异步 `registerPromptFinalizeHook`，但 MCP 文本结果超过 5000 字符会截断；当前五源 `include_core=true` 约 22k 字符，**不可**当作本 v0.1 完整身份/相处恢复。真机版本、前置 Hook、MCP 自激活、时延与首轮模型实际接收仍属 E3 待验。不得把 `invocation=startup_hook` 参数本身当作验证证据。
+- **获批原型 A**：先开发独立 ToolPkg（非 Worker 路由改造），`CHAT` + 精确角色卡范围→轻量当前状态 READY 与来源字段验证→身份根 exact recall 验证→注入工作状态和来源锚点；网络/截断/来源错/超时或非 Ziven 会话 fail-closed，保留宿主原生 prompt，不冒充云端恢复成功。单 chat 定时缓存并校验版本，重复执行不复制提示词。设计草案 `M1-Operit-AutoBoot-RFC-v01.md`；外部主要参照 Operit 官方 `TOOLPKG_FORMAT_GUIDE.md`、`toolpkg.d.ts`、`MCPToolExecutor.kt`。
+- **本次授权和证据**：只在 `mcp-memory/dev` 提交安装前的适配器源码、说明和合成 E1/E2；更新本 Roadmap 与 Bridge；**不写 main、不发布 Worker、不改数据库/密钥/聊天室/Operit 手机/角色卡、不要求柳柳耗 Operit API token**。真实 E3 安装与一轮首答证据须之后单独安排；完整五源 B 需重新讨论，不能由本次 A 自动扩权。
+- **优先级**：这是架构 M1 跨宿主连续性切片；Web 文字家园待架构确认后再做。220 MB Operit 历史聊天导出作为后续可选本地筛选、压缩、分段的素材，**不作为 M1 施工或验证前置条件**，原文件不入公开 GitHub。
+
 ### L3 v0.2「工具选择纠错→下次行为验证」最小施工契约（2026-11-07 · 柳柳回复「好」批准）
 
 - **真实失败**：对 ZivenLab/dev 已有文档进行更新时，误先选宿主通用 GitHub 连接器，返回 `403 Resource not accessible by integration`；同宿主仍实际可调用 Ziven MCP 的 `github_read/github_edit`，经 `github_use_guide`、`dry_run`、写入和回读后成功。因此是**工具能力选择错误**，不能将某一连接器 403 推成整个 GitHub 无权限，也不要求柳柳重复调权限。
