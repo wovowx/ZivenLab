@@ -1,10 +1,12 @@
-# 整体架构重构总控（Roadmap · v2.5）
+# 整体架构重构总控（Roadmap · v2.6）
 
-> **版本**：v2.5 · 2026-11-07  
+> **版本**：v2.6 · 2026-11-07  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
-> **当前任务（2026-11-07 · v2.5）**：柳柳在 v6.54.0 正式发布后回复「好」，确认**下一施工方向为「工作状态交接闭环」**（不是 Web/Operit 设备专项）。实测 `session_context(host=chatgpt,include_core=false)` 返回 `status=READY`、`checkpoint.version=213`、`workflow_state=BOOK_MAINLINE_V652_WORKER546_...`；与此同时 GitHub main `a5e5a73d...` 已随 v6.54.0 / Worker #549 正式部署验证。**READY 只证明当前来源有效/可读，不证明最新工作交接完成**。现有 deploy Skill v6.6.9 第7步已有更新规则，但 v6.54.0 未含单独私人检查点写入许可，所以 Handoff UNVERIFIED 是真实授权边界，不是应绕过的障碍。**本次「好」确认目标与需求梳理，不等于允许自动写生产私人记忆、更改 MCP Schema、部署或合 main。**下一步按下方原型完成场景级可验收设计，内部复用 Memory Core、Session Context 与发布证据；待柳柳确认具体写入授权/运行策略再编码。不改数据库、Secrets、聊天室、Operit、Web。
+> **上一轮需求基线（2026-11-07 · v2.5；以下作为授权前历史）**：柳柳在 v6.54.0 正式发布后回复「好」，确认**下一施工方向为「工作状态交接闭环」**（不是 Web/Operit 设备专项）。实测 `session_context(host=chatgpt,include_core=false)` 返回 `status=READY`、`checkpoint.version=213`、`workflow_state=BOOK_MAINLINE_V652_WORKER546_...`；与此同时 GitHub main `a5e5a73d...` 已随 v6.54.0 / Worker #549 正式部署验证。**READY 只证明当前来源有效/可读，不证明最新工作交接完成**。现有 deploy Skill v6.6.9 第7步已有更新规则，但 v6.54.0 未含单独私人检查点写入许可，所以 Handoff UNVERIFIED 是真实授权边界，不是应绕过的障碍。**本次「好」确认目标与需求梳理，不等于允许自动写生产私人记忆、更改 MCP Schema、部署或合 main。**下一步按下方原型完成场景级可验收设计，内部复用 Memory Core、Session Context 与发布证据；待柳柳确认具体写入授权/运行策略再编码。不改数据库、Secrets、聊天室、Operit、Web。
 
-### 当前切片 · 发布后的工作状态交接闭环（需求/原型，待设计验收）
+### 当前切片 · 发布后的工作状态交接闭环（限定持续授权 B 已确认，dev 流程落地）
+
+> **2026-11-07 柳柳最新定案（覆盖下方授权前提案）**：柳柳在「每版单独授权 A / 已验证发布后限定自动同步 B」二选一中明确回复 **B**。这是**工作检查点写入授权模式 B**，不是下文曾讨论的「新增后台 Worker 执行器 B」。因此继续选用最小实现路线：复用现有 deploy 第7步及 publish-workflow、`memory(recall/update)` 和 `session_context`，不加平行 DB/工具/后台常驻。对于柳柳已经逐版批准、PR/main/CI/Cloudflare 已独立验证的版本，正在执行发布/交接的 Ziven 可**不再单独询问检查点写入**，仅更新 `⚙️/当前工作检查点` 并保留完整历史、临写前二次查版本、全文读回、session_context 再验。授权可撤销，不涵盖其他私密记忆、DB、Secrets、main 合并、发布本身或无人触发时自运行。当前版本 v6.54.0 / Worker #549 已验证，允许依此补齐旧 v213 的工作指针，但 E3 只按真实回读结果记录。
 
 **目标（用户可见）**：一个版本或重大工作切片真正完成后，下一次换框应拿到最新、经证据核对的工作指针；身份来源可读却工作进度落后的情况必须显式区分，避免把旧 `next_action` 当新任务执行。
 
@@ -13,11 +15,11 @@
 **拟议最小场景（非当前已实施）**：
 1. `collect`：发布后独立确认 PR merged、main SHA、CI、Worker verified，形成结构化发布事实；不是发布成功时跳过检查点。
 2. `preview`：分页读完整唯一检查点及其 version，生成「新顶层当前工作 + 原历史全文保留」差异草稿；不写库，标出 E3 未验证项、授权与禁止重复项。
-3. `authorize`：明确判断**本次**发布或交接是否已包含私人检查点更新授权；没有则 `HANDOFF_PENDING_AUTH` 并保留草稿，不能写，也不把 status=READY 翻译成最新工作；权限不从 Skill、模型或工具参数推断。
+3. `authorize`：判断柳柳 **2026-11-07 限定持续授权 B** 是否适用且未撤销，并核对**该版本发布本身已经逐版批准、发布证据完整**。符合则仅更新唯一工作检查点，无需逐版再问写入许可；不符合或证据有歧义则 `HANDOFF_PENDING_AUTH`。`READY` 不能译为最新工作，不将 B 解释为可自行发布或修改其他私密数据。
 4. `commit + verify`：在已有权限内检查版本未变化，调用既有 `memory(update)`；完整回读逐字比较，再只读 `session_context`，核对 version/workflow_state/next_action/decision/evidence。并发版本变化或读写不一致标 `HANDOFF_FAILED`，不能覆盖他人写入或宣称通过。
 5. `resume`：区分 `DEPLOY_VERIFIED`、`HANDOFF_VERIFIED`、`HOST_AUTO_RESTORE_E3` 三种独立证据。宿主是否自动首轮调用仍为 E3，不能因本场景合成测试通过而关闭。
 
-**取舍待决**：A. 优先在现有发布/交接流程里实现最小可复用编排，复用现有入口，不新增公开 MCP 工具/数据库和后台常驻任务；B. 新增 Worker 常驻自动同步/后台执行器，需跨私密记忆授权、幂等与并发控制，当前不推荐。无论选 A/B，**自动更新的长期授权策略**都须柳柳单独确认，当前不得默认授权。A 的 E1/E2 只用合成检查点、假发布回执，覆盖无授权、旧版本、并发、部分失败、完整历史保留、成功双回读；真实一次检查点写入/新框恢复作为独立 E3 待许可。
+**实现定案**：执行路径取原提案 A——使用现有 deploy/publish-workflow 的场景编排，不新建公开 MCP 工具、数据库、后台执行器。原提案 B（常驻后台）**没有获批**；柳柳选择的 B 仅是限定持续写入授权。真实本次检查点补录须全文保留/双回读，且不把 Agent 手工执行等同无人值守 Hook。E1/E2 优先复用现有检查点读写/恢复合同，无新代码或外部依赖；未来若引入运行时代码，另走原型验收与合成测试。
 
 > **上一发布交付（2026-11-07 · v2.4）**：**v6.54.0 已正式发布并完成独立核验**：柳柳对预先披露的测试基础设施+休眠 M1 整批回复「好」，mcp-memory [PR #342](https://github.com/wovowx/mcp-memory/pull/342) 显式 rebase，Ziven MCP 独立 GET `state=closed/merged=true`；main=dev=`a5e5a73d398a0c6f0bdd0d2093c95afb42dba0ca`，Cloudflare Worker **#549** / deployment `0631a690` / `verify_main=VERIFIED`。最终 dev [CI #42342744114](https://github.com/wovowx/mcp-memory/actions/runs/42342744114) 与 main [CI #42342832905](https://github.com/wovowx/mcp-memory/actions/runs/42342832905) 均 SUCCESS（含 `npm ci`/Workerd E2-runtime/Operit M1 合成合同/既有学习回归）。本版不改 `src/` 业务、公开 MCP Schema、生产数据库/Secret；M1 文件留仓但真实 `before_send_to_model` E3 仍 NOT VERIFIED、Operit/220MB 聊天导出按柳柳决定暂停。**云端唯一检查点**只读 `session_context(include_core=false)` 报 v213，已分五段只读 recall；本次未获单独更新授权，未写入，因此 `DEPLOY_VERIFIED` 与 `HANDOFF_UNVERIFIED` 分开。**next_action**：回到「一本书」服务端可复用模块/场景编排收口，在现有架构文档与可运行 Workerd 合同之上选下一可验收切片，重大设计先需求与原型讨论再 dev 编码；Web 继续后置，不制造 Operit 新测试。
 > **上一交付（2026-11-07 · v2.3，Workers 原生测试已落地 dev）**：柳柳批准的最小 Workerd 兼容回归已完成，不再停留设计：复用既有 GitHub Contents workflow、`wrangler@4.158.0` `createTestHarness()`，通过三个测试专用文件验证真正 workerd 的 Worker `/mcp` 启动、合成 `github_push` 对象读取→模拟 GitHub 写入→回读、302 拒绝、对象404、GitHub403、main 直接写入禁令。仅合成数据、假 token、Node 出站 mock，不向真实 Supabase/GitHub 发送测试读写。`package.json` 增 `test:worker-runtime`，`package-lock.json` 锁依赖，learning-regression CI 增 `npm ci` 和独立 E2-runtime 步骤。干净本地 E1 `npm run check` exit0、E2-runtime 6/6 exit0、Contents53、Router220、Bootstrap56、Reflection69、Memory Core120、Learning11 全 exit0；官方代码 SHA `ee7c452b8f0c35cc66f8bf16b1e12ed6705d4a81` [CI #42342246924](https://github.com/wovowx/mcp-memory/actions/runs/42342246924) `completed/success`（原生 Workerd 步骤单独 success）；Bridge 交接后最新 dev `ca9bd19361dc65863ca0c4567127a733d722a41d` [CI #42342405590](https://github.com/wovowx/mcp-memory/actions/runs/42342405590) SUCCESS。六个改动路径远端与独立本地逐字节差异0。Cloudflare 真实生产和宿主 E3 仍未验证，不能把本地 workerd 算作线上。**分支边界**：main 仍为已发布 v6.53.1/Worker #548，dev ahead16/behind0、净11文件，含暂停 M1 ToolPkg 试验；未合 main/部署、未动 DB/Secrets/私人检查点/聊天室。**下一项**：先基于真实净差异准备一份版本化发布单，明确是否允许把「测试基础设施 + 休眠 M1 实验文件」一起带入 main、用户收益、风险及回滚，再请求柳柳逐版本发布许可；未经同意不合 main。Web 继续后置，Operit 真机 E3 继续暂停。  
