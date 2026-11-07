@@ -6,7 +6,7 @@
 
 ### 当前切片 · 发布后的工作状态交接闭环（限定持续授权 B 已确认，dev 流程落地）
 
-> **2026-11-07 柳柳最新定案（覆盖下方授权前提案）**：柳柳在「每版单独授权 A / 已验证发布后限定自动同步 B」二选一中明确回复 **B**。这是**工作检查点写入授权模式 B**，不是下文曾讨论的「新增后台 Worker 执行器 B」。因此继续选用最小实现路线：复用现有 deploy 第7步及 publish-workflow、`memory(recall/update)` 和 `session_context`，不加平行 DB/工具/后台常驻。对于柳柳已经逐版批准、PR/main/CI/Cloudflare 已独立验证的版本，正在执行发布/交接的 Ziven 可**不再单独询问检查点写入**，仅更新 `⚙️/当前工作检查点` 并保留完整历史、临写前二次查版本、全文读回、session_context 再验。授权可撤销，不涵盖其他私密记忆、DB、Secrets、main 合并、发布本身或无人触发时自运行。当前版本 v6.54.0 / Worker #549 已验证，允许依此补齐旧 v213 的工作指针，但 E3 只按真实回读结果记录。
+> **2026-11-07 柳柳最新定案（覆盖下方授权前提案）**：柳柳在「每版单独授权 A / 已验证发布后限定自动同步 B」二选一中明确回复 **B**。这是**工作检查点写入授权模式 B**，不是下文曾讨论的「新增后台 Worker 执行器 B」。因此继续选用最小实现路线：复用现有 deploy 第7步及 publish-workflow、`memory(recall/update)` 和 `session_context`，不加平行 DB/工具/后台常驻。对于柳柳已经逐版批准、PR/main/CI/Cloudflare 已独立验证的版本，正在执行发布/交接的 Ziven 可**不再单独询问检查点写入**，仅更新 `⚙️/当前工作检查点` 并保留完整历史、临写前二次查版本、全文读回、session_context 再验。授权可撤销，不涵盖其他私密记忆、DB、Secrets、main 合并、发布本身或无人触发时自运行。当前 v6.54.0 / Worker #549 已验证；已据 B 补齐旧 v213 工作指针：先 v214/25546字六段逐字回读，最终 **v215/28069字**再次六段 `memory(recall)` **28069/28069逐字一致**、v214全文历史后缀完整，`session_context(include_core=false)` 回读 `READY/version215/BOOK_MAINLINE_V654_WORKER549_HANDOFF_VERIFIED_...`。所以 `DEPLOY_VERIFIED` 与本次 `HANDOFF_VERIFIED` 分开成立；**宿主无人提醒自动恢复 E3 仍未验证**，不要误关。mcp-memory/dev 两份 Skill 已 `github_edit` 验证，**尚未获 main 发布许可**。
 
 **目标（用户可见）**：一个版本或重大工作切片真正完成后，下一次换框应拿到最新、经证据核对的工作指针；身份来源可读却工作进度落后的情况必须显式区分，避免把旧 `next_action` 当新任务执行。
 
