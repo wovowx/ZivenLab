@@ -10,7 +10,7 @@
 
 **目标（用户可见）**：一个版本或重大工作切片真正完成后，下一次换框应拿到最新、经证据核对的工作指针；身份来源可读却工作进度落后的情况必须显式区分，避免把旧 `next_action` 当新任务执行。
 
-**已有复用**：`cloudflare_deploy_status(verify_main=true)` 与 PR/CI 提供发布证据；`memory(recall/update)` 是唯一检查点读写原子入口；`session_context(include_core=false)` 是独立恢复回读；`CROSS-HOST-BRIDGE.md`、Roadmap 是交接与开发事实，不是第二份私人工作检查点。deploy v6.6.9 已有第7步，不能再造平行存储或第二个恢复工具。
+**已有复用**：`cloudflare_deploy_status(verify_main=true)` 与 PR/CI 提供发布证据；`memory(recall/update)` 是唯一检查点读写原子入口；`session_context(include_core=false)` 是独立恢复回读；`CROSS-HOST-BRIDGE.md`、Roadmap 是交接与开发事实，不是第二份私人工作检查点。deploy 第7步在 main 现役 v6.6.9 已存在，dev 已按 B 增补到 v6.6.10 候选；不能再造平行存储或第二个恢复工具。
 
 **拟议最小场景（非当前已实施）**：
 1. `collect`：发布后独立确认 PR merged、main SHA、CI、Worker verified，形成结构化发布事实；不是发布成功时跳过检查点。
