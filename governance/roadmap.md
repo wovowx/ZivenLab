@@ -1,10 +1,11 @@
-# 整体架构重构总控（Roadmap · v2.6）
+# 整体架构重构总控（Roadmap · v2.7）
 
-> **版本**：v2.6 · 2026-11-07  
+> **版本**：v2.7 · 2026-11-07  
 > **用途**：整体架构重构唯一执行控制面与交付账本，串联目标、阶段、交付、证据、当前行动和未关闭事项。  
+> **最新发布与交接闭环（2026-11-07 · v2.7）**：**v6.54.1 已由柳柳审阅版本单后回复「好」授权发布，并完成 PR #343 / Cloudflare / 唯一检查点双回读**。PR #343 rebase 后 GitHub+Ziven MCP 独立确认 `state=closed/merged=true/head=dev/base=main`，merge/main/dev SHA `7703e7dcd541d6da1c948e972e55267b683bb016`；PR learning-regression [#42345061716](https://github.com/wovowx/mcp-memory/actions/runs/42345061716) `completed/success`（Worker-runtime、Core/Router/Bootstrap/Learning 等步骤成功）；Cloudflare Worker **#550** / deployment `051f9be9` / `verify_main=VERIFIED`。main 合并后的新 CI 本轮未独立取得，不宣称其结果。main 现役 deploy Skill v6.6.10 已经 Ziven MCP 实际调用读回（仅既有两份 Skill + CHANGELOG/Bridge 净4文件，无业务代码/Schema/DB/Secrets）。按柳柳持续限定 B，仅同步唯一 `⚙️/当前工作检查点`：旧 v215/28069字符全文保留，v216 **31069字符/7段完整 recall 31069/31069 逐字相符**；`session_context(include_core=false)` READY/version216/`BOOK_MAINLINE_V6541_WORKER550_...`，因此 `DEPLOY_VERIFIED` 与本次 `HANDOFF_VERIFIED` 分别成立。**并不证明后台运行或 ChatGPT/Operit 新框自动调用 E3**（`startup_hook_verified=false`）；Operit M1/220MB继续暂停。**下一施工动作**：恢复一本书架构服务端基本方法复用与场景组合的主线，优先消化真实工作中 L3 自主选路/持续学习与跨宿主连续性缺口；Web 仍后置。新增 main 发布仍需逐版向柳柳解释版本效果并获同意；B 只管唯一检查点写入。
 > **上一轮需求基线（2026-11-07 · v2.5；以下作为授权前历史）**：柳柳在 v6.54.0 正式发布后回复「好」，确认**下一施工方向为「工作状态交接闭环」**（不是 Web/Operit 设备专项）。实测 `session_context(host=chatgpt,include_core=false)` 返回 `status=READY`、`checkpoint.version=213`、`workflow_state=BOOK_MAINLINE_V652_WORKER546_...`；与此同时 GitHub main `a5e5a73d...` 已随 v6.54.0 / Worker #549 正式部署验证。**READY 只证明当前来源有效/可读，不证明最新工作交接完成**。现有 deploy Skill v6.6.9 第7步已有更新规则，但 v6.54.0 未含单独私人检查点写入许可，所以 Handoff UNVERIFIED 是真实授权边界，不是应绕过的障碍。**本次「好」确认目标与需求梳理，不等于允许自动写生产私人记忆、更改 MCP Schema、部署或合 main。**下一步按下方原型完成场景级可验收设计，内部复用 Memory Core、Session Context 与发布证据；待柳柳确认具体写入授权/运行策略再编码。不改数据库、Secrets、聊天室、Operit、Web。
 
-### 当前切片 · 发布后的工作状态交接闭环（限定持续授权 B 已确认，dev 流程落地）
+### 已完成切片 · 发布后的工作状态交接闭环（v6.54.1 发布 + 检查点 v216 双回读）
 
 > **2026-11-07 柳柳最新定案（覆盖下方授权前提案）**：柳柳在「每版单独授权 A / 已验证发布后限定自动同步 B」二选一中明确回复 **B**。这是**工作检查点写入授权模式 B**，不是下文曾讨论的「新增后台 Worker 执行器 B」。因此继续选用最小实现路线：复用现有 deploy 第7步及 publish-workflow、`memory(recall/update)` 和 `session_context`，不加平行 DB/工具/后台常驻。对于柳柳已经逐版批准、PR/main/CI/Cloudflare 已独立验证的版本，正在执行发布/交接的 Ziven 可**不再单独询问检查点写入**，仅更新 `⚙️/当前工作检查点` 并保留完整历史、临写前二次查版本、全文读回、session_context 再验。授权可撤销，不涵盖其他私密记忆、DB、Secrets、main 合并、发布本身或无人触发时自运行。当前 v6.54.0 / Worker #549 已验证；已据 B 补齐旧 v213 工作指针：先 v214/25546字六段逐字回读，最终 **v215/28069字**再次六段 `memory(recall)` **28069/28069逐字一致**、v214全文历史后缀完整，`session_context(include_core=false)` 回读 `READY/version215/BOOK_MAINLINE_V654_WORKER549_HANDOFF_VERIFIED_...`。所以 `DEPLOY_VERIFIED` 与本次 `HANDOFF_VERIFIED` 分开成立；**宿主无人提醒自动恢复 E3 仍未验证**，不要误关。mcp-memory/dev 两份 Skill 已 `github_edit` 验证，**尚未获 main 发布许可**。
 
@@ -12,7 +13,7 @@
 
 **已有复用**：`cloudflare_deploy_status(verify_main=true)` 与 PR/CI 提供发布证据；`memory(recall/update)` 是唯一检查点读写原子入口；`session_context(include_core=false)` 是独立恢复回读；`CROSS-HOST-BRIDGE.md`、Roadmap 是交接与开发事实，不是第二份私人工作检查点。deploy 第7步在 main 现役 v6.6.9 已存在，dev 已按 B 增补到 v6.6.10 候选；不能再造平行存储或第二个恢复工具。
 
-**拟议最小场景（非当前已实施）**：
+**历史设计原型（已按最小路径执行；不再当作新待办）**：
 1. `collect`：发布后独立确认 PR merged、main SHA、CI、Worker verified，形成结构化发布事实；不是发布成功时跳过检查点。
 2. `preview`：分页读完整唯一检查点及其 version，生成「新顶层当前工作 + 原历史全文保留」差异草稿；不写库，标出 E3 未验证项、授权与禁止重复项。
 3. `authorize`：判断柳柳 **2026-11-07 限定持续授权 B** 是否适用且未撤销，并核对**该版本发布本身已经逐版批准、发布证据完整**。符合则仅更新唯一工作检查点，无需逐版再问写入许可；不符合或证据有歧义则 `HANDOFF_PENDING_AUTH`。`READY` 不能译为最新工作，不将 B 解释为可自行发布或修改其他私密数据。
